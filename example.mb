@@ -1,0 +1,45 @@
+sector .config
+  extensions:
+    whitespace_remover 'on'
+    archiver 'off'
+
+  ; Sections in the .config sector beginning with platform_ are only parsed
+  ; if the platform name after the prefix matches the targeted platforms name
+  platform_linux:
+    platform_flags '-n @fpc_linux.cfg'
+
+  platform_macos:
+    platform_flags '-n @fpc_macos.cfg'
+
+  ; By default this is everything which is needed for a simple build file,
+  ; mb will automatically insert the appropriate flags for the build mode
+  ; (debug/release)
+  mariebuild:
+    name          'pasfetch'
+    compiler      'fpc'
+    src_dir       'src'
+    main_file     '$(src_dir)/$(name).pp'
+    std_flags     '-FE"$(OUT_DIR)" -Fu"$(INCLUDES)"
+    debug_flags   '-g -dDEBUG'
+    release_flags '-O4 -XX -Xs'
+    comp_cmd      '$(compiler) $(main_file) $(std_flags) $(mode_flags) $(platform_flags)
+
+; Every section in the .script sector will be ignored by extensions and
+; are callable as a target or from another section.
+sector .scripts
+  ; If a prepare script is written, it will be executed first thing before the
+  ; comp_cmd is executed
+  prepare:
+    !call clean
+
+  ; If a prepare script with the matching mode is found, it will be executed
+  ; after the general prepare script was executed/immediatly before compilation
+  ; prepare_debug:
+  ; prepare_release:
+
+  clean:
+    rm -rf $(OUT_DIR)
+    mkdir -p $(OUT_DIR)
+
+  install:
+    !source $(PLATFORM)_install.mb
