@@ -23,17 +23,20 @@ typedef struct mb_section {
   char     *name;
   int      section_type;
   char     *lines;
+  int      field_count;
   mb_field fields[];
 } mb_section;
 
 typedef struct mb_sector {
   char       *name;
+  int        section_count;
   mb_section sections[];
 } mb_sector;
 
 typedef struct mb_file {
   char      *path;
-  mb_sector sectors[];
+  int       sector_count;
+  mb_sector *sectors;
 } mb_file;
 
 int register_sector(struct mb_file* file, char *name);

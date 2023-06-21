@@ -32,6 +32,27 @@ char *trim_whitespace(char *str) {
 }
 
 int register_sector(struct mb_file* file, char *name) {
+  if (name == NULL) return MB_ERR_UNKNOWN;
+
+  // Check for duplicate sectors
+  for (int i = 0; i < file->sector_count; i++) {
+    if (strcmp(file->sectors[i].name, name) == 0) {
+      //return MB_PERR_DUPLICATE_SECTOR;
+    }
+  }
+
+  int wi = file->sector_count;
+  file->sector_count++;
+
+  if (file->sector_count == 1) {
+    file->sectors = malloc(sizeof(mb_sector));
+  } else {
+    file->sectors = realloc(file->sectors, 
+                            file->sector_count * sizeof(mb_sector));
+  }
+
+  file->sectors[wi].name = malloc(strlen(name));
+  strcpy(file->sectors[wi].name, name);
   return MB_OK;
 }
 
@@ -43,12 +64,12 @@ int parse_line(struct mb_file* file, char *line) {
   char *token = strtok(line, delimiter);
 
   while (token != NULL) {
-    if (strcmp(token, "sector")) {
-      int result = register_sector(file, strtok(NULL, delimiter));
-      if (result != MB_OK)
-        return result;
+    if (strcmp(token, "sector") == 0) {
+      token = strtok(NULL, delimiter);
 
-      continue;
+      int result = register_sector(file, token);
+      if (result != MB_OK)
+        return result; 
     }
 
     token = strtok(NULL, delimiter);
@@ -72,6 +93,8 @@ int parse_file(struct mb_file* build_file) {
   file = fopen(build_file->path, "r");
   if (file == NULL)
     return MB_SERR_MASK_ERRNO | errno;
+
+  build_file->sector_count = 0;
 
   while ((read = getline(&line, &len, file)) != -1) {
     int result = parse_line(build_file, line);
