@@ -16,7 +16,7 @@
 
 typedef struct mb_field {
   char *name;
-  char value[];
+  char *value;
 } mb_field;
 
 typedef struct mb_section {
@@ -24,13 +24,13 @@ typedef struct mb_section {
   int      section_type;
   char     *lines;
   int      field_count;
-  mb_field fields[];
+  mb_field *fields;
 } mb_section;
 
 typedef struct mb_sector {
   char       *name;
   int        section_count;
-  mb_section sections[];
+  mb_section *sections;
 } mb_sector;
 
 typedef struct mb_file {
@@ -38,6 +38,8 @@ typedef struct mb_file {
   int       sector_count;
   mb_sector *sectors;
 } mb_file;
+
+void free_build_file(mb_file* file);
 
 int register_sector(struct mb_file* file, char *name);
 
