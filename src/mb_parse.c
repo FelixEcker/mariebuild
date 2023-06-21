@@ -31,13 +31,37 @@ char *trim_whitespace(char *str) {
   return str;
 }
 
+/******** mb_parse.h ********/
+
+void free_build_file(mb_file* file) {
+  for (int i = 0; i < file->sector_count; i++) {
+    for (int j = 0; j < file->sectors[i].section_count; j++) {
+      for (int k = 0; k < file->sectors[i].sections[j].field_count; k++) {
+        free(file->sectors[i].sections[j].fields[k].name);
+        free(file->sectors[i].sections[j].fields[k].value);
+      }
+
+      free(file->sectors[i].sections[j].fields);
+      free(file->sectors[i].sections[j].name);
+      free(file->sectors[i].sections[j].lines);
+    }
+
+    free(file->sectors[i].sections);
+    free(file->sectors[i].name);
+  }
+
+  free(file->sectors);
+  free(file);
+}
+
 int register_sector(struct mb_file* file, char *name) {
   if (name == NULL) return MB_ERR_UNKNOWN;
+  printf("registered sector %s\n", name);
 
   // Check for duplicate sectors
   for (int i = 0; i < file->sector_count; i++) {
     if (strcmp(file->sectors[i].name, name) == 0) {
-      //return MB_PERR_DUPLICATE_SECTOR;
+      return MB_PERR_DUPLICATE_SECTOR;
     }
   }
 
@@ -51,7 +75,7 @@ int register_sector(struct mb_file* file, char *name) {
                             file->sector_count * sizeof(mb_sector));
   }
 
-  file->sectors[wi].name = malloc(strlen(name));
+  file->sectors[wi].name = malloc(strlen(name) + 1);
   strcpy(file->sectors[wi].name, name);
   return MB_OK;
 }
@@ -70,7 +94,7 @@ int parse_line(struct mb_file* file, char *line) {
       int result = register_sector(file, token);
       if (result != MB_OK)
         return result; 
-    }
+    } else if (strncmp(";", token, strlen(";")) == 0) break;
 
     token = strtok(NULL, delimiter);
   }
