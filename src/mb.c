@@ -1,3 +1,12 @@
+/*
+ * mariebuild: mb.c ; author: Marie Eckert
+ *
+ * Copyright (c) 2023, Marie Eckert
+ * Licensed under the BSD 3-Clause License
+ * <https://github.com/FelixEcker/mariebuild/blob/master/LICENSE>
+ */
+
+
 #include <stdlib.h>
 #include <stdio.h>
 
