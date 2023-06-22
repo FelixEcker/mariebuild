@@ -16,7 +16,8 @@
 
 extern int mb_logging_level;
 
-void mb_log(int level, char *msg, const char *fmt, ...);
+void mb_logf(int level, char *msg, const char *fmt, ...);
+void mb_log(int level, char *msg);
 char *errcode_msg(int err);
 
 int str_startswith(char *str, char *start);
