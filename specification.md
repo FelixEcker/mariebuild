@@ -89,6 +89,8 @@ quit
 mb <mode> <args>
 
 Arguments:
+    e exec
+        Execute a specific script from the build file
     c check
         Check if the given mb file is valid
     i in

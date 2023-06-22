@@ -16,11 +16,11 @@ int main() {
   if (result != 0) {
     // The error message and code have to be split since mb_log only accepts
     // strings for formatting at the moment.
-    mb_log(MB_LOGLVL_IMP, "Parsing failed: Line ", "");
+    mb_log(MB_LOGLVL_IMP, "Parsing failed: Line ");
     printf("%d\n", build_file->line);
-    mb_log(MB_LOGLVL_IMP, "Parsing failed: %s ", errcode_msg(result));
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s ", errcode_msg(result));
     printf("(0x%.8x)\n", result);
-    mb_log(MB_LOGLVL_IMP, "Aborting build...\n", "");
+    mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
     free_build_file(build_file);
     return result;
@@ -44,9 +44,15 @@ int main() {
     }
   }
 
-  result = mb_exec_build((*build_file));
+  struct mb_exec_params exec_params;
+  exec_params.exec_script = NULL;
+  exec_params.platform    = NULL;
+  exec_params.force       = 0;
+  exec_params.status      = 0;
+
+  result = mb_exec_build((*build_file), exec_params);
   if (result != 0) {
-    mb_log(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
+    mb_logf(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
     printf("(0x%.8x)\n", result);
   }
 
