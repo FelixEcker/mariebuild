@@ -26,5 +26,6 @@ int main() {
     return result;
   }
 
+  free_build_file(build_file);
   return 0;
 }
