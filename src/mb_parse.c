@@ -16,6 +16,8 @@
 #include <ctype.h>
 #include <string.h>
 
+const char *newline = "\n";
+
 /******** Local Utility Functions ********/
 
 /* Note: This function returns a pointer to a substring of the original string.
@@ -53,7 +55,8 @@ void free_build_file(mb_file* file) {
         free(file->sectors[i].sections[j].fields[k].value);
       }
 
-      free(file->sectors[i].sections[j].fields);
+      if (file->sectors[i].sections[j].field_count > 0)
+        free(file->sectors[i].sections[j].fields);
       free(file->sectors[i].sections[j].name);
       free(file->sectors[i].sections[j].lines);
     }
@@ -109,6 +112,7 @@ int register_section(struct mb_sector* sector, char *name) {
   }
 
   sector->sections[wi].field_count = 0;
+  sector->sections[wi].lines = malloc(1);
   sector->sections[wi].name = malloc(strlen(name) + 1);
   strcpy(sector->sections[wi].name, name);
 
@@ -157,7 +161,7 @@ int parse_line(struct mb_file* file, char *line) {
     } else if (strncmp(";", token, strlen(";")) == 0) break;
 
     if (str_endswith(token, ":") == 1)
-      register_section(&file->sectors[file->sector_count-1], token);
+      return register_section(&file->sectors[file->sector_count-1], token);
 
     if (file->sector_count == 0)
       return MB_PERR_INVALID_SYNTAX;
@@ -165,8 +169,46 @@ int parse_line(struct mb_file* file, char *line) {
     if (file->sectors[file->sector_count-1].section_count == 0)
       return MB_PERR_INVALID_SYNTAX;
 
-    mb_sector sector = file->sectors[file->sector_count-1];
-    mb_section section = sector.sections[sector.section_count-1];
+    mb_sector *sector = &file->sectors[file->sector_count-1];
+    mb_section *section = &sector->sections[sector->section_count-1];
+
+    int sector_type = strcmp(sector->name, ".config");
+
+    char *name = token;
+
+    token = strtok(NULL, delimiter);
+    if (token == NULL) {
+      // A singular token on a line in a section in the .config sector
+      // is invalid syntax, at it would be a field without a value
+      if (sector_type == 0)
+        return MB_PERR_INVALID_SYNTAX;
+    }
+
+    char *content = malloc(strlen(token) + 1);
+    strcpy(content, token);
+
+    token = strtok(NULL, delimiter);
+    while (token != NULL) {
+      content = realloc(content, strlen(content)+strlen(token)+2);
+      strcpy(content+strlen(content), delimiter);
+      strcpy(content+strlen(content), token);
+      token = strtok(NULL, delimiter);
+    }
+
+    if (sector_type == 0) {
+      register_field(section, name, content);
+    } else {
+      char *complete_content = malloc(strlen(name)+strlen(content)+3);
+      strcpy(complete_content, name);
+      strcpy(complete_content+strlen(complete_content), delimiter);
+      strcpy(complete_content+strlen(complete_content), content);
+      strcpy(complete_content+strlen(complete_content), newline);
+      printf("::: %s", complete_content);
+
+      free(complete_content);
+    }
+
+    free(content);
 
     token = strtok(NULL, delimiter);
   }
