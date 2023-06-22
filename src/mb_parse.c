@@ -1,3 +1,11 @@
+/* 
+ * mariebuild: mb_parse.c ; author: Marie Eckert
+ *
+ * Copyright (c) 2023, Marie Eckert
+ * Licensed under the BSD 3-Clause License
+ * <https://github.com/FelixEcker/mariebuild/blob/master/LICENSE>
+ */
+
 #include <mariebuild/mb_parse.h>
 
 #include <mariebuild/mb_utils.h>
@@ -7,6 +15,8 @@
 #include <errno.h>
 #include <ctype.h>
 #include <string.h>
+
+/******** Local Utility Functions ********/
 
 /* Note: This function returns a pointer to a substring of the original string.
  * If the given string was allocated dynamically, the caller must not overwrite
