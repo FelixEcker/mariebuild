@@ -42,6 +42,8 @@ typedef struct mb_file {
 void free_build_file(mb_file* file);
 
 int register_sector(struct mb_file* file, char *name);
+int register_section(struct mb_sector* sector, char *name);
+int register_field(struct mb_section* section, char *name, char *value);
 
 int parse_line(struct mb_file* file, char *line);
 int parse_file(struct mb_file* file);
