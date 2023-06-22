@@ -119,6 +119,26 @@ int register_section(struct mb_sector* sector, char *name) {
 int register_field(struct mb_section* section, char *name, char *value) {
   if (name == NULL || value == NULL) return MB_ERR_UNKNOWN;
 
+  // Check for duplicate fields
+  for (int i = 0; i < section->field_count; i++)
+    if (strcmp(section->fields[i].name, name) == 0)
+      return MB_PERR_DUPLICATE_FIELD;
+
+  int wi = section->field_count;
+  section->field_count++;
+
+  if (wi == 0) {
+    section->fields = malloc(sizeof(mb_field));
+  } else {
+    section->fields = realloc(section->fields, (wi+1) * sizeof(mb_field));
+  }
+
+  section->fields[wi].name = malloc(strlen(name) + 1);
+  strcpy(section->fields[wi].name, name);
+  section->fields[wi].value = malloc(strlen(value) + 1);
+  strcpy(section->fields[wi].value, value);
+
+  mb_log(MB_LOGLVL_LOW, "registered field %s\n", name); 
   return MB_OK;
 }
 
