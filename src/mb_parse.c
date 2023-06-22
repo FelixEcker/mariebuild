@@ -58,7 +58,9 @@ void free_build_file(mb_file* file) {
       if (file->sectors[i].sections[j].field_count > 0)
         free(file->sectors[i].sections[j].fields);
       free(file->sectors[i].sections[j].name);
-      free(file->sectors[i].sections[j].lines);
+
+      if (file->sectors[i].sections[j].lines != NULL)
+        free(file->sectors[i].sections[j].lines);
     }
 
     free(file->sectors[i].sections);
@@ -112,7 +114,7 @@ int register_section(struct mb_sector* sector, char *name) {
   }
 
   sector->sections[wi].field_count = 0;
-  sector->sections[wi].lines = malloc(1);
+  sector->sections[wi].lines = NULL;
   sector->sections[wi].name = malloc(strlen(name) + 1);
   strcpy(sector->sections[wi].name, name);
 
@@ -203,7 +205,16 @@ int parse_line(struct mb_file* file, char *line) {
       strcpy(complete_content+strlen(complete_content), delimiter);
       strcpy(complete_content+strlen(complete_content), content);
       strcpy(complete_content+strlen(complete_content), newline);
-      printf("::: %s", complete_content);
+
+      if (section->lines != NULL) {
+        section->lines = realloc(section->lines,
+                                 strlen(section->lines)+
+                                 strlen(complete_content)+1);
+        strcpy(section->lines+strlen(section->lines), complete_content);
+      } else {
+        section->lines = malloc(strlen(complete_content)+1);
+        strcpy(section->lines, complete_content);
+      }
 
       free(complete_content);
     }
