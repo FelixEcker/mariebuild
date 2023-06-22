@@ -22,8 +22,26 @@ platform_%s
 
 FIELDS
 
+fields
+    Required fields which holds all source files in a colon-seperated list.
+    Wildcarding with * is allowed.
+
+    If embedded into another field with the $() operator, the list is inserted
+    with space-seperation. Chars which come immediatly after the embed are
+    postfixed to every file.
+
+    Example:
+    $(files).o
+    = file1.o file2.o file3.o
+
+field
+    Simulated field which holds a file from files currently being compiled.
+
 comp_cmd
     Required field in which the compilation command is assembled
+
+finalize_cmd
+    Optional field which is called after every file passed comp_cmd
 
 SCRIPTS
 
@@ -82,6 +100,14 @@ stop
 quit
     Quit the instance of mb in which quit was called.
 ```
+
+## Proposal: Field Processing
+A fields contents can be processed with a few macros:
+* `<field>:'<string>'` Create a list of strings by seperating the contents of `<field>` by `<string>`
+* `$[<string1 (optional)<string list><string2 (optional)>]` Create a singular string from
+  `<stringlist>` with `<string1>` and `<string2>` being prefixed and postfixed to each element of
+  the list
+* `$(<field>)` Insert the contents of `<field>` into the current string
 
 ## mb command
 ### Usage
