@@ -26,6 +26,23 @@ int main() {
     return result;
   }
 
+  printf("==========================\n");
+  for (int i = 0; i < build_file->sector_count; i++) {
+    mb_sector sector = build_file->sectors[i];
+    printf("sector: %s\n", sector.name);
+    printf("sections:\n");
+    for (int j = 0; j < sector.section_count; j++) {
+      mb_section section = sector.sections[j];
+      printf("  section: %s\n", section.name);
+      printf("  lines: %s\n", section.lines);
+      printf("  fields:\n");
+      for (int k = 0; k < section.field_count; k++) {
+        mb_field field = section.fields[k];
+        printf("    name: %s\n", field.name);
+        printf("    value: %s\n", field.value);
+      }
+    }
+  }
   free_build_file(build_file);
   return 0;
 }
