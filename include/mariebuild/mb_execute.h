@@ -11,6 +11,12 @@
 
 #include <mariebuild/mb_parse.h>
 
+#define MB_STAGE_NONE        -1
+#define MB_STAGE_PREPARE      0
+#define MB_STAGE_PREPARE_MODE 1
+#define MB_STAGE_COMPILE      2
+#define MB_STAGE_FINALIZE     3
+
 typedef struct mb_exec_params {
   char *exec_script;
   char *platform;
@@ -18,7 +24,24 @@ typedef struct mb_exec_params {
   int  *status;
 } mb_exec_params;
 
-int mb_exec_script(struct mb_file* build_file, char *name, char *lines);
+/* Used to hold data of current build 
+ */
+typedef struct mb_build {
+  // File being compiled
+  char           *file;
+
+  int            stage;
+  struct mb_file build_file;
+} mb_build;
+
+int mb_exec_script(struct mb_build* build, char *name, char *lines);
+
+
+int mb_exec_prepare(struct mb_build* build);
+int mb_exec_prepare_mode(struct mb_build* build);
+int mb_exec_compile(struct mb_build* build);
+int mb_exec_finalize(struct mb_build* build);
+
 int mb_exec_build(struct mb_file build_file, 
                   struct mb_exec_params exec_params);
 
