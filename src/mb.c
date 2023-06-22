@@ -5,6 +5,27 @@
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
 
+void print_structure(struct mb_file* build_file) {
+  printf("\n==========================\n\n");
+  for (int i = 0; i < build_file->sector_count; i++) {
+    mb_sector sector = build_file->sectors[i];
+    printf("sector: %s\n", sector.name);
+    printf("sections:\n");
+    for (int j = 0; j < sector.section_count; j++) {
+      mb_section section = sector.sections[j];
+      printf("  section: %s\n", section.name);
+      printf("  lines: %s\n", section.lines);
+      printf("  fields:\n");
+      for (int k = 0; k < section.field_count; k++) {
+        mb_field field = section.fields[k];
+        printf("    name: %s\n", field.name);
+        printf("    value: %s\n", field.value);
+      }
+    }
+  }
+  printf("\n==========================\n");
+}
+
 int main() {
   struct mb_file* build_file = malloc(sizeof(mb_file));
   build_file->path = "./build.mb";
@@ -25,24 +46,8 @@ int main() {
     free_build_file(build_file);
     return result;
   }
-
-  printf("==========================\n");
-  for (int i = 0; i < build_file->sector_count; i++) {
-    mb_sector sector = build_file->sectors[i];
-    printf("sector: %s\n", sector.name);
-    printf("sections:\n");
-    for (int j = 0; j < sector.section_count; j++) {
-      mb_section section = sector.sections[j];
-      printf("  section: %s\n", section.name);
-      printf("  lines: %s\n", section.lines);
-      printf("  fields:\n");
-      for (int k = 0; k < section.field_count; k++) {
-        mb_field field = section.fields[k];
-        printf("    name: %s\n", field.name);
-        printf("    value: %s\n", field.value);
-      }
-    }
-  }
+  
+  print_structure(build_file);
 
   struct mb_exec_params exec_params;
   exec_params.exec_script = NULL;
@@ -55,7 +60,8 @@ int main() {
     mb_logf(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
     printf("(0x%.8x)\n", result);
   }
-
+  
+  mb_log(MB_LOGLVL_STD, "Build succeeded!\n");
   free_build_file(build_file);
   return result;
 }
