@@ -92,7 +92,7 @@ int register_sector(struct mb_file* file, char *name) {
   file->sectors[wi].name = malloc(strlen(name) + 1);
   strcpy(file->sectors[wi].name, name);
 
-  mb_log(MB_LOGLVL_LOW, "registered sector %s\n", name);
+  mb_logf(MB_LOGLVL_LOW, "registered sector %s\n", name);
   return MB_OK;
 }
 
@@ -118,7 +118,7 @@ int register_section(struct mb_sector* sector, char *name) {
   sector->sections[wi].name = malloc(strlen(name) + 1);
   strcpy(sector->sections[wi].name, name);
 
-  mb_log(MB_LOGLVL_LOW, "registered section %s\n", name);
+  mb_logf(MB_LOGLVL_LOW, "registered section %s\n", name);
   return MB_OK;
 }
 
@@ -144,7 +144,7 @@ int register_field(struct mb_section* section, char *name, char *value) {
   section->fields[wi].value = malloc(strlen(value) + 1);
   strcpy(section->fields[wi].value, value);
 
-  mb_log(MB_LOGLVL_LOW, "registered field %s\n", name);
+  mb_logf(MB_LOGLVL_LOW, "registered field %s\n", name);
   return MB_OK;
 }
 
