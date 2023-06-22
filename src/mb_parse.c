@@ -200,12 +200,14 @@ int parse_line(struct mb_file* file, char *line) {
     if (sector_type == 0) {
       register_field(section, name, content);
     } else {
+      // TODO: Potentially make this less cancerous
       char *complete_content = malloc(strlen(name)+strlen(content)+3);
       strcpy(complete_content, name);
       strcpy(complete_content+strlen(complete_content), delimiter);
       strcpy(complete_content+strlen(complete_content), content);
       strcpy(complete_content+strlen(complete_content), newline);
 
+      // Write content to section
       if (section->lines != NULL) {
         section->lines = realloc(section->lines,
                                  strlen(section->lines)+
