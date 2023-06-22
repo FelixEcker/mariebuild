@@ -1,4 +1,4 @@
-/* 
+/*
  * mariebuild: mb_utils.c ; author: Marie Eckert
  *
  * Copyright (c) 2023, Marie Eckert
@@ -7,6 +7,9 @@
  */
 
 #include <mariebuild/mb_utils.h>
+
+#include <mariebuild/mb_parse.h>
+#include <mariebuild/mb_execute.h>
 
 #include <stdio.h>
 #include <string.h>
@@ -28,6 +31,27 @@ void mb_log(int level, char *msg, const char* fmt, ...) {
 
   printf("%s ", level_prefix);
   printf(msg, fmt);
+}
+
+char *errcode_msg(int err) {
+  switch (err) {
+    case MB_ERR_UNKNOWN:
+      return "Unknown Error";
+    case MB_PERR_MISSING_REQUIRED:
+      return "Missing required section";
+    case MB_PERR_DUPLICATE_SECTION:
+      return "Duplicated section";
+    case MB_PERR_DUPLICATE_SECTOR:
+      return "Duplicated sector";
+    case MB_PERR_DUPLICATE_FIELD:
+      return "Duplicated field";
+    case MB_PERR_INVALID_IDENTIFIER:
+      return "Invalid identifier";
+    case MB_PERR_INVALID_SYNTAX:
+      return "Invalid syntax";
+    default:
+      return "Unknown Errorcode";
+  }
 }
 
 int str_startswith(char *str, char *start) {

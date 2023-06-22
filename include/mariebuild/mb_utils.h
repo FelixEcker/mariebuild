@@ -1,4 +1,4 @@
-/* 
+/*
  * mariebuild: mb_utils.h ; author: Marie Eckert
  *
  * Copyright (c) 2023, Marie Eckert
@@ -17,6 +17,7 @@
 extern int mb_logging_level;
 
 void mb_log(int level, char *msg, const char *fmt, ...);
+char *errcode_msg(int err);
 
 int str_startswith(char *str, char *start);
 int str_endswith(char *str, char *end);
