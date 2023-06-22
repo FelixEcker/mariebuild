@@ -43,6 +43,13 @@ int main() {
       }
     }
   }
+
+  result = mb_exec_build((*build_file));
+  if (result != 0) {
+    mb_log(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
+    printf("(0x%.8x)\n", result);
+  }
+
   free_build_file(build_file);
-  return 0;
+  return result;
 }
