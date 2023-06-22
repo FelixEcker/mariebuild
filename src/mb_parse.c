@@ -1,4 +1,4 @@
-/* 
+/*
  * mariebuild: mb_parse.c ; author: Marie Eckert
  *
  * Copyright (c) 2023, Marie Eckert
@@ -93,9 +93,9 @@ int register_sector(struct mb_file* file, char *name) {
 
 int register_section(struct mb_sector* sector, char *name) {
   if (name == NULL) return MB_ERR_UNKNOWN;
-  
+
   // Check for duplicate sections
-  for (int i = 0; i < sector->section_count; i++) 
+  for (int i = 0; i < sector->section_count; i++)
     if (strcmp(sector->sections[i].name, name) == 0)
       return MB_PERR_DUPLICATE_SECTION;
 
@@ -138,11 +138,11 @@ int register_field(struct mb_section* section, char *name, char *value) {
   section->fields[wi].value = malloc(strlen(value) + 1);
   strcpy(section->fields[wi].value, value);
 
-  mb_log(MB_LOGLVL_LOW, "registered field %s\n", name); 
+  mb_log(MB_LOGLVL_LOW, "registered field %s\n", name);
   return MB_OK;
 }
 
-/* Parses a single line. 
+/* Parses a single line.
  * */
 int parse_line(struct mb_file* file, char *line) {
   char delimiter[] = " ";
@@ -153,13 +153,20 @@ int parse_line(struct mb_file* file, char *line) {
     if (strcmp(token, "sector") == 0) {
       token = strtok(NULL, delimiter);
 
-      int result = register_sector(file, token);
-      if (result != MB_OK)
-        return result; 
+      return register_sector(file, token);
     } else if (strncmp(";", token, strlen(";")) == 0) break;
-    
+
     if (str_endswith(token, ":") == 1)
       register_section(&file->sectors[file->sector_count-1], token);
+
+    if (file->sector_count == 0)
+      return MB_PERR_INVALID_SYNTAX;
+
+    if (file->sectors[file->sector_count-1].section_count == 0)
+      return MB_PERR_INVALID_SYNTAX;
+
+    mb_sector sector = file->sectors[file->sector_count-1];
+    mb_section section = sector.sections[sector.section_count-1];
 
     token = strtok(NULL, delimiter);
   }
@@ -184,8 +191,10 @@ int parse_file(struct mb_file* build_file) {
     return MB_SERR_MASK_ERRNO | errno;
 
   build_file->sector_count = 0;
+  build_file->line = 0;
 
   while ((read = getline(&line, &len, file)) != -1) {
+    build_file->line++;
     int result = parse_line(build_file, line);
     if (result != MB_OK)
       return result;
