@@ -36,7 +36,7 @@ typedef struct mb_build {
 
 int mb_exec_script(struct mb_build* build, char *name, char *lines);
 
-
+/* Build Stage functions */
 int mb_exec_prepare(struct mb_build* build);
 int mb_exec_prepare_mode(struct mb_build* build);
 int mb_exec_compile(struct mb_build* build);
