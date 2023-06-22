@@ -1,4 +1,4 @@
-/* 
+/*
  * mariebuild: mb_parse.h ; author: Marie Eckert
  *
  * Copyright (c) 2023, Marie Eckert
@@ -44,6 +44,7 @@ typedef struct mb_sector {
 
 typedef struct mb_file {
   char      *path;
+  int       line;
   int       sector_count;
   mb_sector *sectors;
 } mb_file;
