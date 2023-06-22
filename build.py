@@ -4,6 +4,7 @@ source_dir = "src/"
 obj_dir = "out/"
 includes = "include/"
 sources = [
+            "mb_utils.c",
             "mb_parse.c",
             "mb_execute.c",
             "mb.c"
