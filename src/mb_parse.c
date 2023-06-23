@@ -23,8 +23,8 @@ const char *newline = "\n";
 /* Note: This function returns a pointer to a substring of the original string.
  * If the given string was allocated dynamically, the caller must not overwrite
  * that pointer with the returned value, since the original pointer must be
- * deallocated using the same allocator with which it was allocated.  The return
- * value must NOT be deallocated using free() etc.
+ * deallocated using the same allocator with which it was allocated.  
+ * The return value must NOT be deallocated using free() etc.
  * */
 char *trim_whitespace(char *str) {
   char *end;
@@ -351,8 +351,12 @@ mb_field *find_field(struct mb_file* file, char *path) {
   if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
     return NULL; 
 
-  sector_name = realloc(sector_name, strlen(sector_name)+strlen(section_name)+2);
-  mb_section *section = find_section(file ,strcat(strcat(sector_name, "/"), section_name));
+  sector_name = realloc(sector_name, 
+                        strlen(sector_name)+strlen(section_name)+2);
+  mb_section *section = find_section(file, 
+                                     strcat(strcat(sector_name, "/"), 
+                                            section_name)
+                                    );
 
   free(sector_name);
   free(section_name);
