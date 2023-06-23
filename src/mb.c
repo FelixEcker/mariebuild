@@ -68,9 +68,10 @@ int main() {
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
     printf("(0x%.8x)\n", result);
+  } else {
+    mb_log(MB_LOGLVL_STD, "Build succeeded!\n");
   }
-  
-  mb_log(MB_LOGLVL_STD, "Build succeeded!\n");
+
   free_build_file(build_file);
   return result;
 }
