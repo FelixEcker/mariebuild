@@ -269,23 +269,44 @@ int parse_file(struct mb_file* build_file) {
 
 /* Navigation Functions */
 
+/* NOTE: The returned string of this function has to be freed after usage!!!
+ */
 char *get_path_elem(char *path, int n_elem) {
   if (path == NULL) 
     return NULL;
 
-  char delimiter[] = "/";
-  char *pcpy = malloc(strlen(path)+1);
-  strcpy(pcpy, path);
-  char *elem = strtok(pcpy, delimiter);
+  char delimiter = '/';
 
+  // We do this atrocity of searching through the string since
+  // this is the only way I could reliably implement this func
+  // without having memory leaks or invalid free's
+  // If anyone can do this nicer without creating memory leaks
+  // or invalid free's, feel free to do so. I have wasted to
+  // much time on this function
+
+  int n = 0;
   int i = 0;
-  while (elem != NULL) {
-    if (i == n_elem) return elem;
-    elem = strtok(NULL, delimiter);
+  while (n < n_elem) {
+    if (i == strlen(path)) return NULL;
+    if (path[i] == delimiter) n++;
     i++;
   }
 
-  return elem;
+  // Get len
+  int len = 1;
+
+  while ((i+len) < strlen(path)) {
+    if (path[i+len] == delimiter) break;
+
+    len++;
+  }
+
+  char *end = "\0";
+  char *result = malloc(len+1);
+  memcpy(result, path+i, len);
+  memcpy(result+len, end, 1);
+
+  return result;
 }
 
 mb_sector *find_sector(struct mb_file* file, char *sector_name) {
@@ -304,15 +325,22 @@ mb_section *find_section(struct mb_file* file, char *path) {
     return NULL;
 
   mb_sector *sector = find_sector(file, sector_name);
+  free(sector_name);
 
-  if (sector == NULL)
+  if (sector == NULL) {
     return NULL;
+  }
 
-  for (int i = 0; i < sector->section_count; i++)
-    if (strcmp(sector->sections[i].name, section_name) == 0)
-      return &sector->sections[i];
+  mb_section *section = NULL;
+  for (int i = 0; i < sector->section_count; i++) {
+    if (strcmp(sector->sections[i].name, section_name) == 0) {
+      section = &sector->sections[i];
+      break;
+    }
+  }
 
-  return NULL;
+  free(section_name);
+  return section;
 }
 
 mb_field *find_field(struct mb_file* file, char *path) {
@@ -323,20 +351,26 @@ mb_field *find_field(struct mb_file* file, char *path) {
   if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
     return NULL; 
 
-  mb_section *section = find_section(
-                                     file, 
-                                     strcat(
-                                            strcat(sector_name, "/"), 
-                                                   section_name
-                                     )
-                        );
+  sector_name = realloc(sector_name, strlen(sector_name)+strlen(section_name)+2);
+  mb_section *section = find_section(file ,strcat(strcat(sector_name, "/"), section_name));
 
-  if (section == NULL)
+  free(sector_name);
+  free(section_name);
+  if (section == NULL) {
+    free(field_name);
     return NULL;
+  }
 
-  for (int i = 0; i < section->field_count; i++)
-    if (strcmp(section->fields[i].name, field_name) == 0)
-      return &section->fields[i];
+  mb_field *field = NULL;
 
-  return NULL;
+  for (int i = 0; i < section->field_count; i++) {
+    if (strcmp(section->fields[i].name, field_name) == 0) {
+      field = &section->fields[i];
+      break;
+    }
+  }
+  
+  free(field_name);
+
+  return field;
 }
