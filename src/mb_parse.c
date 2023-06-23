@@ -17,6 +17,7 @@
 #include <string.h>
 
 const char *newline = "\n";
+const char *str_terminator = "\0";
 
 /******** Local Utility Functions ********/
 
@@ -203,7 +204,12 @@ int parse_line(struct mb_file* file, char *line) {
     }
 
     if (sector_type == 0) {
-      register_field(section, name, content);
+      // TODO: Pontentially make this less cancerous
+      char *cleaned_content = malloc(strlen(content)-1);
+      memcpy(cleaned_content, content+1, strlen(content)-2);
+      memcpy(cleaned_content+strlen(content)-2, str_terminator, 1);
+      register_field(section, name, cleaned_content);
+      free(cleaned_content);
     } else {
       // TODO: Potentially make this less cancerous
       char *complete_content = malloc(strlen(name)+strlen(content)+3);
@@ -301,10 +307,9 @@ char *get_path_elem(char *path, int n_elem) {
     len++;
   }
 
-  char *end = "\0";
   char *result = malloc(len+1);
   memcpy(result, path+i, len);
-  memcpy(result+len, end, 1);
+  memcpy(result+len, str_terminator, 1);
 
   return result;
 }
