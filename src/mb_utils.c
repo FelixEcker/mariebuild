@@ -15,6 +15,7 @@
 #include <string.h>
 
 int mb_logging_level = MB_LOGLVL_LOW;
+char *mb_errtext = "";
 
 void mb_logf(int level, char *msg, const char* fmt, ...) {
   if (level < mb_logging_level)
@@ -37,6 +38,13 @@ void mb_log(int level, char *msg) {
   mb_logf(level, msg, "");
 }
 
+char *get_build_errtext() {
+  if (mb_errtext == NULL)
+    return "";
+
+  return mb_errtext;
+}
+
 char *errcode_msg(int err) {
   switch (err) {
     case MB_ERR_UNKNOWN:
@@ -53,6 +61,12 @@ char *errcode_msg(int err) {
       return "Invalid identifier";
     case MB_PERR_INVALID_SYNTAX:
       return "Invalid syntax";
+    case MB_BERR_MISSING_FILES:
+      return "Missing field .config/mariebuild/files";
+    case MB_BERR_MISSING_COMPCMD:
+      return "Missing field .confif/mariebuild/comp_cmd";
+    case MB_BERR_SCRIPT_ERROR:
+      return strcat("A script error occured:\n", get_build_errtext());
     default:
       return "Unknown Errorcode";
   }
