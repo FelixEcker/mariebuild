@@ -164,8 +164,11 @@ int parse_line(struct mb_file* file, char *line) {
       return register_sector(file, token);
     } else if (strncmp(";", token, strlen(";")) == 0) break;
 
-    if (str_endswith(token, ":") == 1)
+    if (str_endswith(token, ":") == 1) {
+      // Remov the colon at the end of the name
+      token[strlen(token)-1] = 0;
       return register_section(&file->sectors[file->sector_count-1], token);
+    }
 
     if (file->sector_count == 0)
       return MB_PERR_INVALID_SYNTAX;
@@ -266,20 +269,74 @@ int parse_file(struct mb_file* build_file) {
 
 /* Navigation Functions */
 
-mb_sector *find_sector(struct mb_file* file, char *sector_name) {
-  mb_sector *sector = NULL;
+char *get_path_elem(char *path, int n_elem) {
+  if (path == NULL) 
+    return NULL;
 
-  return sector;
+  char delimiter[] = "/";
+  char *pcpy = malloc(strlen(path)+1);
+  strcpy(pcpy, path);
+  char *elem = strtok(pcpy, delimiter);
+
+  int i = 0;
+  while (elem != NULL) {
+    if (i == n_elem) return elem;
+    elem = strtok(NULL, delimiter);
+    i++;
+  }
+
+  return elem;
+}
+
+mb_sector *find_sector(struct mb_file* file, char *sector_name) {
+  for (int i = 0; i < file->sector_count; i++)
+    if (strcmp(file->sectors[i].name, sector_name) == 0)
+      return &file->sectors[i];
+
+  return NULL;
 }
 
 mb_section *find_section(struct mb_file* file, char *path) {
-  mb_section *section = NULL;
+  char *sector_name = get_path_elem(path, 0);
+  char *section_name = get_path_elem(path, 1);
 
-  return section;
+  if ((sector_name == NULL) || (section_name == NULL))
+    return NULL;
+
+  mb_sector *sector = find_sector(file, sector_name);
+
+  if (sector == NULL)
+    return NULL;
+
+  for (int i = 0; i < sector->section_count; i++)
+    if (strcmp(sector->sections[i].name, section_name) == 0)
+      return &sector->sections[i];
+
+  return NULL;
 }
 
 mb_field *find_field(struct mb_file* file, char *path) {
-  mb_field *field = NULL;
+  char *sector_name = get_path_elem(path, 0);
+  char *section_name = get_path_elem(path, 1);
+  char *field_name = get_path_elem(path, 2);
+ 
+  if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
+    return NULL; 
 
-  return field;
+  mb_section *section = find_section(
+                                     file, 
+                                     strcat(
+                                            strcat(sector_name, "/"), 
+                                                   section_name
+                                     )
+                        );
+
+  if (section == NULL)
+    return NULL;
+
+  for (int i = 0; i < section->field_count; i++)
+    if (strcmp(section->fields[i].name, field_name) == 0)
+      return &section->fields[i];
+
+  return NULL;
 }
