@@ -71,6 +71,8 @@ void free_build_file(mb_file* file) {
   free(file);
 }
 
+/* Parsing Functions */
+
 int register_sector(struct mb_file* file, char *name) {
   if (name == NULL) return MB_ERR_UNKNOWN;
 
@@ -260,4 +262,24 @@ int parse_file(struct mb_file* build_file) {
     free(line);
 
   return MB_OK;
+}
+
+/* Navigation Functions */
+
+mb_sector *find_sector(struct mb_file* file, char *sector_name) {
+  mb_sector *sector = NULL;
+
+  return sector;
+}
+
+mb_section *find_section(struct mb_file* file, char *path) {
+  mb_section *section = NULL;
+
+  return section;
+}
+
+mb_field *find_field(struct mb_file* file, char *path) {
+  mb_field *field = NULL;
+
+  return field;
 }
