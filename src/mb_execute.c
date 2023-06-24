@@ -12,6 +12,7 @@
 #include <mariebuild/mb_parse.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 /******** mb_execute.h ********/
@@ -32,13 +33,33 @@ int mb_exec_prepare_mode(struct mb_build* build) {
 }
 
 int mb_exec_compile(struct mb_build* build) {
-  char bfile[] = ".config/mariebuild/files";
-  mb_field *f_files = find_field(&build->build_file, 
-                                 bfile);
+  char pfile[] = ".config/mariebuild/files";
+  mb_field *f_files = find_field(&build->build_file, pfile);
 
   if ((f_files == NULL) || (f_files->value == NULL))
     return MB_BERR_MISSING_FILES;
 
+  char *files_cpy = malloc(strlen(f_files->value)+1);
+  strcpy(files_cpy, f_files->value);
+  
+  char pcomp_cmd[] = ".config/mariebuild/comp_cmd";
+  mb_field *f_comp_cmd = find_field(&build->build_file, pcomp_cmd);
+
+  if ((f_comp_cmd == NULL) || (f_comp_cmd->value == NULL))
+    return MB_BERR_MISSING_COMPCMD;
+
+  mb_logf(MB_LOGLVL_LOW, "File List: %s\n", f_files->value);
+  char delim[] = ":";
+  char *file = strtok(files_cpy, delim);
+
+  while (file != NULL) {
+    build->file = file;
+    char *cmd = resolve_fields(build->build_file, f_comp_cmd->value);
+    mb_logf(MB_LOGLVL_STD, "%s\n", cmd);
+    file = strtok(NULL, delim);
+  }
+
+  free(files_cpy);
   return MB_OK;
 }
 

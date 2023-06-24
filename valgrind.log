@@ -1,0 +1,235 @@
+==1673== Memcheck, a memory error detector
+==1673== Copyright (C) 2002-2022, and GNU GPL'd, by Julian Seward et al.
+==1673== Using Valgrind-3.21.0 and LibVEX; rerun with -h for copyright info
+==1673== Command: ./mb
+==1673== Parent PID: 842
+==1673== 
+==1673== Invalid write of size 2
+==1673==    at 0x10A789: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc7 is 7 bytes inside a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x4847BE4: strcat (vg_replace_strmem.c:333)
+==1673==    by 0x10A7A0: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc8 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid write of size 1
+==1673==    at 0x4847BFC: strcat (vg_replace_strmem.c:333)
+==1673==    by 0x10A7A0: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc8 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid write of size 1
+==1673==    at 0x4847C0E: strcat (vg_replace_strmem.c:333)
+==1673==    by 0x10A7A0: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dd2 is 10 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x4847F34: __strlen_sse2 (vg_replace_strmem.c:503)
+==1673==    by 0x10A504: get_path_elem (mb_parse.c:289)
+==1673==    by 0x10A612: find_section (mb_parse.c:312)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc8 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x4847F34: __strlen_sse2 (vg_replace_strmem.c:503)
+==1673==    by 0x10A492: get_path_elem (mb_parse.c:281)
+==1673==    by 0x10A627: find_section (mb_parse.c:313)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc8 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x4847F34: __strlen_sse2 (vg_replace_strmem.c:503)
+==1673==    by 0x10A504: get_path_elem (mb_parse.c:289)
+==1673==    by 0x10A627: find_section (mb_parse.c:313)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc8 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x10A4E2: get_path_elem (mb_parse.c:290)
+==1673==    by 0x10A627: find_section (mb_parse.c:313)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc9 is 1 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 8
+==1673==    at 0x484932E: memcpy@GLIBC_2.2.5 (vg_replace_strmem.c:1136)
+==1673==    by 0x10A54D: get_path_elem (mb_parse.c:297)
+==1673==    by 0x10A627: find_section (mb_parse.c:313)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dc8 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 2
+==1673==    at 0x4849380: memcpy@GLIBC_2.2.5 (vg_replace_strmem.c:1136)
+==1673==    by 0x10A54D: get_path_elem (mb_parse.c:297)
+==1673==    by 0x10A627: find_section (mb_parse.c:313)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62dd0 is 8 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A924: mb_exec_compile (mb_execute.c:36)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid write of size 2
+==1673==    at 0x10A789: find_field (mb_parse.c:345)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62f57 is 7 bytes inside a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x4847BE4: strcat (vg_replace_strmem.c:333)
+==1673==    by 0x10A7A0: find_field (mb_parse.c:345)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62f58 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid write of size 1
+==1673==    at 0x4847BFC: strcat (vg_replace_strmem.c:333)
+==1673==    by 0x10A7A0: find_field (mb_parse.c:345)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62f58 is 0 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid write of size 1
+==1673==    at 0x4847C0E: strcat (vg_replace_strmem.c:333)
+==1673==    by 0x10A7A0: find_field (mb_parse.c:345)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62f62 is 10 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== Invalid read of size 1
+==1673==    at 0x10A4E2: get_path_elem (mb_parse.c:290)
+==1673==    by 0x10A627: find_section (mb_parse.c:313)
+==1673==    by 0x10A7B2: find_field (mb_parse.c:345)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673==  Address 0x4a62f59 is 1 bytes after a block of size 8 alloc'd
+==1673==    at 0x4841848: malloc (vg_replace_malloc.c:431)
+==1673==    by 0x10A527: get_path_elem (mb_parse.c:296)
+==1673==    by 0x10A725: find_field (mb_parse.c:338)
+==1673==    by 0x10A992: mb_exec_compile (mb_execute.c:42)
+==1673==    by 0x10AA25: mb_exec_build (mb_execute.c:63)
+==1673==    by 0x10AD9A: main (mb.c:67)
+==1673== 
+==1673== 
+==1673== HEAP SUMMARY:
+==1673==     in use at exit: 0 bytes in 0 blocks
+==1673==   total heap usage: 80 allocs, 80 frees, 10,952 bytes allocated
+==1673== 
+==1673== All heap blocks were freed -- no leaks are possible
+==1673== 
+==1673== For lists of detected and suppressed errors, rerun with: -s
+==1673== ERROR SUMMARY: 598 errors from 15 contexts (suppressed: 0 from 0)
