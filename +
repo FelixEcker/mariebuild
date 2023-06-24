@@ -17,15 +17,14 @@
 #include <string.h>
 
 const char *newline = "\n";
-const char *str_terminator = "\0";
 
 /******** Local Utility Functions ********/
 
 /* Note: This function returns a pointer to a substring of the original string.
  * If the given string was allocated dynamically, the caller must not overwrite
  * that pointer with the returned value, since the original pointer must be
- * deallocated using the same allocator with which it was allocated.  
- * The return value must NOT be deallocated using free() etc.
+ * deallocated using the same allocator with which it was allocated.  The return
+ * value must NOT be deallocated using free() etc.
  * */
 char *trim_whitespace(char *str) {
   char *end;
@@ -204,15 +203,8 @@ int parse_line(struct mb_file* file, char *line) {
     }
 
     if (sector_type == 0) {
-      // Gets rid of the quotation marks around the value
-      // TODO: Pontentially make this less cancerous
-      char *cleaned_content = malloc(strlen(content)-1);
-      memcpy(cleaned_content, content+1, strlen(content)-2);
-      memcpy(cleaned_content+strlen(content)-2, str_terminator, 1);
-      register_field(section, name, cleaned_content);
-      free(cleaned_content);
+      register_field(section, name, content);
     } else {
-      // Piece together the complete content
       // TODO: Potentially make this less cancerous
       char *complete_content = malloc(strlen(name)+strlen(content)+3);
       strcpy(complete_content, name);
@@ -277,43 +269,36 @@ int parse_file(struct mb_file* build_file) {
 
 /* Navigation Functions */
 
-/* NOTE: The returned string of this function has to be freed after usage!!!
- */
 char *get_path_elem(char *path, int n_elem) {
   if (path == NULL) 
     return NULL;
 
-  char delimiter = '/';
-
-  // We do this atrocity of searching through the string since
-  // this is the only way I could reliably implement this func
-  // without having memory leaks or invalid free's
-  // If anyone can do this nicer without creating memory leaks
-  // or invalid free's, feel free to do so. I have wasted to
-  // much time on this function
+  char delimiter[] = "/";
 
   int n = 0;
   int i = 0;
   while (n < n_elem) {
-    if (i == strlen(path)) return NULL;
+    if (i == strlen(path)) break;
     if (path[i] == delimiter) n++;
     i++;
   }
+  i++;
 
   // Get len
-  int len = 1;
+  int len = 0;
 
+  n = i;
   while ((i+len) < strlen(path)) {
     if (path[i+len] == delimiter) break;
 
     len++;
   }
 
+  char *end = 0;
   char *result = malloc(len+1);
-  memcpy(result, path+i, len);
-  memcpy(result+len, str_terminator, 1);
+  memcpy(result, path+i, len+1);
 
-  return result;
+  return NULL;
 }
 
 mb_sector *find_sector(struct mb_file* file, char *sector_name) {
@@ -332,7 +317,6 @@ mb_section *find_section(struct mb_file* file, char *path) {
     return NULL;
 
   mb_sector *sector = find_sector(file, sector_name);
-  free(sector_name);
 
   if (sector == NULL) {
     return NULL;
@@ -346,7 +330,6 @@ mb_section *find_section(struct mb_file* file, char *path) {
     }
   }
 
-  free(section_name);
   return section;
 }
 
@@ -358,15 +341,14 @@ mb_field *find_field(struct mb_file* file, char *path) {
   if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
     return NULL; 
 
-  sector_name = realloc(sector_name, 
-                        strlen(sector_name)+strlen(section_name)+2);
-  mb_section *section = find_section(file, 
-                                     strcat(strcat(sector_name, "/"), 
-                                            section_name)
-                                    );
+  mb_section *section = find_section(
+                                     file, 
+                                     strcat(
+                                            strcat(sector_name, "/"), 
+                                                   section_name
+                                     )
+                        );
 
-  free(sector_name);
-  free(section_name);
   if (section == NULL) {
     free(field_name);
     return NULL;
@@ -381,12 +363,5 @@ mb_field *find_field(struct mb_file* file, char *path) {
     }
   }
   
-  free(field_name);
-
   return field;
-}
-
-char *resolve_fields(struct mb_file file, char *in) {
-  char *out = "Kein bock grad!";
-  return out;
 }
