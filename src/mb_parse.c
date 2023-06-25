@@ -453,5 +453,6 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
     free(fieldvals);
   }
 
+  char *out = NULL;
   return out;
 }
