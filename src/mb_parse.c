@@ -387,9 +387,6 @@ mb_field *find_field(struct mb_file* file, char *path) {
 }
 
 char *resolve_fields(struct mb_file file, char *in, char *context) {
-  char *out = malloc(strlen(in)+1);
-  strcpy(out, in);
-
   int n_fields = 0;
   int *field_indexes;
   int *field_lens;
@@ -421,32 +418,39 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       memcpy(name+len, str_terminator, 1);
 
       mb_field *field = find_field(&file, name);
-      if (field == NULL) {
-        printf("%s invalid\n", name);
+      if (field == NULL)
         goto resolve_fields_stop;
-      }
+
+      char *val_tmp = resolve_fields(file, field->value, context);
 
       n_fields++;
       if (n_fields > 1) {
         field_indexes = realloc(field_indexes, n_fields*sizeof(int));
         field_lens    = realloc(field_lens, n_fields*sizeof(int));
+        fieldvals     = realloc(fieldvals, n_fields*sizeof(char*));
       } else {
         field_indexes = malloc(sizeof(int));
         field_lens    = malloc(sizeof(int));
+        fieldvals     = malloc(sizeof(char*));
       }
 
       field_indexes[n_fields-1] = i;
       field_lens[n_fields-1] = len;
+      fieldvals[n_fields-1] = val_tmp;
 
     resolve_fields_stop:
       free(name);
-      i += 2+len;
     }
-  } 
+  }
+
+  // Copy input string and insert values
 
   if (n_fields > 0) {
     free(field_indexes);
     free(field_lens);
+    for (int i = 0; i < n_fields; i++)
+      free(fieldvals[i]);
+    free(fieldvals);
   }
 
   return out;
