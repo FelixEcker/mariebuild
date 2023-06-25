@@ -27,11 +27,8 @@ typedef struct mb_exec_params {
 /* Used to hold data of current build 
  */
 typedef struct mb_build {
-  // File being compiled
-  char           *file;
-
-  int            stage;
-  struct mb_file build_file;
+  int             stage;
+  struct mb_file* build_file;
 } mb_build;
 
 int mb_exec_script(struct mb_build* build, char *name, char *lines);
@@ -42,7 +39,7 @@ int mb_exec_prepare_mode(struct mb_build* build);
 int mb_exec_compile(struct mb_build* build);
 int mb_exec_finalize(struct mb_build* build);
 
-int mb_exec_build(struct mb_file build_file, 
+int mb_exec_build(struct mb_file* build_file, 
                   struct mb_exec_params exec_params);
 
 #endif

@@ -64,7 +64,7 @@ int main() {
   exec_params.force       = 0;
   exec_params.status      = 0;
 
-  result = mb_exec_build((*build_file), exec_params);
+  result = mb_exec_build(build_file, exec_params);
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
     printf("(0x%.8x)\n", result);
