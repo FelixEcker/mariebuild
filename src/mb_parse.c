@@ -386,7 +386,68 @@ mb_field *find_field(struct mb_file* file, char *path) {
   return field;
 }
 
-char *resolve_fields(struct mb_file file, char *in) {
-  char *out = "Kein bock grad!";
+char *resolve_fields(struct mb_file file, char *in, char *context) {
+  char *out = malloc(strlen(in)+1);
+  strcpy(out, in);
+
+  int n_fields = 0;
+  int *field_indexes;
+  int *field_lens;
+  char **fieldvals;
+
+  // Resolve all fields and store their vals and indexes in the string
+  for (int i = 0; i < strlen(in); i++) {
+    if ((in[i] == '$') && (in[i+1] == '(')) {
+      int len = 0;
+      int is_local = 1;
+
+      for (int j = i+2; i < strlen(in); j++) {
+        if (in[j] == '/') is_local = 0;
+        if (in[j] == ')') break;
+        len++;
+      }
+
+      char *name;
+      if (is_local) {
+        name = malloc(strlen(context)+len+1);
+        memcpy(name, context, strlen(context));
+        memcpy(name+strlen(context), in+i+2, len);
+        len += strlen(context);
+      } else {
+        name = malloc(len+1);
+        memcpy(name, in+i+2, len);
+      }
+
+      memcpy(name+len, str_terminator, 1);
+
+      mb_field *field = find_field(&file, name);
+      if (field == NULL) {
+        printf("%s invalid\n", name);
+        goto resolve_fields_stop;
+      }
+
+      n_fields++;
+      if (n_fields > 1) {
+        field_indexes = realloc(field_indexes, n_fields*sizeof(int));
+        field_lens    = realloc(field_lens, n_fields*sizeof(int));
+      } else {
+        field_indexes = malloc(sizeof(int));
+        field_lens    = malloc(sizeof(int));
+      }
+
+      field_indexes[n_fields-1] = i;
+      field_lens[n_fields-1] = len;
+
+    resolve_fields_stop:
+      free(name);
+      i += 2+len;
+    }
+  } 
+
+  if (n_fields > 0) {
+    free(field_indexes);
+    free(field_lens);
+  }
+
   return out;
 }
