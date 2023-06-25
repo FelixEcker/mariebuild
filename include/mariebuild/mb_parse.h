@@ -55,6 +55,6 @@ mb_sector *find_sector(struct mb_file* file, char *sector_name);
 mb_section *find_section(struct mb_file* file, char *path);
 mb_field *find_field(struct mb_file* file, char *path);
 
-char *resolve_fields(struct mb_file file, char *in);
+char *resolve_fields(struct mb_file file, char *in, char *context);
 
 #endif
