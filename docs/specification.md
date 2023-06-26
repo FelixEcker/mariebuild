@@ -130,10 +130,6 @@ Arguments:
         Disable all output from mb, only output from scripts will be allowed
     v verbose
         Enable verbose output from mb
-    f force
-        Force a build
-    s status
-        Check if the current compiled files are up to date with the source files.
 ```
 ### mb.cfg
 mb.cfg is a file with default arguments for mb, it is searched for in the following order:
