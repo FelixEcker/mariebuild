@@ -9,6 +9,13 @@
 #ifndef MB_UTILS_H
 #define MB_UTILS_H
 
+#ifdef _MSC_VER
+#include <basetsd.h>
+#include <stdio.h>
+#include <stdlib.h>
+typedef SSIZE_T ssize_t;
+#endif
+
 /******** Return Codes ********/
 
 #define MB_OK          0x00000000
@@ -40,6 +47,12 @@
 
 extern int mb_logging_level;
 extern char *mb_errtext;
+
+/******** Platform Specific funcs ********/
+
+#ifdef _MSC_VER
+size_t getline(char** lineptr, size_t* n, FILE* stream);
+#endif
 
 /******** Logging Functions ********/
 

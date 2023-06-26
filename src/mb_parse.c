@@ -6,6 +6,10 @@
  * <https://github.com/FelixEcker/mariebuild/blob/master/LICENSE>
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <mariebuild/mb_parse.h>
 
 #include <mariebuild/mb_utils.h>
@@ -388,9 +392,9 @@ mb_field *find_field(struct mb_file* file, char *path) {
 
 char *resolve_fields(struct mb_file file, char *in, char *context) {
   int n_fields = 0;
-  int *field_indexes;
-  int *field_lens;
-  char **fieldvals;
+  int *field_indexes = malloc(sizeof(int));
+  int *field_lens = malloc(sizeof(int));
+  char **fieldvals = malloc(sizeof(char*));
 
   // Resolve all fields and store their vals and indexes in the string
   for (int i = 0; i < strlen(in); i++) {
@@ -424,14 +428,11 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       char *val_tmp = resolve_fields(file, field->value, context);
 
       n_fields++;
-      if (n_fields > 1) {
+      if (n_fields > 2) {
         field_indexes = realloc(field_indexes, n_fields*sizeof(int));
         field_lens    = realloc(field_lens, n_fields*sizeof(int));
         fieldvals     = realloc(fieldvals, n_fields*sizeof(char*));
       } else {
-        field_indexes = malloc(sizeof(int));
-        field_lens    = malloc(sizeof(int));
-        fieldvals     = malloc(sizeof(char*));
       }
 
       field_indexes[n_fields-1] = i;
