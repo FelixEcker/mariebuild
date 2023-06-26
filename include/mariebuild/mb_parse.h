@@ -9,9 +9,6 @@
 #ifndef MB_PARSE_H
 #define MB_PARSE_H
 
-/* Mask if a system error occured which reports its error in errno */
-#define MB_SERR_MASK_ERRNO       0x10000000
-
 typedef struct mb_field {
   char *name;
   char *value;
@@ -55,6 +52,10 @@ mb_sector *find_sector(struct mb_file* file, char *sector_name);
 mb_section *find_section(struct mb_file* file, char *path);
 mb_field *find_field(struct mb_file* file, char *path);
 
+/* Resolve all field embeds within the string "in"
+ * context : Path of the section in which the field embeds are being resolved.
+ *           This is used for resolving relative field names.
+ */
 char *resolve_fields(struct mb_file file, char *in, char *context);
 
 #endif

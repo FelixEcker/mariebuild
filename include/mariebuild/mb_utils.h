@@ -36,6 +36,9 @@ typedef SSIZE_T ssize_t;
 #define MB_BERR_MISSING_COMPCMD 0x00000202
 #define MB_BERR_SCRIPT_ERROR    0x00000203
 
+/* Mask if a system error occured which reports its error in errno */
+#define MB_SERR_MASK_ERRNO       0x10000000
+
 /******** Log Levels *********/
 
 #define MB_LOGLVL_LOW 0
@@ -45,10 +48,18 @@ typedef SSIZE_T ssize_t;
 
 /******** Globals ********/
 
+/* The minimum logging level to be output
+ */
 extern int mb_logging_level;
+
+/* Additional error information
+ */
 extern char *mb_errtext;
 
 /******** Platform Specific funcs ********/
+/* Functions which are found within a POSIX C stdlib which are not present
+ * under the microsoft c compiler are to be implemented here
+ */
 
 #ifdef _MSC_VER
 size_t getline(char** lineptr, size_t* n, FILE* stream);
@@ -61,6 +72,8 @@ void mb_log(int level, char *msg);
 
 /******** Misc. Functions ********/
 
+/* Translate an error code to an error message
+ */
 char *errcode_msg(int err);
 
 int str_startswith(char *str, char *start);
