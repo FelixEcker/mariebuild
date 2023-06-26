@@ -59,11 +59,22 @@ int mb_exec_compile(struct mb_build* build) {
   char pfile_field[] = ".config/mariebuild/file";
   mb_field *f_file = find_field(build->build_file, pfile_field);
   
+  char pmariebuild[] = ".config/mariebuild";
   if (f_file == NULL) {
-    char pmariebuild[] = ".config/mariebuild";
     register_field(find_section(build->build_file, pmariebuild), "file", "");
     f_file = find_field(build->build_file, pfile_field);
   }
+
+  /*
+   * TODO: This breaks the "file" field and potentially some others,
+   * debug and fix (URGENT)
+  char pmodeflags_field[] = ".config/mariebuild/mode_flags";
+  mb_field *f_modeflags = find_field(build->build_file, pmodeflags_field);
+  if (f_modeflags == NULL) {
+    register_field(find_section(build->build_file, pmariebuild), "mode_flags"
+                                                               , "");
+  }
+  */
 
   while (file != NULL) {
     if (f_file->value != NULL) free(f_file->value);
