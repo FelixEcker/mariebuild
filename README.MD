@@ -70,5 +70,4 @@ Only allow important build messages to be shown.
 Show all build messages.
 
 ## License
-Mariebuild is licensed under the (CHOOSE LICENSE) License, see
-[https://github.com/FelixEcker/mariebuild/blob/master/LICENSE](The LICENSE file).
+Mariebuild is licensed under the (CHOOSE LICENSE) License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
