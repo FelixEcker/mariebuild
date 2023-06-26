@@ -1,4 +1,6 @@
 out/
+.vs
+mariebuild/
 mb
 vgcore.*
 *.log
