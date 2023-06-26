@@ -6,6 +6,10 @@
  * <https://github.com/FelixEcker/mariebuild/blob/master/LICENSE>
  */
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include <mariebuild/mb_utils.h>
 
 #include <mariebuild/mb_parse.h>
@@ -16,6 +20,63 @@
 
 int mb_logging_level = MB_LOGLVL_LOW;
 char *mb_errtext = "";
+
+#ifdef _MSC_VER
+#include <stdlib.h>
+
+/* This code is public domain -- Will Hartung 4/9/09 */
+size_t getline(char** lineptr, size_t* n, FILE* stream) {
+    char* bufptr = NULL;
+    char* p = bufptr;
+    size_t size;
+    int c;
+
+    if (lineptr == NULL) {
+        return -1;
+    }
+    if (stream == NULL) {
+        return -1;
+    }
+    if (n == NULL) {
+        return -1;
+    }
+    bufptr = *lineptr;
+    size = *n;
+
+    c = fgetc(stream);
+    if (c == EOF) {
+        return -1;
+    }
+    if (bufptr == NULL) {
+        bufptr = malloc(128);
+        if (bufptr == NULL) {
+            return -1;
+        }
+        size = 128;
+    }
+    p = bufptr;
+    while (c != EOF) {
+        if ((p - bufptr) > (size - 1)) {
+            size = size + 128;
+            bufptr = realloc(bufptr, size);
+            if (bufptr == NULL) {
+                return -1;
+            }
+        }
+        *p++ = c;
+        if (c == '\n') {
+            break;
+        }
+        c = fgetc(stream);
+    }
+
+    *p++ = '\0';
+    *lineptr = bufptr;
+    *n = size;
+
+    return p - bufptr - 1;
+}
+#endif
 
 void mb_logf(int level, char *msg, const char* fmt, ...) {
   if (level < mb_logging_level)
