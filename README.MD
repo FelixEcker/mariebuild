@@ -71,4 +71,4 @@ Show all build messages.
 
 ## License
 Mariebuild is licensed under the (CHOOSE LICENSE) License, see
-(https://github.com/FelixEcker/mariebuild/blob/master/LICENSE)[the LICENSE file].
+[https://github.com/FelixEcker/mariebuild/blob/master/LICENSE](The LICENSE file).
