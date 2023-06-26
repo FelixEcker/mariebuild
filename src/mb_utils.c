@@ -134,7 +134,7 @@ char *errcode_msg(int err) {
 }
 
 int str_startswith(char *str, char *start) {
-  return 0;
+  return strncmp(start, str, strlen(start));
 }
 
 int str_endswith(char *str, char *end) {

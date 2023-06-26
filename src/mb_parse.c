@@ -390,6 +390,9 @@ mb_field *find_field(struct mb_file* file, char *path) {
   return field;
 }
 
+/* TODO: This is singlehandidly the worst code ive ever written, this needs a
+ * desperate cleanup its so fucking long and confusing
+ * */
 char *resolve_fields(struct mb_file file, char *in, char *context) {
   int n_fields = 0;
   int *field_indexes = malloc(sizeof(int));
@@ -402,24 +405,38 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       int len = 0;
       int is_local = 1;
 
-      for (int j = i+2; i < strlen(in); j++) {
+      for (int j = i; j < strlen(in); j++) {
         if (in[j] == '/') is_local = 0;
         if (in[j] == ')') break;
         len++;
       }
 
       char *name;
+
+      int term_offs = len-2;
       if (is_local) {
-        name = malloc(strlen(context)+len+1);
+        // Subtract two from length to account for $() = -3 
+        // and the NULL Byte = +1
+        name = malloc(strlen(context) + (len - 2));
         memcpy(name, context, strlen(context));
-        memcpy(name+strlen(context), in+i+2, len);
-        len += strlen(context);
+        memcpy(name+strlen(context), in+i+2, len-2);
+        term_offs += strlen(context);
       } else {
-        name = malloc(len+1);
-        memcpy(name, in+i+2, len);
+        char prefix[] = ".config/";
+        int offs = 0;
+        if (str_startswith(name, prefix) != 0) {
+          name = malloc(strlen(prefix) + (len - 1));
+          memcpy(name, prefix, strlen(prefix));
+          offs += strlen(prefix);
+        } else {
+          name = malloc(len-2);
+        }
+
+        memcpy(name+offs, in+i+2, len-2);
+        term_offs += offs;
       }
 
-      memcpy(name+len, str_terminator, 1);
+      memcpy(name+term_offs, str_terminator, 1);
 
       mb_field *field = find_field(&file, name);
       if (field == NULL)
@@ -432,7 +449,6 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
         field_indexes = realloc(field_indexes, n_fields*sizeof(int));
         field_lens    = realloc(field_lens, n_fields*sizeof(int));
         fieldvals     = realloc(fieldvals, n_fields*sizeof(char*));
-      } else {
       }
 
       field_indexes[n_fields-1] = i;
@@ -444,21 +460,46 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
     }
   }
 
+  char *out = NULL;
+  if (n_fields == 0) {
+    out = malloc(strlen(in)+1);
+    strcpy(out, in);
+    goto resolve_fields_finished;
+  }
+
   // Copy input string and insert values
-  int bytes = 0; // Total count bytes of bytes copied to out
-  int t_len = 0; // Sum of all field insert lengths until now
-  int in_offs = 0; // Offset for copying from in
-  int out_offs = 0; // Offset for copying to out
+  int i_offs = 0; // Offset for copying from in
+  int o_offs = 0; // Offset for copying to out
   
-  /* copy(out+out_offs, in+in_offs, strlen(val));
-   * in_offs = ix + len;
-   * out_offs = in_offs - t_len;
-   * bytes = strlen
-   * */
+  for (int i = 0; i < n_fields; i++) {
+    int len = field_lens[i];
+    int ix  = field_indexes[i];
+    char *val = fieldvals[i];
 
-  out = realloc(out, bytes+1);
-  memcpy(out+bytes, str_terminator, 1);
+    // allocate memory (strlen(val) + ix-i_offs)
+    if (out == NULL) {
+      out = malloc(strlen(val) + (ix - i_offs));
+    } else {
+      out = realloc(out, o_offs + (strlen(val) + (ix - i_offs)));
+    }
 
+    // copy from in i_offs <-> ix to out with o_offs
+    memcpy(out+o_offs, in + i_offs, ix - i_offs);
+    // add ix - i_offs to o_offs
+    o_offs += ix - i_offs;
+    // set i_offs to ix+len
+    i_offs = ix + len + 1;
+    // copy val to o_offs
+    memcpy(out+o_offs, val, strlen(val));
+    // add strlen of val to o_offs
+    o_offs += strlen(val);
+  }
+
+  // Appen Terminator
+  out = realloc(out, o_offs+1);
+  memcpy(out+o_offs, str_terminator, 1);
+
+resolve_fields_finished:
   if (n_fields > 0) {
     free(field_indexes);
     free(field_lens);

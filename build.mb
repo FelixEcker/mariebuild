@@ -11,7 +11,7 @@ sector .config
  
     files         'mb_utils.c:mb_parse.c:mb_execute.c:mb.c'
 
-    std_flags     '-Wall -I$(depends.includes)'
+    std_flags     '-Wall -I$(depends/includes)'
     debug_flags   '-ggdb'
     release_flags ''
  
