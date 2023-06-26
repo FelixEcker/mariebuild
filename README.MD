@@ -45,28 +45,28 @@ See `docs/specification.mb` and the files in `examples/` for more details.
 By default mb looks for a `build.mb` file which is the executed in debug mode.
 
 ### Parameters
-**-i ; --in**
+**-i ; --in** <br>
 Specify a build file with this parameter.
 
-**-e ; --exec**
+**-e ; --exec** <br>
 Execute a specific script from the selected build file.
 
-**-c ; --check**
+**-c ; --check** <br>
 Check if the selected build file is a valid build file.
 
-**-p ; --platform**
+**-p ; --platform** <br>
 Specify a target platform.
 
-**--platforms**
+**--platforms** <br>
 List the build file's supported target platforms.
 
-**--disable-extensions**
+**--disable-extensions** <br>
 Don't allow any extensions to be loaded.
 
-**-q ; --quiet**
+**-q ; --quiet** <br>
 Only allow important build messages to be shown.
 
-**-v ; --verbose**
+**-v ; --verbose** <br>
 Show all build messages.
 
 ## License
