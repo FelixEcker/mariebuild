@@ -17,6 +17,8 @@
 #define MB_STAGE_COMPILE      2
 #define MB_STAGE_FINALIZE     3
 
+/* Holds execution parameters for a build
+ */
 typedef struct mb_exec_params {
   char *exec_script;
   char *platform;
@@ -31,14 +33,22 @@ typedef struct mb_build {
   struct mb_file* build_file;
 } mb_build;
 
+/* Executes a script section.
+ * name  : The name of the script being executed
+ * lines : All lines of the script being run
+ */
 int mb_exec_script(struct mb_build* build, char *name, char *lines);
 
-/* Build Stage functions */
+/******** Build Stage functions ********/
+/* See docs/build_stages.md for details on the build stages */
+
 int mb_exec_prepare(struct mb_build* build);
 int mb_exec_prepare_mode(struct mb_build* build);
 int mb_exec_compile(struct mb_build* build);
 int mb_exec_finalize(struct mb_build* build);
 
+/* Execute an entire build for the given build file
+ */
 int mb_exec_build(struct mb_file* build_file, 
                   struct mb_exec_params exec_params);
 
