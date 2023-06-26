@@ -445,6 +445,19 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
   }
 
   // Copy input string and insert values
+  int bytes = 0; // Total count bytes of bytes copied to out
+  int t_len = 0; // Sum of all field insert lengths until now
+  int in_offs = 0; // Offset for copying from in
+  int out_offs = 0; // Offset for copying to out
+  
+  /* copy(out+out_offs, in+in_offs, strlen(val));
+   * in_offs = ix + len;
+   * out_offs = in_offs - t_len;
+   * bytes = strlen
+   * */
+
+  out = realloc(out, bytes+1);
+  memcpy(out+bytes, str_terminator, 1);
 
   if (n_fields > 0) {
     free(field_indexes);
@@ -454,6 +467,5 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
     free(fieldvals);
   }
 
-  char *out = NULL;
   return out;
 }
