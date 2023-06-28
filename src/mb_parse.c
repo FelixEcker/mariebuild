@@ -449,7 +449,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       char *val_tmp;
       if (strcmp(name, ".config/mariebuild/files") == 0) {
         char *prefix = bstrcpy_until(in+i-1, in, ' ');
-        char *postfix = strcpy_until(in+i+len+1, " ");
+        char *postfix = strcpy_until(in+i+len+1, ' ');
         
         char delimiter[] = ":";
         char *files_cpy = malloc(strlen(field->value)+1);
@@ -474,6 +474,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
             memcpy(val_tmp+offs, prefix, strlen(prefix));
             offs += strlen(prefix);
           }
+
           memcpy(val_tmp+offs, f_file, strlen(f_file));
           offs += strlen(f_file);
           f_file = strtok(NULL, delimiter);
