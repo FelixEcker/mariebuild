@@ -16,6 +16,7 @@
 #include <mariebuild/mb_execute.h>
 
 #include <stdio.h>
+#include <stdarg.h>
 #include <string.h>
 
 int mb_logging_level = MB_LOGLVL_LOW;
@@ -78,9 +79,9 @@ size_t getline(char** lineptr, size_t* n, FILE* stream) {
 }
 #endif
 
-void mb_logf(int level, char *msg, const char* fmt, ...) {
+int mb_logf(int level, const char *format, ...) {
   if (level < mb_logging_level)
-    return;
+    return 0;
 
   char *level_prefix;
   switch (level) {
@@ -92,7 +93,15 @@ void mb_logf(int level, char *msg, const char* fmt, ...) {
   }
 
   printf("%s ", level_prefix);
-  printf(msg, fmt);
+  
+  va_list arg;
+  int done;
+
+  va_start(arg, format);
+  done = vfprintf(stdout, format, arg);
+  va_end(arg);
+
+  return done;
 }
 
 void mb_log(int level, char *msg) {
@@ -128,6 +137,8 @@ char *errcode_msg(int err) {
       return "Missing field .confif/mariebuild/comp_cmd";
     case MB_BERR_SCRIPT_ERROR:
       return strcat("A script error occured:\n", get_build_errtext());
+    case MB_BERR_COMPILE_ERROR:
+      return "An error occured whilst compiling!";
     default:
       return "Unknown Errorcode";
   }

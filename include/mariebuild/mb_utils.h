@@ -35,6 +35,7 @@ typedef SSIZE_T ssize_t;
 #define MB_BERR_MISSING_FILES   0x00000201
 #define MB_BERR_MISSING_COMPCMD 0x00000202
 #define MB_BERR_SCRIPT_ERROR    0x00000203
+#define MB_BERR_COMPILE_ERROR   0x00000204
 
 /* Mask if a system error occured which reports its error in errno */
 #define MB_SERR_MASK_ERRNO       0x10000000
@@ -67,7 +68,7 @@ size_t getline(char** lineptr, size_t* n, FILE* stream);
 
 /******** Logging Functions ********/
 
-void mb_logf(int level, char *msg, const char *fmt, ...);
+int mb_logf(int level, const char *format, ...);
 void mb_log(int level, char *msg);
 
 /******** Misc. Functions ********/
