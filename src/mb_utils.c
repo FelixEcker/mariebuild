@@ -139,6 +139,8 @@ char *errcode_msg(int err) {
       return strcat("A script error occured:\n", get_build_errtext());
     case MB_BERR_COMPILE_ERROR:
       return "An error occured whilst compiling!";
+    case MB_BERR_FINALIZE_ERROR:
+      return "An errror occured whilst finalizing!";
     default:
       return "Unknown Errorcode";
   }
