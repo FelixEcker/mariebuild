@@ -3,4 +3,5 @@ out/
 mariebuild/
 mb
 vgcore.*
+valgrind.*
 *.log
