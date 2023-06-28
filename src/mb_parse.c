@@ -521,13 +521,11 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
   memcpy(out+o_offs, str_terminator, 1);
 
 resolve_fields_finished:
-  if (n_fields > 0) {
-    free(field_indexes);
-    free(field_lens);
-    for (int i = 0; i < n_fields; i++)
-      free(fieldvals[i]);
-    free(fieldvals);
-  }
+  free(field_indexes);
+  free(field_lens);
+  for (int i = 0; i < n_fields; i++)
+    free(fieldvals[i]);
+  free(fieldvals);
 
   return out;
 }
