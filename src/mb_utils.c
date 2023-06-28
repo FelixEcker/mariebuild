@@ -15,15 +15,18 @@
 #include <mariebuild/mb_parse.h>
 #include <mariebuild/mb_execute.h>
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+
+const char *newline = "\n";
+const char *str_terminator = "\0";
 
 int mb_logging_level = MB_LOGLVL_LOW;
 char *mb_errtext = "";
 
 #ifdef _MSC_VER
-#include <stdlib.h>
 
 /* This code is public domain -- Will Hartung 4/9/09 */
 size_t getline(char** lineptr, size_t* n, FILE* stream) {
@@ -155,4 +158,37 @@ int str_endswith(char *str, char *end) {
   int end_len = strlen(end);
 
   return ((str_len > end_len) && !strcmp(str + str_len - end_len, end));
+}
+
+char *strcpy_until(char *src, char *delimiter) {
+  int offs = 0;
+  while ((offs < strlen(src)) && (strcmp(src+offs, delimiter) != 0)) {
+    offs++;
+  }
+
+  if (offs == 0)
+    return "";
+
+  char *res = malloc(offs+1);
+  memcpy(res, src, offs);
+  memcpy(res+offs, str_terminator, 1);
+  
+  return res;
+}
+
+char *bstrcpy_until(char *src, char *src_org, char delimiter) {
+  int offs = 0;
+  while ((src-offs) > src_org) {
+    if ((src-offs)[0] == delimiter) break;
+    offs++;
+  }
+
+  if (offs == 0)
+    return "";
+
+  char *res = malloc(offs+1);
+  memcpy(res, src-offs+1, offs);
+  memcpy(res+offs, str_terminator, 1);
+  
+  return res;
 }
