@@ -20,9 +20,6 @@
 #include <ctype.h>
 #include <string.h>
 
-const char *newline = "\n";
-const char *str_terminator = "\0";
-
 /******** Local Utility Functions ********/
 
 /* Note: This function returns a pointer to a substring of the original string.
@@ -446,10 +443,55 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       memcpy(name+term_offs, str_terminator, 1);
 
       mb_field *field = find_field(&file, name);
-      if (field == NULL)
+      if ((field == NULL) || (field->value == NULL))
         goto resolve_fields_stop;
 
-      char *val_tmp = resolve_fields(file, field->value, context);
+      char *val_tmp;
+      if (strcmp(name, ".config/mariebuild/files") == 0) {
+        char *prefix = bstrcpy_until(in+i-1, in, ' ');
+        char *postfix = strcpy_until(in+i+len+1, " ");
+        
+        char delimiter[] = ":";
+        char *files_cpy = malloc(strlen(field->value)+1);
+        strcpy(files_cpy, field->value);
+
+        char *f_file = strtok(files_cpy, delimiter);
+        val_tmp = malloc(strlen(f_file)+strlen(prefix)+strlen(postfix)+1);
+
+        int offs = 0;
+        while (f_file != NULL) {
+          if (offs > 0) {
+            int size = 
+              strlen(val_tmp)+strlen(f_file)+strlen(prefix)+strlen(postfix)+2;
+            val_tmp = realloc(
+                        val_tmp, size
+                      );
+            memcpy(val_tmp+offs, " ", 1);
+            offs++;
+          }
+
+          if (offs > 0) {
+            memcpy(val_tmp+offs, prefix, strlen(prefix));
+            offs += strlen(prefix);
+          }
+          memcpy(val_tmp+offs, f_file, strlen(f_file));
+          offs += strlen(f_file);
+          f_file = strtok(NULL, delimiter);
+          
+          if (f_file != NULL) {
+            strcpy(val_tmp+offs, postfix);
+            offs += strlen(postfix);
+          }
+        }
+
+        memcpy(val_tmp+offs, str_terminator, 1);
+
+        free(files_cpy);
+        free(prefix);
+        free(postfix);
+      } else {
+        val_tmp = resolve_fields(file, field->value, context);
+      }
 
       n_fields++;
       if (n_fields > 1) {

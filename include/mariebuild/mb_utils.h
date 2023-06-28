@@ -50,6 +50,9 @@ typedef SSIZE_T ssize_t;
 
 /******** Globals ********/
 
+extern const char *newline;
+extern const char *str_terminator;
+
 /* The minimum logging level to be output
  */
 extern int mb_logging_level;
@@ -80,5 +83,8 @@ char *errcode_msg(int err);
 
 int str_startswith(char *str, char *start);
 int str_endswith(char *str, char *end);
+
+char *strcpy_until(char *src, char *delimiter);
+char *bstrcpy_until(char *src, char *src_org, char delimiter);
 
 #endif
