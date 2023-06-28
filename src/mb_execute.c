@@ -89,6 +89,13 @@ int mb_exec_compile(struct mb_build* build) {
     mb_logf(MB_LOGLVL_STD, "%s\n", cmd);
     file = strtok(NULL, delim);
 
+    int retc = system(cmd);
+    if (retc != 0) {
+      retc = retc / 256;
+      mb_logf(MB_LOGLVL_IMP, "Compilation Command returned non-zero exit code: %d\n", retc);
+      free(cmd);
+      return MB_BERR_COMPILE_ERROR;
+    }
 
     free(cmd);
   }
