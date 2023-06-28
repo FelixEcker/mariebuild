@@ -27,12 +27,12 @@ files
     Wildcarding with * is allowed.
 
     If embedded into another field with the $() operator, the list is inserted
-    with space-seperation. Chars which come immediatly after the embed are
-    postfixed to every file.
+    with space-seperation. Chars which come immediatly after or before the 
+    embed are post- or prefixed to every file.
 
     Example:
-    $(files).o
-    = file1.o file2.o file3.o
+    out/$(files).o
+    = out/file1.o out/file2.o out/file3.o
 
 field
     Simulated field which holds a file from files currently being compiled.
