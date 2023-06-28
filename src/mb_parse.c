@@ -417,14 +417,20 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       if (is_local) {
         // Subtract two from length to account for $() = -3 
         // and the NULL Byte = +1
-        name = malloc(strlen(context) + (len - 2));
+        name = malloc(strlen(context) + (len - 1));
         memcpy(name, context, strlen(context));
         memcpy(name+strlen(context), in+i+2, len-2);
         term_offs += strlen(context);
       } else {
         char prefix[] = ".config/";
         int offs = 0;
-        if (str_startswith(name, prefix) != 0) {
+
+        // Create temporary copy of raw name for prefix checking
+        char *tmp_name = malloc((len - 1));
+        memcpy(tmp_name, in+i+2, len-2);
+        memcpy(tmp_name+len-2, str_terminator, 1);
+        
+        if (str_startswith(tmp_name, prefix) != 0) {
           name = malloc(strlen(prefix) + (len - 1));
           memcpy(name, prefix, strlen(prefix));
           offs += strlen(prefix);
@@ -434,6 +440,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
         memcpy(name+offs, in+i+2, len-2);
         term_offs += offs;
+        free(tmp_name);
       }
 
       memcpy(name+term_offs, str_terminator, 1);
@@ -445,7 +452,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       char *val_tmp = resolve_fields(file, field->value, context);
 
       n_fields++;
-      if (n_fields > 2) {
+      if (n_fields > 1) {
         field_indexes = realloc(field_indexes, n_fields*sizeof(int));
         field_lens    = realloc(field_lens   , n_fields*sizeof(int));
         fieldvals     = realloc(fieldvals    , n_fields*sizeof(char*));
