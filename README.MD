@@ -16,15 +16,12 @@ sector .config
     includes 'include/'
     libs     ''
 
-  ; This section is required for building, it holds the main information
-  ; for the build file
   mariebuild:
-    name          'mariebuild'
+    name          'mb'
     compiler      'gcc'
     src_dir       'src'
     obj_dir       'out'
  
-    ; A required field. Place all source files in here in a colon seperated list
     files         'mb_utils.c:mb_parse.c:mb_execute.c:mb.c'
 
     std_flags     '-Wall -I$(depends/includes)'
@@ -33,10 +30,10 @@ sector .config
  
     ; Another required field, insert your compilation command in here.
     ; The command within this field is run for every file within the files field.
-    comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(file) $(obj_dir)/$(file).o'
+    comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
 
     ; An optional field, run on the finalize build stage.
-    finalize_cmd  '$(compiler) $(mode_flags) -o $(name) $(files).o'
+    finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
 ```
 
 See `docs/specification.mb` and the files in `examples/` for more details.
