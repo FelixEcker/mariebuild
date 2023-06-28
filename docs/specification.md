@@ -22,8 +22,8 @@ platform_%s
 
 FIELDS
 
-fields
-    Required fields which holds all source files in a colon-seperated list.
+files
+    Required field which holds all source files in a colon-seperated list.
     Wildcarding with * is allowed.
 
     If embedded into another field with the $() operator, the list is inserted
