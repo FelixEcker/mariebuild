@@ -15,5 +15,5 @@ sector .config
     debug_flags   '-ggdb'
     release_flags ''
  
-    comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(file) $(obj_dir)/$(file).o'
+    comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
     finalize_cmd  '$(compiler) $(mode_flags) -o $(name) $(files).o'
