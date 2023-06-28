@@ -249,7 +249,7 @@ int parse_line(struct mb_file* file, char *line) {
 /* Parses the file under the path in build_file->path line by line,
  * will return MB_OK if there were no errors.
  *
- * Refer to mb_parse.h for error codes.
+ * Refer to mb_utils.h for error codes.
  * */
 int parse_file(struct mb_file* build_file) {
   FILE *file;
@@ -396,8 +396,8 @@ mb_field *find_field(struct mb_file* file, char *path) {
 char *resolve_fields(struct mb_file file, char *in, char *context) {
   int n_fields = 0;
   int *field_indexes = malloc(sizeof(int));
-  int *field_lens = malloc(sizeof(int));
-  char **fieldvals = malloc(sizeof(char*));
+  int *field_lens    = malloc(sizeof(int));
+  char **fieldvals   = malloc(sizeof(char*));
 
   // Resolve all fields and store their vals and indexes in the string
   for (int i = 0; i < strlen(in); i++) {
@@ -447,13 +447,13 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
       n_fields++;
       if (n_fields > 2) {
         field_indexes = realloc(field_indexes, n_fields*sizeof(int));
-        field_lens    = realloc(field_lens, n_fields*sizeof(int));
-        fieldvals     = realloc(fieldvals, n_fields*sizeof(char*));
+        field_lens    = realloc(field_lens   , n_fields*sizeof(int));
+        fieldvals     = realloc(fieldvals    , n_fields*sizeof(char*));
       }
 
       field_indexes[n_fields-1] = i;
-      field_lens[n_fields-1] = len;
-      fieldvals[n_fields-1] = val_tmp;
+      field_lens[n_fields-1]    = len;
+      fieldvals[n_fields-1]     = val_tmp;
 
     resolve_fields_stop:
       free(name);
@@ -464,6 +464,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
   if (n_fields == 0) {
     out = malloc(strlen(in)+1);
     strcpy(out, in);
+
     goto resolve_fields_finished;
   }
 
@@ -485,17 +486,21 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
     // copy from in i_offs <-> ix to out with o_offs
     memcpy(out+o_offs, in + i_offs, ix - i_offs);
+
     // add ix - i_offs to o_offs
     o_offs += ix - i_offs;
+
     // set i_offs to ix+len
     i_offs = ix + len + 1;
+
     // copy val to o_offs
     memcpy(out+o_offs, val, strlen(val));
+
     // add strlen of val to o_offs
     o_offs += strlen(val);
   }
 
-  // Appen Terminator
+  // Append Terminator
   out = realloc(out, o_offs+1);
   memcpy(out+o_offs, str_terminator, 1);
 

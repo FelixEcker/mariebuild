@@ -26,7 +26,7 @@ int mb_exec_script(struct mb_build* build, char *name, char *lines) {
   return MB_OK;
 }
 
-/******** Build Stage Functiobs ********/
+/******** Build Stage Functions ********/
 
 int mb_exec_prepare(struct mb_build* build) {
   return MB_OK;
@@ -68,8 +68,11 @@ int mb_exec_compile(struct mb_build* build) {
   char pmodeflags_field[] = ".config/mariebuild/mode_flags";
   mb_field *f_modeflags = find_field(build->build_file, pmodeflags_field);
   if (f_modeflags == NULL) {
-    register_field(find_section(build->build_file, pmariebuild), "mode_flags"
-                                                               , "");
+    register_field(
+        find_section(build->build_file, pmariebuild)
+      , "mode_flags"
+      , ""
+    );
 
     // Reassing f_file because the original pointer gets broken by new field
     // being registered.
