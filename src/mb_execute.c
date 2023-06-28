@@ -90,9 +90,10 @@ int mb_exec_compile(struct mb_build* build) {
       , ""
     );
 
-    // Reassing f_file because the original pointer gets broken by new field
-    // being registered.
+    // Reassing previously assigned fields because the original pointer gets
+    // broken by new field being registered.
     f_file = find_field(build->build_file, pfile_field);
+    f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
   }
 
   // Run compilation command for each file
@@ -107,17 +108,17 @@ int mb_exec_compile(struct mb_build* build) {
     file = strtok(NULL, delim);
 
     int retc = system(cmd);
+    free(cmd);
+
+    // Handle errored command
     if (retc != 0) {
       retc = retc / 256;
       mb_logf(MB_LOGLVL_IMP, 
               "Compilation Command returned non-zero exit code: %d\n", retc);
 
-      free(cmd);
       free(files_cpy);
       return MB_BERR_COMPILE_ERROR;
     }
-
-    free(cmd);
   }
 
   free(files_cpy);
