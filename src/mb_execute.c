@@ -137,6 +137,8 @@ int mb_exec_finalize(struct mb_build* build) {
 
   char *cmd = resolve_fields((*build->build_file), f_finalize_cmd->value,
                              ".config/mariebuild/");
+  mb_logf(MB_LOGLVL_STD, "%s\n", cmd);
+  
   int retc = system(cmd);
   if (retc != 0) {
     retc = retc / 256;

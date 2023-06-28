@@ -39,6 +39,7 @@ void print_structure(struct mb_file* build_file) {
 }
 
 int main() {
+  mb_logging_level = MB_LOGLVL_STD;
   struct mb_file* build_file = malloc(sizeof(mb_file));
   build_file->path = "./build.mb";
   int result = parse_file(build_file);
@@ -59,7 +60,7 @@ int main() {
     return result;
   }
   
-  print_structure(build_file);
+  //print_structure(build_file);
 
   struct mb_exec_params exec_params;
   exec_params.exec_script = NULL;
