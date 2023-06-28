@@ -4,7 +4,7 @@ sector .config
     libs     ''
 
   mariebuild:
-    name          'mariebuild'
+    name          'mb'
     compiler      'gcc'
     src_dir       'src'
     obj_dir       'out'
