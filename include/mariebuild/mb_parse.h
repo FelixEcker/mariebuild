@@ -38,7 +38,10 @@ typedef struct mb_file {
 void free_build_file(mb_file* file);
 
 /* Parsing Functions */
-
+/* NOTE: After using any of these registering functions, pointers to members 
+ *       of the targeted build-file need to be reassigned since registering 
+ *       breaks the old pointers.
+ */
 int register_sector(struct mb_file* file, char *name);
 int register_section(struct mb_sector* sector, char *name);
 int register_field(struct mb_section* section, char *name, char *value);

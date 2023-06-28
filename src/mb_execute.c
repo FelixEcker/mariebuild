@@ -65,16 +65,16 @@ int mb_exec_compile(struct mb_build* build) {
     f_file = find_field(build->build_file, pfile_field);
   }
 
-  /*
-   * TODO: This breaks the "file" field and potentially some others,
-   * debug and fix (URGENT)
   char pmodeflags_field[] = ".config/mariebuild/mode_flags";
   mb_field *f_modeflags = find_field(build->build_file, pmodeflags_field);
   if (f_modeflags == NULL) {
     register_field(find_section(build->build_file, pmariebuild), "mode_flags"
                                                                , "");
+
+    // Reassing f_file because the original pointer gets broken by new field
+    // being registered.
+    f_file = find_field(build->build_file, pfile_field);
   }
-  */
 
   while (file != NULL) {
     if (f_file->value != NULL) free(f_file->value);
