@@ -471,7 +471,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
   // Copy input string and insert values
   int i_offs = 0; // Offset for copying from in
   int o_offs = 0; // Offset for copying to out
-  
+
   for (int i = 0; i < n_fields; i++) {
     int len = field_lens[i];
     int ix  = field_indexes[i];
@@ -498,6 +498,15 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
     // add strlen of val to o_offs
     o_offs += strlen(val);
+  }
+
+  // Copy remaining bytes from in to out
+  if (i_offs < strlen(in)) {
+    int missing = strlen(in) - i_offs;
+
+    out = realloc(out, o_offs + missing);
+    memcpy(out+o_offs, in+i_offs, missing);
+    o_offs += missing;
   }
 
   // Append Terminator
