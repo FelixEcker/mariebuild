@@ -160,9 +160,10 @@ int str_endswith(char *str, char *end) {
   return ((str_len > end_len) && !strcmp(str + str_len - end_len, end));
 }
 
-char *strcpy_until(char *src, char *delimiter) {
+char *strcpy_until(char *src, char delimiter) {
   int offs = 0;
-  while ((offs < strlen(src)) && (strcmp(src+offs, delimiter) != 0)) {
+  while (offs < strlen(src)) {
+    if (src[offs] == delimiter) break;
     offs++;
   }
 
