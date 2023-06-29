@@ -21,8 +21,9 @@
 
 const char *program_version = "mariebuild 0.1.0";
 const char *program_bugs_adress = "github.com/FelixEcker/mariebuild/issues";
-const char description[] = "A simple build system inspired by my hate against makefiles";
-const char args_doc[] = "[options]...";
+const char description[] = 
+    "A simple build system inspired by my hate against makefiles";
+const char args_doc[] = "[iepdqv] [icqv]";
 
 static struct argp_option options[] = {
   {"in", 'i', "FILE", 0, "Specify a buildfile"}
@@ -53,9 +54,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   case 'e': args->exec_script = arg; break;
   case 'c': args->check_file = true; break;
   case 'p': args->platform = arg; break;
-  case 'd': args->disable_extensions = true;
-  case 'q': args->log_level = MB_LOGLVL_IMP;
-  case 'v': args->log_level = MB_LOGLVL_LOW;
+  case 'd': args->disable_extensions = true; break;
+  case 'q': args->log_level = MB_LOGLVL_IMP; break;
+  case 'v': args->log_level = MB_LOGLVL_LOW; break;
   default: return ARGP_ERR_UNKNOWN;
   }
 
@@ -95,25 +96,26 @@ int main(int argc, char **argv) {
   args.log_level = MB_LOGLVL_STD;
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
-  printf("%s\n", args.build_file);
 
-  mb_logging_level = MB_LOGLVL_STD;
+  mb_logging_level = args.log_level;
   struct mb_file* build_file = malloc(sizeof(mb_file));
-  build_file->path = "./build.mb";
+  build_file->path = args.build_file;
   int result = parse_file(build_file);
 
   if ((result & MB_SERR_MASK_ERRNO) == MB_SERR_MASK_ERRNO)
     result = result & 0;
 
   if (result != 0) {
-    // The error message and code have to be split since mb_log only accepts
-    // strings for formatting at the moment.
-    mb_log(MB_LOGLVL_IMP, "Parsing failed: Line ");
-    printf("%d\n", build_file->line);
-    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s ", errcode_msg(result));
-    printf("(0x%.8x)\n", result);
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: Line %d\n", build_file->line);
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", errcode_msg(result), 
+                                                          result);
     mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
+    goto mb_exit;
+  }
+
+  if (args.check_file) {
+    mb_log(MB_LOGLVL_IMP, "Build-File passed\n");
     goto mb_exit;
   }
   
@@ -127,8 +129,8 @@ int main(int argc, char **argv) {
 
   result = mb_exec_build(build_file, exec_params);
   if (result != 0) {
-    mb_logf(MB_LOGLVL_IMP, "Build failed: %s ", errcode_msg(result));
-    printf("(0x%.8x)\n", result);
+    mb_logf(MB_LOGLVL_IMP, "Build failed: %s (0x%.8x)\n", errcode_msg(result),
+                                                        result);
   } else {
     mb_log(MB_LOGLVL_STD, "Build succeeded!\n");
   }
