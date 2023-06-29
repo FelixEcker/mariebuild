@@ -12,10 +12,57 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdbool.h>
+#include <argp.h>
 
 #include <mariebuild/mb_parse.h>
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
+
+const char *program_version = "mariebuild 0.1.0";
+const char *program_bugs_adress = "github.com/FelixEcker/mariebuild/issues";
+const char description[] = "A simple build system inspired by my hate against makefiles";
+const char args_doc[] = "[options]...";
+
+static struct argp_option options[] = {
+  {"in", 'i', "FILE", 0, "Specify a buildfile"}
+, {"exec", 'e', "SCRIPT", 0, "Specify a specific script to be executed"}
+, {"check", 'c', 0, 0, "Check if a build file is valid"}
+, {"platform", 'p', "PLATFORM", 0, "Specify the targeted platform"}
+, {"list-platforms", 'l', 0, 0, 
+   "Get a list of platforms supported by the build-file"}
+, {"disable-extensions", 'd', 0, 0, 
+   "Disable all extensions used by the build-file"}
+, {"quiet", 'q', 0, 0, "Disable all output except for Important messages"}
+, {"verbose", 'v', 0, 0, "Output all messages"}
+};
+
+struct arguments {
+  char *build_file;
+  char *exec_script;
+  bool check_file;
+  char *platform;
+  bool disable_extensions;
+  int  log_level;
+};
+
+static error_t parse_opt(int key, char *arg, struct argp_state *state) {
+  struct arguments *args = state->input;
+  switch (key) {
+  case 'i': args->build_file = arg; break;
+  case 'e': args->exec_script = arg; break;
+  case 'c': args->check_file = true; break;
+  case 'p': args->platform = arg; break;
+  case 'd': args->disable_extensions = true;
+  case 'q': args->log_level = MB_LOGLVL_IMP;
+  case 'v': args->log_level = MB_LOGLVL_LOW;
+  default: return ARGP_ERR_UNKNOWN;
+  }
+
+  return 0;
+}
+
+static struct argp argp = { options, parse_opt, args_doc, description };
 
 void print_structure(struct mb_file* build_file) {
   printf("\n==========================\n\n");
@@ -38,7 +85,18 @@ void print_structure(struct mb_file* build_file) {
   printf("\n==========================\n");
 }
 
-int main() {
+int main(int argc, char **argv) {
+  struct arguments args;
+  args.build_file = "./build.mb";
+  args.exec_script = "-";
+  args.check_file = false;
+  args.platform = "-";
+  args.disable_extensions = false;
+  args.log_level = MB_LOGLVL_STD;
+
+  argp_parse(&argp, argc, argv, 0, 0, &args);
+  printf("%s\n", args.build_file);
+
   mb_logging_level = MB_LOGLVL_STD;
   struct mb_file* build_file = malloc(sizeof(mb_file));
   build_file->path = "./build.mb";
@@ -56,8 +114,7 @@ int main() {
     printf("(0x%.8x)\n", result);
     mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
-    free_build_file(build_file);
-    return result;
+    goto mb_exit;
   }
   
   //print_structure(build_file);
@@ -76,6 +133,7 @@ int main() {
     mb_log(MB_LOGLVL_STD, "Build succeeded!\n");
   }
 
+mb_exit:
   free_build_file(build_file);
   return result;
 }

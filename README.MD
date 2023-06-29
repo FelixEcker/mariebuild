@@ -54,10 +54,10 @@ Check if the selected build file is a valid build file.
 **-p ; --platform** <br>
 Specify a target platform.
 
-**--platforms** <br>
+**-l ; --list-platforms** <br>
 List the build file's supported target platforms.
 
-**--disable-extensions** <br>
+**-d ; --disable-extensions** <br>
 Don't allow any extensions to be loaded.
 
 **-q ; --quiet** <br>
