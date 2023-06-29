@@ -25,7 +25,7 @@ const char *argp_program_bug_address =
 const char description[] = 
   "A simple build system inspired by my hate against makefiles\n"
   "Author: Marie Eckert";
-const char args_doc[] = "[iepdqv] [icqv]";
+const char args_doc[] = "";
 
 static struct argp_option options[] = {
   {"in", 'i', "FILE", 0, "Specify a buildfile"}

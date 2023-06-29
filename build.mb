@@ -9,6 +9,8 @@ sector .config
     src_dir       'src'
     obj_dir       'out'
  
+    shell         'bash'
+
     files         'mb_utils.c:mb_parse.c:mb_execute.c:mb.c'
 
     std_flags     '-Wall -I$(depends/includes)'
@@ -17,3 +19,17 @@ sector .config
  
     comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
     finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
+
+sector .scripts
+  stripfile:
+    args file
+    shell sed -i 's/[ \t]*$//' $(file)
+
+  stripall:
+    opt_args prefix postfix
+
+    for file : $(.config/mariebuild/files)
+      call stripfile $(prefix)file$(postfix)
+
+  prepare:
+    call stripall
