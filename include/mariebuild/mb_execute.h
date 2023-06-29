@@ -22,8 +22,7 @@
 typedef struct mb_exec_params {
   char *exec_script;
   char *platform;
-  int  *force;
-  int  *status;
+  int  allow_extensions;
 } mb_exec_params;
 
 /* Used to hold data of current build 

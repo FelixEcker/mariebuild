@@ -91,9 +91,9 @@ void print_structure(struct mb_file* build_file) {
 int main(int argc, char **argv) {
   struct arguments args;
   args.build_file = "./build.mb";
-  args.exec_script = "-";
+  args.exec_script = NULL;
   args.check_file = false;
-  args.platform = "-";
+  args.platform = NULL;
   args.disable_extensions = false;
   args.log_level = MB_LOGLVL_STD;
 
@@ -124,10 +124,9 @@ int main(int argc, char **argv) {
   //print_structure(build_file);
 
   struct mb_exec_params exec_params;
-  exec_params.exec_script = NULL;
-  exec_params.platform    = NULL;
-  exec_params.force       = 0;
-  exec_params.status      = 0;
+  exec_params.exec_script      = args.exec_script;
+  exec_params.platform         = args.platform;
+  exec_params.allow_extensions = !args.disable_extensions;
 
   result = mb_exec_build(build_file, exec_params);
   if (result != 0) {
