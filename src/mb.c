@@ -20,7 +20,8 @@
 #include <mariebuild/mb_utils.h>
 
 const char *argp_program_version = "mariebuild 0.1.0";
-const char *argp_program_bug_address = "github.com/FelixEcker/mariebuild/issues";
+const char *argp_program_bug_address = 
+  "https://github.com/FelixEcker/mariebuild/issues";
 const char description[] = 
   "A simple build system inspired by my hate against makefiles\n"
   "Author: Marie Eckert";
@@ -121,8 +122,6 @@ int main(int argc, char **argv) {
     goto mb_exit;
   }
   
-  //print_structure(build_file);
-
   struct mb_exec_params exec_params;
   exec_params.exec_script      = args.exec_script;
   exec_params.platform         = args.platform;
