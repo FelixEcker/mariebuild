@@ -19,10 +19,11 @@
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
 
-const char *program_version = "mariebuild 0.1.0";
-const char *program_bugs_adress = "github.com/FelixEcker/mariebuild/issues";
+const char *argp_program_version = "mariebuild 0.1.0";
+const char *argp_program_bug_address = "github.com/FelixEcker/mariebuild/issues";
 const char description[] = 
-    "A simple build system inspired by my hate against makefiles";
+  "A simple build system inspired by my hate against makefiles\n"
+  "Author: Marie Eckert";
 const char args_doc[] = "[iepdqv] [icqv]";
 
 static struct argp_option options[] = {
@@ -36,6 +37,7 @@ static struct argp_option options[] = {
    "Disable all extensions used by the build-file"}
 , {"quiet", 'q', 0, 0, "Disable all output except for Important messages"}
 , {"verbose", 'v', 0, 0, "Output all messages"}
+, {0, 0, 0, 0}
 };
 
 struct arguments {
