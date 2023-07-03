@@ -8,6 +8,11 @@ If you do not have any binary of mariebuild, you can build it by running the
 If the compilation is successful a binary by the name of `mb` should be output
 in the projects root directory.
 
+## Regarding Sourcecode Quality
+Since this is my first "real" project in C, the source code might be less then
+good. If anyone has suggestions for improving the source please create an issue
+with the details on how to improve it.
+
 ## Syntax
 Example Build-File:
 ```
@@ -36,7 +41,7 @@ sector .config
     finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
 ```
 
-See `docs/specification.mb` and the files in `examples/` for more details.
+See `docs/specification.md` and the files in `examples/` for more details.
 
 ## mb usage
 By default mb looks for a `build.mb` file which is the executed in debug mode.
