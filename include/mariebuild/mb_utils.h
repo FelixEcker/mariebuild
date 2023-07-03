@@ -23,25 +23,32 @@ typedef SSIZE_T ssize_t;
 
 /* Parsing Errors */
 
-#define MB_PERR_MISSING_REQUIRED   0x00000101
-#define MB_PERR_DUPLICATE_SECTION  0x00000102
-#define MB_PERR_DUPLICATE_SECTOR   0x00000103
-#define MB_PERR_DUPLICATE_FIELD    0x00000104
-#define MB_PERR_INVALID_IDENTIFIER 0x00000105
-#define MB_PERR_INVALID_SYNTAX     0x00000106
+#define MB_PERR_MASK               0x10000000
+#define MB_PERR_MISSING_REQUIRED   0x10000001
+#define MB_PERR_DUPLICATE_SECTION  0x10000002
+#define MB_PERR_DUPLICATE_SECTOR   0x10000003
+#define MB_PERR_DUPLICATE_FIELD    0x10000004
+#define MB_PERR_INVALID_IDENTIFIER 0x10000005
+#define MB_PERR_INVALID_SYNTAX     0x10000006
 
 /* Build Errors */
 
-#define MB_BERR_MISSING_FILES   0x00000201
-#define MB_BERR_MISSING_COMPCMD 0x00000202
-#define MB_BERR_SCRIPT_ERROR    0x00000203
-#define MB_BERR_COMPILE_ERROR   0x00000204
-#define MB_BERR_FINALIZE_ERROR  0x00000205
+#define MB_BERR_MASK            0x20000000
+#define MB_BERR_MISSING_FILES   0x20000001
+#define MB_BERR_MISSING_COMPCMD 0x20000002
+#define MB_BERR_SCRIPT_ERROR    0x20000003
+#define MB_BERR_COMPILE_ERROR   0x20000004
+#define MB_BERR_FINALIZE_ERROR  0x20000005
 
 /* Scriptengine Errors */
 
+#define MB_SERR_MASK               0x30000000
+#define MB_SERR_INVALID_SYNTAX     0x30000001
+#define MB_SERR_INVALID_IDENTIFIER 0x30000002
+#define MB_SERR_SCRIPT_NOT_FOUND   0x30000003
+
 /* Mask if a system error occured which reports its error in errno */
-#define MB_ERR_MASK_ERRNO       0x10000000
+#define MB_ERR_MASK_ERRNO       0xf0000000
 
 /******** Log Levels *********/
 
@@ -78,6 +85,10 @@ int mb_logf(int level, const char *format, ...);
 void mb_log(int level, char *msg);
 
 /******** Misc. Functions ********/
+
+/* Get the name of the given error codes class
+ */
+char *errclass_msg(int err);
 
 /* Translate an error code to an error message
  */
