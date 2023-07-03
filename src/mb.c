@@ -31,6 +31,7 @@ static struct argp_option options[] = {
   {"in", 'i', "FILE", 0, "Specify a buildfile"}
 , {"exec", 'e', "SCRIPT", 0, "Specify a specific script to be executed"}
 , {"check", 'c', 0, 0, "Check if a build file is valid"}
+, {"mode", 'm', "MODE", 0, "Specify the building mode"}
 , {"platform", 'p', "PLATFORM", 0, "Specify the targeted platform"}
 , {"list-platforms", 'l', 0, 0, 
    "Get a list of platforms supported by the build-file"}
@@ -45,6 +46,7 @@ struct arguments {
   char *build_file;
   char *exec_script;
   bool check_file;
+  char *mode;
   char *platform;
   bool disable_extensions;
   int  log_level;
@@ -56,6 +58,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   case 'i': args->build_file = arg; break;
   case 'e': args->exec_script = arg; break;
   case 'c': args->check_file = true; break;
+  case 'm': args->mode = arg; break;
   case 'p': args->platform = arg; break;
   case 'd': args->disable_extensions = true; break;
   case 'q': args->log_level = MB_LOGLVL_IMP; break;
@@ -94,6 +97,7 @@ int main(int argc, char **argv) {
   args.build_file = "./build.mb";
   args.exec_script = NULL;
   args.check_file = false;
+  args.mode = "debug";
   args.platform = NULL;
   args.disable_extensions = false;
   args.log_level = MB_LOGLVL_STD;
@@ -125,6 +129,7 @@ int main(int argc, char **argv) {
   struct mb_exec_params exec_params;
   exec_params.exec_script      = args.exec_script;
   exec_params.platform         = args.platform;
+  exec_params.mode             = args.mode;
   exec_params.allow_extensions = !args.disable_extensions;
 
   result = mb_exec_build(build_file, exec_params);

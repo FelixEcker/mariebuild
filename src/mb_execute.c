@@ -46,10 +46,21 @@ int mb_exec_script(struct mb_build* build, char *name, char *lines) {
 /******** Build Stage Functions ********/
 
 int mb_exec_prepare(struct mb_build* build) {
+  mb_section *prepare_script = find_section(build->build_file, 
+                                            ".scripts/prepare");
+  if (prepare_script == NULL)
+    goto prepare_finished;
+
+  if (prepare_script->lines == NULL)
+    goto prepare_finished;
+
+  mb_exec_script(build, "prepare", prepare_script->lines);
+
+prepare_finished:
   return MB_OK;
 }
 
-int mb_exec_prepare_mode(struct mb_build* build) {
+int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   return MB_OK;
 }
 
@@ -158,6 +169,16 @@ int mb_exec_build(struct mb_file* build_file,
   build.build_file = build_file;
 
   int result;
+
+  mb_log(MB_LOGLVL_LOW, "Entering prepration stage\n");
+  result = mb_exec_prepare(&build);
+  if (result != MB_OK)
+    return result;
+
+  mb_logf(MB_LOGLVL_LOW, "Entering %s-preparation stage\n", exec_params.mode);
+  result = mb_exec_prepare_mode(&build, exec_params.mode);
+  if (result != MB_OK)
+    return result;
 
   mb_log(MB_LOGLVL_LOW, "Entering compilation stage\n");
   result = mb_exec_compile(&build);
