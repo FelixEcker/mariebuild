@@ -15,7 +15,7 @@ sector .config
 
     std_flags     '-Wall -I$(depends/includes)'
     debug_flags   '-ggdb'
-    release_flags ''
+    release_flags '-O3'
  
     comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
     finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
