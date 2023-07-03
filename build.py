@@ -11,6 +11,7 @@ includes = "include/"
 sources = [
             "mb_utils.c",
             "mb_parse.c",
+            "mb_script.c",
             "mb_execute.c",
             "mb.c"
           ]
