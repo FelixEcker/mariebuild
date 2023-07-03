@@ -109,8 +109,8 @@ int main(int argc, char **argv) {
   build_file->path = args.build_file;
   int result = parse_file(build_file);
 
-  if ((result & MB_SERR_MASK_ERRNO) == MB_SERR_MASK_ERRNO)
-    result = result & 0;
+  if ((result & MB_ERR_MASK_ERRNO) == MB_ERR_MASK_ERRNO)
+    result = result ^ 0;
 
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Parsing failed: Line %d\n", build_file->line);

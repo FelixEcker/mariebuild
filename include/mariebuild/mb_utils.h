@@ -38,8 +38,10 @@ typedef SSIZE_T ssize_t;
 #define MB_BERR_COMPILE_ERROR   0x00000204
 #define MB_BERR_FINALIZE_ERROR  0x00000205
 
+/* Scriptengine Errors */
+
 /* Mask if a system error occured which reports its error in errno */
-#define MB_SERR_MASK_ERRNO       0x10000000
+#define MB_ERR_MASK_ERRNO       0x10000000
 
 /******** Log Levels *********/
 
