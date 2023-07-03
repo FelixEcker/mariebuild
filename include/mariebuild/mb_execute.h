@@ -21,6 +21,7 @@
  */
 typedef struct mb_exec_params {
   char *exec_script;
+  char *mode;
   char *platform;
   int  allow_extensions;
 } mb_exec_params;
@@ -42,7 +43,7 @@ int mb_exec_script(struct mb_build* build, char *name, char *lines);
 /* See docs/build_stages.md for details on the build stages */
 
 int mb_exec_prepare(struct mb_build* build);
-int mb_exec_prepare_mode(struct mb_build* build);
+int mb_exec_prepare_mode(struct mb_build* build, char *mode);
 int mb_exec_compile(struct mb_build* build);
 int mb_exec_finalize(struct mb_build* build);
 
