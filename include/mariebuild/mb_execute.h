@@ -1,5 +1,5 @@
 /*
- * mariebuild: mb_execute.c ; author: Marie Eckert
+ * mariebuild: mb_execute.h ; author: Marie Eckert
  *
  * Copyright (c) 2023, Marie Eckert
  * Licensed under the BSD 3-Clause License
@@ -9,7 +9,8 @@
 #ifndef MB_EXECUTE_H
 #define MB_EXECUTE_H
 
-#include <mariebuild/mb_parse.h>
+#include <mariebuild/mb_types.h>
+#include <mariebuild/mb_script.h>
 
 #define MB_STAGE_NONE        -1
 #define MB_STAGE_PREPARE      0

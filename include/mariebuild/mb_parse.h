@@ -9,31 +9,7 @@
 #ifndef MB_PARSE_H
 #define MB_PARSE_H
 
-typedef struct mb_field {
-  char *name;
-  char *value;
-} mb_field;
-
-typedef struct mb_section {
-  char     *name;
-  int      section_type;
-  char     *lines;
-  int      field_count;
-  mb_field *fields;
-} mb_section;
-
-typedef struct mb_sector {
-  char       *name;
-  int        section_count;
-  mb_section *sections;
-} mb_sector;
-
-typedef struct mb_file {
-  char      *path;
-  int       line;
-  int       sector_count;
-  mb_sector *sectors;
-} mb_file;
+#include <mariebuild/mb_types.h>
 
 void free_build_file(mb_file* file);
 
