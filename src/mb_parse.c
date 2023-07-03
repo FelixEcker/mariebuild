@@ -257,7 +257,7 @@ int parse_file(struct mb_file* build_file) {
   errno = 0;
   file = fopen(build_file->path, "r");
   if (file == NULL)
-    return MB_SERR_MASK_ERRNO | errno;
+    return MB_ERR_MASK_ERRNO | errno;
 
   build_file->sector_count = 0;
   build_file->line = 0;
