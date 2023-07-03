@@ -14,6 +14,7 @@
 
 #include <mariebuild/mb_utils.h>
 #include <mariebuild/mb_parse.h>
+#include <mariebuild/mb_script.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -38,14 +39,20 @@ int check_required_fields(struct mb_file* file) {
   return MB_OK;
 }
 
-int mb_exec_script(struct mb_build* build, char *name, char *lines) {
-  mb_logf(MB_LOGLVL_STD, "Executing script %s...\n", name);
-  return MB_OK;
-}
-
 /******** Build Stage Functions ********/
 
+int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
+  struct mb_script script;
+  script.name = name;
+  script.lines = lines;
+  script.parent_sector = find_sector(build->build_file, ".scripts");
+
+  return mb_exec_script(&script);
+}
+
 int mb_exec_prepare(struct mb_build* build) {
+  int result = MB_OK;
+
   mb_section *prepare_script = find_section(build->build_file, 
                                             ".scripts/prepare");
   if (prepare_script == NULL)
@@ -54,10 +61,10 @@ int mb_exec_prepare(struct mb_build* build) {
   if (prepare_script->lines == NULL)
     goto prepare_finished;
 
-  mb_exec_script(build, "prepare", prepare_script->lines);
+  result = _mb_exec_script(build, "prepare", prepare_script->lines);
 
 prepare_finished:
-  return MB_OK;
+  return result;
 }
 
 int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
@@ -189,8 +196,6 @@ int mb_exec_build(struct mb_file* build_file,
   result = mb_exec_finalize(&build);
   if (result != MB_OK)
     return result;
-
-  mb_exec_script(&build, "test", "test");
 
   return MB_OK;
 }
