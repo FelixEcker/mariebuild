@@ -70,6 +70,38 @@ prepare_finished:
 int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   int result = MB_OK;
 
+  // Register and copy mode specific flags
+  char pmariebuild[] = ".config/mariebuild/";
+  char pflags_postfix[] = "_flags";
+  char *pflags = malloc(strlen(pmariebuild)+strlen(mode)+strlen(pflags_postfix)
+                       +1);
+
+  strcpy(pflags, pmariebuild);
+  pflags = strcat(pflags, mode);
+  pflags = strcat(pflags, pflags_postfix);
+
+  mb_field *f_flags = find_field(build->build_file, pflags);
+  if ((f_flags == NULL) || (f_flags->value == NULL))
+    goto prepare_script_exec;
+
+  char pmode_flags[] = ".config/mariebuild/mode_flags";
+  mb_field *f_mode_flags = find_field(build->build_file, pmode_flags);
+  
+  if (f_mode_flags == NULL) {
+    register_field(
+        find_section(build->build_file, pmariebuild)
+      , "mode_flags"
+      , f_flags->value
+    );
+  } else {
+    if (f_flags->value == NULL)
+      goto prepare_script_exec;
+
+    f_mode_flags->value = malloc(strlen(f_flags->value)+1);
+    strcpy(f_mode_flags->value, f_flags->value);
+  }
+  
+prepare_script_exec:
   char prefix[] = "prepare_";
   char *name = malloc(strlen(mode)+strlen(prefix)+1);
   strcpy(name, prefix);
@@ -91,6 +123,8 @@ int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   result = _mb_exec_script(build, strcat(name, mode), prepare_script->lines);
 
 prepare_finished:
+  free(pflags);
+  free(path);
   return result;
 }
 
@@ -119,22 +153,6 @@ int mb_exec_compile(struct mb_build* build) {
   if (f_file == NULL) {
     register_field(find_section(build->build_file, pmariebuild), "file", "");
     f_file = find_field(build->build_file, pfile_field);
-  }
-
-  // Register field mode_flags if not existing
-  char pmodeflags_field[] = ".config/mariebuild/mode_flags";
-  mb_field *f_modeflags = find_field(build->build_file, pmodeflags_field);
-  if (f_modeflags == NULL) {
-    register_field(
-        find_section(build->build_file, pmariebuild)
-      , "mode_flags"
-      , ""
-    );
-
-    // Reassing previously assigned fields because the original pointer gets
-    // broken by new field being registered.
-    f_file = find_field(build->build_file, pfile_field);
-    f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
   }
 
   // Run compilation command for each file
