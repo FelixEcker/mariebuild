@@ -34,12 +34,6 @@ typedef struct mb_build {
   struct mb_file* build_file;
 } mb_build;
 
-/* Executes a script section.
- * name  : The name of the script being executed
- * lines : All lines of the script being run
- */
-int mb_exec_script(struct mb_build* build, char *name, char *lines);
-
 /******** Build Stage functions ********/
 /* See docs/build_stages.md for details on the build stages */
 

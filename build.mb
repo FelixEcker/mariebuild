@@ -11,7 +11,7 @@ sector .config
  
     shell         'bash'
 
-    files         'mb_utils.c:mb_parse.c:mb_execute.c:mb.c'
+    files         'mb_utils.c:mb_parse.c:mb_script.c:mb_execute.c:mb.c'
 
     std_flags     '-Wall -I$(depends/includes)'
     debug_flags   '-ggdb'
