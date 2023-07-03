@@ -68,7 +68,30 @@ prepare_finished:
 }
 
 int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
-  return MB_OK;
+  int result = MB_OK;
+
+  char prefix[] = "prepare_";
+  char *name = malloc(strlen(mode)+strlen(prefix)+1);
+  strcpy(name, prefix);
+  name = strcat(name, mode);
+
+  char pscripts[] = ".scripts/";
+  char *path = malloc(strlen(name)+strlen(pscripts)+1);
+  strcpy(path, pscripts);
+  path = strcat(path, name);
+
+  mb_section *prepare_script = find_section(build->build_file, path);
+  if (prepare_script == NULL)
+    goto prepare_finished;
+
+  if (prepare_script->lines == NULL)
+    goto prepare_finished;
+
+
+  result = _mb_exec_script(build, strcat(name, mode), prepare_script->lines);
+
+prepare_finished:
+  return result;
 }
 
 int mb_exec_compile(struct mb_build* build) {
