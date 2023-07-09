@@ -1,7 +1,7 @@
 sector .config
   depends:
     includes 'include/'
-    libs     ''
+    srcs     'butter/strutils.c'
   
   mariebuild:
     name          'mb'
@@ -11,7 +11,8 @@ sector .config
  
     shell         'bash'
 
-    files         'butter/strutils.c:mb_utils.c:mb_parse.c:mb_script.c:mb_execute.c:mb.c'
+    srcs          'mb_utils.c:mb_parse.c:mb_script.c:mb_execute.c:mb.c'
+    files         '$(depends/srcs):$(srcs)'
 
     std_flags     '-Wall -I$(depends/includes)'
     debug_flags   '-ggdb'

@@ -453,8 +453,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
         char *postfix = strcpy_until(in+i+len+1, ' ');
         
         char delimiter[] = ":";
-        char *files_cpy = malloc(strlen(field->value)+1);
-        strcpy(files_cpy, field->value);
+        char *files_cpy = resolve_fields(file, field->value, context);
 
         char *f_file = strtok(files_cpy, delimiter);
         val_tmp = malloc(strlen(f_file)+strlen(prefix)+strlen(postfix)+1);
