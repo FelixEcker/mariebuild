@@ -19,19 +19,22 @@ Example Build-File:
 sector .config
   depends:
     includes 'include/'
-    libs     ''
-
+    srcs     'butter/strutils.c'
+  
   mariebuild:
     name          'mb'
     compiler      'gcc'
     src_dir       'src'
     obj_dir       'out'
  
-    files         'mb_utils.c:mb_parse.c:mb_execute.c:mb.c'
+    shell         'bash'
+
+    srcs          'mb_utils.c:mb_parse.c:mb_script.c:mb_execute.c:mb.c'
+    files         '$(depends/srcs):$(srcs)'
 
     std_flags     '-Wall -I$(depends/includes)'
     debug_flags   '-ggdb'
-    release_flags ''
+    release_flags '-O3'
  
     ; Another required field, insert your compilation command in here.
     ; The command within this field is run for every file within the files field.
@@ -45,31 +48,30 @@ See `docs/specification.md` and the files in `examples/` for more details.
 
 ## mb usage
 By default mb looks for a `build.mb` file which is the executed in debug mode.
+```
+Usage: mb [OPTION...]
+A simple build system inspired by my hate against makefiles
+Author: Marie Eckert
 
-### Parameters
-**-i ; --in** <br>
-Specify a build file with this parameter.
+  -c, --check                Check if a build file is valid
+  -d, --disable-extensions   Disable all extensions used by the build-file
+  -e, --exec=SCRIPT          Specify a specific script to be executed
+  -i, --in=FILE              Specify a buildfile
+  -l, --list-platforms       Get a list of platforms supported by the
+                             build-file
+  -m, --mode=MODE            Specify the building mode
+  -p, --platform=PLATFORM    Specify the targeted platform
+  -q, --quiet                Disable all output except for Important messages
+  -v, --verbose              Output all messages
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
 
-**-e ; --exec** <br>
-Execute a specific script from the selected build file.
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
 
-**-c ; --check** <br>
-Check if the selected build file is a valid build file.
-
-**-p ; --platform** <br>
-Specify a target platform.
-
-**-l ; --list-platforms** <br>
-List the build file's supported target platforms.
-
-**-d ; --disable-extensions** <br>
-Don't allow any extensions to be loaded.
-
-**-q ; --quiet** <br>
-Only allow important build messages to be shown.
-
-**-v ; --verbose** <br>
-Show all build messages.
+Report bugs to https://github.com/FelixEcker/mariebuild/issues.
+```
 
 ## License
 Mariebuild is licensed under the (CHOOSE LICENSE) License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
