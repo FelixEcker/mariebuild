@@ -74,4 +74,4 @@ Report bugs to https://github.com/FelixEcker/mariebuild/issues.
 ```
 
 ## License
-Mariebuild is licensed under the (CHOOSE LICENSE) License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
+Mariebuild is licensed under the BSD 3-Clause License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
