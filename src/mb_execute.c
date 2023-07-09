@@ -125,6 +125,7 @@ prepare_script_exec:
 prepare_finished:
   free(pflags);
   free(path);
+  free(name);
   return result;
 }
 
@@ -133,6 +134,17 @@ int mb_exec_compile(struct mb_build* build) {
   if (result != MB_OK)
     return result;
 
+  char pmariebuild[] = ".config/mariebuild";
+  
+  char pfile_field[] = ".config/mariebuild/file";
+  mb_field *f_file = find_field(build->build_file, pfile_field);
+  
+  // register field file if not existing
+  if (f_file == NULL) {
+    register_field(find_section(build->build_file, pmariebuild), "file", "");
+    f_file = find_field(build->build_file, pfile_field);
+  }
+  
   // Ready requried data from build->build_file
   // File list
   mb_field *f_files = find_field(build->build_file, fn_files);
@@ -144,16 +156,6 @@ int mb_exec_compile(struct mb_build* build) {
   mb_logf(MB_LOGLVL_LOW, "File List: %s\n", f_files->value);
   char delim[] = ":";
   char *file = strtok(files_cpy, delim);
-
-  char pfile_field[] = ".config/mariebuild/file";
-  mb_field *f_file = find_field(build->build_file, pfile_field);
-  
-  // register field file if not existing
-  char pmariebuild[] = ".config/mariebuild";
-  if (f_file == NULL) {
-    register_field(find_section(build->build_file, pmariebuild), "file", "");
-    f_file = find_field(build->build_file, pfile_field);
-  }
 
   // Run compilation command for each file
   while (file != NULL) {
