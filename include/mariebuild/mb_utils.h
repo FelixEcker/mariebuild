@@ -60,7 +60,6 @@ typedef SSIZE_T ssize_t;
 /******** Globals ********/
 
 extern const char *newline;
-extern const char *str_terminator;
 
 /* The minimum logging level to be output
  */
@@ -93,30 +92,5 @@ char *errclass_msg(int err);
 /* Translate an error code to an error message
  */
 char *errcode_msg(int err);
-
-int str_startswith(char *str, char *start);
-int str_endswith(char *str, char *end);
-
-/* Creates a stringcopy from string src until the first occurence of
- * the delimiter char is hit
- */
-char *strcpy_until(char *src, char delimiter);
-
-/* Creates a stringcopy from string src until the first occurence of
- * the delimiter char is hit before the start of src.
- *
- * E.g. delimiter = "."
- *      input = "foo.bar"
- *      pointer        ^
- * 
- * searches backwards until "." is hit, the it creates a string copy from
- * the pointer of "." to the pointer of src:
- *      result = strcpy("foor.bar")
- *                           ^~~^
- *
- * src_org : Pointer of the origin of src, so that the search does not
- *           underrun.
- */
-char *bstrcpy_until(char *src, char *src_org, char delimiter);
 
 #endif
