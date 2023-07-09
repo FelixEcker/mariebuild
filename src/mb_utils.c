@@ -21,7 +21,6 @@
 #include <string.h>
 
 const char *newline = "\n";
-const char *str_terminator = "\0";
 
 int mb_logging_level = MB_LOGLVL_LOW;
 char *mb_errtext = "";
@@ -171,47 +170,3 @@ char *errcode_msg(int err) {
   }
 }
 
-int str_startswith(char *str, char *start) {
-  return strncmp(start, str, strlen(start));
-}
-
-int str_endswith(char *str, char *end) {
-  int str_len = strlen(str);
-  int end_len = strlen(end);
-
-  return ((str_len > end_len) && !strcmp(str + str_len - end_len, end));
-}
-
-char *strcpy_until(char *src, char delimiter) {
-  int offs = 0;
-  while (offs < strlen(src)) {
-    if (src[offs] == delimiter) break;
-    offs++;
-  }
-
-  if (offs == 0)
-    return "";
-
-  char *res = malloc(offs+1);
-  memcpy(res, src, offs);
-  memcpy(res+offs, str_terminator, 1);
-  
-  return res;
-}
-
-char *bstrcpy_until(char *src, char *src_org, char delimiter) {
-  int offs = 0;
-  while ((src-offs) > src_org) {
-    if ((src-offs)[0] == delimiter) break;
-    offs++;
-  }
-
-  if (offs == 0)
-    return "";
-
-  char *res = malloc(offs+1);
-  memcpy(res, src-offs+1, offs);
-  memcpy(res+offs, str_terminator, 1);
-  
-  return res;
-}

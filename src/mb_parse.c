@@ -13,6 +13,7 @@
 #include <mariebuild/mb_parse.h>
 
 #include <mariebuild/mb_utils.h>
+#include <butter/strutils.h>
 
 #include <stdio.h>
 #include <stdlib.h>
