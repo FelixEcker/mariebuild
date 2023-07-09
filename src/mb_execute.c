@@ -148,8 +148,8 @@ int mb_exec_compile(struct mb_build* build) {
   // Ready requried data from build->build_file
   // File list
   mb_field *f_files = find_field(build->build_file, fn_files);
-  char *files_cpy = malloc(strlen(f_files->value)+1);
-  strcpy(files_cpy, f_files->value);
+  char *files_cpy = resolve_fields((*build->build_file), f_files->value,
+                                   ".config/mariebuild/");
   
   mb_field *f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
 
