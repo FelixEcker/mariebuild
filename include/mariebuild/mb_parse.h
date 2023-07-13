@@ -31,6 +31,19 @@ mb_sector *find_sector(struct mb_file* file, char *sector_name);
 mb_section *find_section(struct mb_file* file, char *path);
 mb_field *find_field(struct mb_file* file, char *path);
 
+/* Formats the contents of the .config/mariebuild/files field.
+ * 
+ * The list is inserted with space-seperation. Chars which come immediatly 
+ * after or before the embed are post- or prefixed to every file.
+ *
+ * Example:
+ *  files = 'file1:file2'
+ *  format_files_field(file, ".config/mariebuild", "out/$(files).o", offs, len)
+ *  = out/file1.o out/file2.o
+ */
+char *format_files_field(struct mb_file file, char *context, 
+                         char *in, int in_offs, int len);
+
 /* Resolve all field embeds within the string "in"
  * context : Path of the section in which the field embeds are being resolved.
  *           This is used for resolving relative field names.
