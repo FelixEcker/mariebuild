@@ -19,6 +19,8 @@
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
 
+/* argp.h argument parsing functionality */
+
 const char *argp_program_version = "mariebuild 0.1.0";
 const char *argp_program_bug_address = 
   "https://github.com/FelixEcker/mariebuild/issues";
@@ -71,6 +73,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
 static struct argp argp = { options, parse_opt, args_doc, description };
 
+/* Debugging function which prints the structure and
+ * contents of a mb_file struct to stdout.
+ */
 void print_structure(struct mb_file* build_file) {
   printf("\n==========================\n\n");
   for (int i = 0; i < build_file->sector_count; i++) {
