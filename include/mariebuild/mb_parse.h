@@ -36,6 +36,13 @@ mb_field *find_field(struct mb_file* file, char *path);
  * The list is inserted with space-seperation. Chars which come immediatly 
  * after or before the embed are post- or prefixed to every file.
  *
+ * Parameters:
+ * mb_file file   The file structure from which to take the files field
+ * char *context  Path of the section which is to be used for local fields
+ * char *in       The string in which the files field is embedded
+ * int  in_offs   Offset for the input string
+ * int  len       Length of the embed including $()
+ *
  * Example:
  *  files = 'file1:file2'
  *  format_files_field(file, ".config/mariebuild", "out/$(files).o", offs, len)
