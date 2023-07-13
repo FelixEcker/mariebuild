@@ -94,8 +94,7 @@ int register_sector(struct mb_file* file, char *name) {
   }
 
   file->sectors[wi].section_count = 0;
-  file->sectors[wi].name = malloc(strlen(name) + 1);
-  strcpy(file->sectors[wi].name, name);
+  file->sectors[wi].name = strdup(name);
 
   mb_logf(MB_LOGLVL_LOW, "registered sector %s\n", name);
   return MB_OK;
@@ -120,8 +119,7 @@ int register_section(struct mb_sector* sector, char *name) {
 
   sector->sections[wi].field_count = 0;
   sector->sections[wi].lines = NULL;
-  sector->sections[wi].name = malloc(strlen(name) + 1);
-  strcpy(sector->sections[wi].name, name);
+  sector->sections[wi].name = strdup(name);
 
   mb_logf(MB_LOGLVL_LOW, "registered section %s\n", name);
   return MB_OK;
@@ -144,10 +142,8 @@ int register_field(struct mb_section* section, char *name, char *value) {
     section->fields = realloc(section->fields, (wi+1) * sizeof(mb_field));
   }
 
-  section->fields[wi].name = malloc(strlen(name) + 1);
-  strcpy(section->fields[wi].name, name);
-  section->fields[wi].value = malloc(strlen(value) + 1);
-  strcpy(section->fields[wi].value, value);
+  section->fields[wi].name = strdup(name);
+  section->fields[wi].value = strdup(value);
 
   mb_logf(MB_LOGLVL_LOW, "registered field %s\n", name);
   return MB_OK;
@@ -194,8 +190,7 @@ int parse_line(struct mb_file* file, char *line) {
         return MB_PERR_INVALID_SYNTAX;
     }
 
-    char *content = malloc(strlen(token) + 1);
-    strcpy(content, token);
+    char *content = strdup(token);
 
     token = strtok(NULL, delimiter);
     while (token != NULL) {
@@ -211,6 +206,7 @@ int parse_line(struct mb_file* file, char *line) {
       char *cleaned_content = malloc(strlen(content)-1);
       memcpy(cleaned_content, content+1, strlen(content)-2);
       memcpy(cleaned_content+strlen(content)-2, str_terminator, 1);
+
       register_field(section, name, cleaned_content);
       free(cleaned_content);
     } else {
@@ -388,6 +384,55 @@ mb_field *find_field(struct mb_file* file, char *path) {
   return field;
 }
 
+char *format_files_field(struct mb_file file, char *context, 
+                         char *in, int in_offs, int len) {
+  char *prefix = bstrcpy_until(in+in_offs-1, in, ' ');
+  char *postfix = strcpy_until(in+in_offs+len+1, ' ');
+  
+  mb_field *f_files = find_field(&file, ".config/mariebuild/files");
+
+  char delimiter[] = ":";
+  char *files_cpy = resolve_fields(file, f_files->value, context);
+
+  char *f_file = strtok(files_cpy, delimiter);
+  char *result = malloc(strlen(f_file)+strlen(prefix)+strlen(postfix)+1);
+
+  int offs = 0;
+  while (f_file != NULL) {
+    if (offs > 0) {
+      int size = 
+        strlen(result)+strlen(f_file)+strlen(prefix)+strlen(postfix)+2;
+      result = realloc(
+                  result, size
+                );
+      memcpy(result+offs, " ", 1);
+      offs++;
+    }
+
+    if (offs > 0) {
+      memcpy(result+offs, prefix, strlen(prefix));
+      offs += strlen(prefix);
+    }
+
+    memcpy(result+offs, f_file, strlen(f_file));
+    offs += strlen(f_file);
+    f_file = strtok(NULL, delimiter);
+    
+    if (f_file != NULL) {
+      strcpy(result+offs, postfix);
+      offs += strlen(postfix);
+    }
+  }
+
+  memcpy(result+offs, str_terminator, 1);
+
+  free(files_cpy);
+  free(prefix);
+  free(postfix);
+
+  return result;
+}
+
 /* TODO: This is singlehandidly the worst code ive ever written, this needs a
  * desperate cleanup its so fucking long and confusing
  * */
@@ -449,47 +494,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
       char *val_tmp;
       if (strcmp(name, ".config/mariebuild/files") == 0) {
-        char *prefix = bstrcpy_until(in+i-1, in, ' ');
-        char *postfix = strcpy_until(in+i+len+1, ' ');
-        
-        char delimiter[] = ":";
-        char *files_cpy = resolve_fields(file, field->value, context);
-
-        char *f_file = strtok(files_cpy, delimiter);
-        val_tmp = malloc(strlen(f_file)+strlen(prefix)+strlen(postfix)+1);
-
-        int offs = 0;
-        while (f_file != NULL) {
-          if (offs > 0) {
-            int size = 
-              strlen(val_tmp)+strlen(f_file)+strlen(prefix)+strlen(postfix)+2;
-            val_tmp = realloc(
-                        val_tmp, size
-                      );
-            memcpy(val_tmp+offs, " ", 1);
-            offs++;
-          }
-
-          if (offs > 0) {
-            memcpy(val_tmp+offs, prefix, strlen(prefix));
-            offs += strlen(prefix);
-          }
-
-          memcpy(val_tmp+offs, f_file, strlen(f_file));
-          offs += strlen(f_file);
-          f_file = strtok(NULL, delimiter);
-          
-          if (f_file != NULL) {
-            strcpy(val_tmp+offs, postfix);
-            offs += strlen(postfix);
-          }
-        }
-
-        memcpy(val_tmp+offs, str_terminator, 1);
-
-        free(files_cpy);
-        free(prefix);
-        free(postfix);
+        val_tmp = format_files_field(file, context, in, i, len);
       } else {
         val_tmp = resolve_fields(file, field->value, context);
       }

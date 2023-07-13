@@ -9,6 +9,7 @@ source_dir = "src/"
 obj_dir = "out/"
 includes = "include/"
 sources = [
+            "butter/strutils.c",
             "mb_utils.c",
             "mb_parse.c",
             "mb_script.c",
