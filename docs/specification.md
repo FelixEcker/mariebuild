@@ -104,7 +104,7 @@ quit
 ## Proposal: Field Processing
 A fields contents can be processed with a few macros:
 * `<field>:'<string>'` Create a list of strings by seperating the contents of `<field>` by `<string>`
-* `$[<string1 (optional)<string list><string2 (optional)>]` Create a singular string from
+* `$<string1 (optional)(<string list>)<string2 (optional)>` Create a singular string from
   `<stringlist>` with `<string1>` and `<string2>` being prefixed and postfixed to each element of
   the list
 * `$(<field>)` Insert the contents of `<field>` into the current string
@@ -112,24 +112,22 @@ A fields contents can be processed with a few macros:
 ## mb command
 ### Usage
 ```
-mb <mode> <args>
+Usage: mb [OPTION...]
 
-Arguments:
-    e exec
-        Execute a specific script from the build file
-    c check
-        Check if the given mb file is valid
-    i in
-        Specify a file to be used. This is not required as mb will look for
-        a mb file named "build.mb" by default.
-    p platform
-        Specify the targeted platforms name
-    d disable-extensions
-        Disable all extensions. Can not be overriden in the extensions section
-    q quiet
-        Disable all output from mb, only output from scripts will be allowed
-    v verbose
-        Enable verbose output from mb
+  -c, --check                Check if a build file is valid
+  -d, --disable-extensions   Disable all extensions used by the build-file
+  -e, --exec=SCRIPT          Specify a specific script to be executed
+  -i, --in=FILE              Specify a buildfile
+  -l, --list-platforms       Get a list of platforms supported by the
+                             build-file
+  -m, --mode=MODE            Specify the building mode
+  -p, --platform=PLATFORM    Specify the targeted platform
+  -q, --quiet                Disable all output except for Important messages
+  -v, --verbose              Output all messages
+  -?, --help                 Give this help list
+      --usage                Give a short usage message
+  -V, --version              Print program version
+
 ```
 ### mb.cfg
 mb.cfg is a file with default arguments for mb, it is searched for in the following order:
