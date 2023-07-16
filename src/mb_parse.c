@@ -196,8 +196,7 @@ int parse_line(struct mb_file* file, char *line) {
                                  strlen(complete_content)+1);
         strcpy(section->lines+strlen(section->lines), complete_content);
       } else {
-        section->lines = malloc(strlen(complete_content)+1);
-        strcpy(section->lines, complete_content);
+        section->lines = strdup(complete_content);
       }
 
       free(complete_content);
