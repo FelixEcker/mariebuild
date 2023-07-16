@@ -41,6 +41,7 @@ static struct argp_option options[] = {
    "Disable all extensions used by the build-file"}
 , {"quiet", 'q', 0, 0, "Disable all output except for Important messages"}
 , {"verbose", 'v', 0, 0, "Output all messages"}
+, {"structure", 's', 0, 0, "Print parsed structure then exit"}
 , {0, 0, 0, 0}
 };
 
@@ -52,6 +53,7 @@ struct arguments {
   char *platform;
   bool disable_extensions;
   int  log_level;
+  bool print_structure;
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
@@ -65,6 +67,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   case 'd': args->disable_extensions = true; break;
   case 'q': args->log_level = MB_LOGLVL_IMP; break;
   case 'v': args->log_level = MB_LOGLVL_LOW; break;
+  case 's': args->print_structure = true; break;
   default: return ARGP_ERR_UNKNOWN;
   }
 
@@ -128,6 +131,11 @@ int main(int argc, char **argv) {
 
   if (args.check_file) {
     mb_log(MB_LOGLVL_IMP, "Build-File passed\n");
+    goto mb_exit;
+  }
+  
+  if (args.print_structure) {
+    print_structure(build_file);
     goto mb_exit;
   }
 
