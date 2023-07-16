@@ -22,9 +22,9 @@
 /* argp.h argument parsing functionality */
 
 const char *argp_program_version = "mariebuild 0.1.0";
-const char *argp_program_bug_address = 
+const char *argp_program_bug_address =
   "https://github.com/FelixEcker/mariebuild/issues";
-const char description[] = 
+const char description[] =
   "A simple build system inspired by my hate against makefiles\n"
   "Author: Marie Eckert";
 const char args_doc[] = "";
@@ -35,9 +35,9 @@ static struct argp_option options[] = {
 , {"check", 'c', 0, 0, "Check if a build file is valid"}
 , {"mode", 'm', "MODE", 0, "Specify the building mode"}
 , {"platform", 'p', "PLATFORM", 0, "Specify the targeted platform"}
-, {"list-platforms", 'l', 0, 0, 
+, {"list-platforms", 'l', 0, 0,
    "Get a list of platforms supported by the build-file"}
-, {"disable-extensions", 'd', 0, 0, 
+, {"disable-extensions", 'd', 0, 0,
    "Disable all extensions used by the build-file"}
 , {"quiet", 'q', 0, 0, "Disable all output except for Important messages"}
 , {"verbose", 'v', 0, 0, "Output all messages"}
@@ -119,7 +119,7 @@ int main(int argc, char **argv) {
 
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Parsing failed: Line %d\n", build_file->line);
-    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", errcode_msg(result), 
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", errcode_msg(result),
                                                           result);
     mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
@@ -130,7 +130,7 @@ int main(int argc, char **argv) {
     mb_log(MB_LOGLVL_IMP, "Build-File passed\n");
     goto mb_exit;
   }
-  
+
   struct mb_exec_params exec_params;
   exec_params.exec_script      = args.exec_script;
   exec_params.platform         = args.platform;

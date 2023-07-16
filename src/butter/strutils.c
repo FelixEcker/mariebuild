@@ -30,7 +30,7 @@ char *strcpy_until(char *src, char delimiter) {
   char *res = malloc(offs+1);
   memcpy(res, src, offs);
   memcpy(res+offs, str_terminator, 1);
-  
+
   return res;
 }
 
@@ -47,7 +47,7 @@ char *bstrcpy_until(char *src, char *src_org, char delimiter) {
   char *res = malloc(offs+1);
   memcpy(res, src-offs+1, offs);
   memcpy(res+offs, str_terminator, 1);
-  
+
   return res;
 }
 

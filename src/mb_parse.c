@@ -121,8 +121,6 @@ int register_field(struct mb_section* section, char *name, char *value) {
   return MB_OK;
 }
 
-/* Parses a single line.
- * */
 int parse_line(struct mb_file* file, char *line) {
   char delimiter[] = " ";
   line = trim_whitespace(line);
@@ -150,6 +148,7 @@ int parse_line(struct mb_file* file, char *line) {
     mb_sector *sector = &file->sectors[file->sector_count-1];
     mb_section *section = &sector->sections[sector->section_count-1];
 
+    // 1 = .sector ; 0 = .config
     int sector_type = strcmp(sector->name, ".config");
 
     char *name = token;
@@ -212,11 +211,6 @@ int parse_line(struct mb_file* file, char *line) {
   return MB_OK;
 }
 
-/* Parses the file under the path in build_file->path line by line,
- * will return MB_OK if there were no errors.
- *
- * Refer to mb_utils.h for error codes.
- * */
 int parse_file(struct mb_file* build_file) {
   FILE *file;
   char *line = NULL;
@@ -250,7 +244,7 @@ int parse_file(struct mb_file* build_file) {
 /* NOTE: The returned string of this function has to be freed after usage!!!
  */
 char *get_path_elem(char *path, int n_elem) {
-  if (path == NULL) 
+  if (path == NULL)
     return NULL;
 
   char delimiter = '/';
@@ -324,14 +318,14 @@ mb_field *find_field(struct mb_file* file, char *path) {
   char *sector_name = get_path_elem(path, 0);
   char *section_name = get_path_elem(path, 1);
   char *field_name = get_path_elem(path, 2);
- 
-  if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
-    return NULL; 
 
-  sector_name = realloc(sector_name, 
+  if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
+    return NULL;
+
+  sector_name = realloc(sector_name,
                         strlen(sector_name)+strlen(section_name)+2);
-  mb_section *section = find_section(file, 
-                                     strcat(strcat(sector_name, "/"), 
+  mb_section *section = find_section(file,
+                                     strcat(strcat(sector_name, "/"),
                                             section_name)
                                     );
 
@@ -350,17 +344,17 @@ mb_field *find_field(struct mb_file* file, char *path) {
       break;
     }
   }
-  
+
   free(field_name);
 
   return field;
 }
 
-char *format_files_field(struct mb_file file, char *context, 
+char *format_files_field(struct mb_file file, char *context,
                          char *in, int in_offs, int len) {
   char *prefix = bstrcpy_until(in+in_offs-1, in, ' ');
   char *postfix = strcpy_until(in+in_offs+len+1, ' ');
-  
+
   mb_field *f_files = find_field(&file, ".config/mariebuild/files");
 
   char delimiter[] = ":";
@@ -372,7 +366,7 @@ char *format_files_field(struct mb_file file, char *context,
   int offs = 0;
   while (f_file != NULL) {
     if (offs > 0) {
-      int size = 
+      int size =
         strlen(result)+strlen(f_file)+strlen(prefix)+strlen(postfix)+2;
       result = realloc(
                   result, size
@@ -389,7 +383,7 @@ char *format_files_field(struct mb_file file, char *context,
     memcpy(result+offs, f_file, strlen(f_file));
     offs += strlen(f_file);
     f_file = strtok(NULL, delimiter);
-    
+
     if (f_file != NULL) {
       strcpy(result+offs, postfix);
       offs += strlen(postfix);
@@ -430,7 +424,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
       int term_offs = len-2;
       if (is_local) {
-        // Subtract two from length to account for $() = -3 
+        // Subtract two from length to account for $() = -3
         // and the NULL Byte = +1
         name = malloc(strlen(context) + (len - 1));
         memcpy(name, context, strlen(context));
@@ -444,7 +438,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
         char *tmp_name = malloc((len - 1));
         memcpy(tmp_name, in+i+2, len-2);
         memcpy(tmp_name+len-2, str_terminator, 1);
-        
+
         if (str_startswith(tmp_name, prefix) != 0) {
           name = malloc(strlen(prefix) + (len - 1));
           memcpy(name, prefix, strlen(prefix));
