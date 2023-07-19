@@ -95,7 +95,7 @@ int mb_logf(int level, const char *format, ...) {
   }
 
   printf("%s ", level_prefix);
-  
+
   va_list arg;
   int done;
 

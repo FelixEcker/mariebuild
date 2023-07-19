@@ -27,7 +27,7 @@ typedef struct mb_exec_params {
   int  allow_extensions;
 } mb_exec_params;
 
-/* Used to hold data of current build 
+/* Used to hold data of current build
  */
 typedef struct mb_build {
   int             stage;
@@ -44,7 +44,7 @@ int mb_exec_finalize(struct mb_build* build);
 
 /* Execute an entire build for the given build file
  */
-int mb_exec_build(struct mb_file* build_file, 
+int mb_exec_build(struct mb_file* build_file,
                   struct mb_exec_params exec_params);
 
 #endif

@@ -18,35 +18,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <errno.h>
-#include <ctype.h>
 #include <string.h>
-
-/******** Local Utility Functions ********/
-
-/* Note: This function returns a pointer to a substring of the original string.
- * If the given string was allocated dynamically, the caller must not overwrite
- * that pointer with the returned value, since the original pointer must be
- * deallocated using the same allocator with which it was allocated.  
- * The return value must NOT be deallocated using free() etc.
- * */
-char *trim_whitespace(char *str) {
-  char *end;
-
-  // Trim leading space
-  while(isspace((unsigned char)*str)) str++;
-
-  if(*str == 0)  // All spaces?
-    return str;
-
-  // Trim trailing space
-  end = str + strlen(str) - 1;
-  while(end > str && isspace((unsigned char)*end)) end--;
-
-  // Write new null terminator character
-  end[1] = '\0';
-
-  return str;
-}
 
 /******** mb_parse.h ********/
 
@@ -94,8 +66,7 @@ int register_sector(struct mb_file* file, char *name) {
   }
 
   file->sectors[wi].section_count = 0;
-  file->sectors[wi].name = malloc(strlen(name) + 1);
-  strcpy(file->sectors[wi].name, name);
+  file->sectors[wi].name = strdup(name);
 
   mb_logf(MB_LOGLVL_LOW, "registered sector %s\n", name);
   return MB_OK;
@@ -120,8 +91,7 @@ int register_section(struct mb_sector* sector, char *name) {
 
   sector->sections[wi].field_count = 0;
   sector->sections[wi].lines = NULL;
-  sector->sections[wi].name = malloc(strlen(name) + 1);
-  strcpy(sector->sections[wi].name, name);
+  sector->sections[wi].name = strdup(name);
 
   mb_logf(MB_LOGLVL_LOW, "registered section %s\n", name);
   return MB_OK;
@@ -144,17 +114,13 @@ int register_field(struct mb_section* section, char *name, char *value) {
     section->fields = realloc(section->fields, (wi+1) * sizeof(mb_field));
   }
 
-  section->fields[wi].name = malloc(strlen(name) + 1);
-  strcpy(section->fields[wi].name, name);
-  section->fields[wi].value = malloc(strlen(value) + 1);
-  strcpy(section->fields[wi].value, value);
+  section->fields[wi].name = strdup(name);
+  section->fields[wi].value = strdup(value);
 
   mb_logf(MB_LOGLVL_LOW, "registered field %s\n", name);
   return MB_OK;
 }
 
-/* Parses a single line.
- * */
 int parse_line(struct mb_file* file, char *line) {
   char delimiter[] = " ";
   line = trim_whitespace(line);
@@ -182,6 +148,7 @@ int parse_line(struct mb_file* file, char *line) {
     mb_sector *sector = &file->sectors[file->sector_count-1];
     mb_section *section = &sector->sections[sector->section_count-1];
 
+    // 1 = .sector ; 0 = .config
     int sector_type = strcmp(sector->name, ".config");
 
     char *name = token;
@@ -194,8 +161,7 @@ int parse_line(struct mb_file* file, char *line) {
         return MB_PERR_INVALID_SYNTAX;
     }
 
-    char *content = malloc(strlen(token) + 1);
-    strcpy(content, token);
+    char *content = strdup(token);
 
     token = strtok(NULL, delimiter);
     while (token != NULL) {
@@ -211,6 +177,7 @@ int parse_line(struct mb_file* file, char *line) {
       char *cleaned_content = malloc(strlen(content)-1);
       memcpy(cleaned_content, content+1, strlen(content)-2);
       memcpy(cleaned_content+strlen(content)-2, str_terminator, 1);
+
       register_field(section, name, cleaned_content);
       free(cleaned_content);
     } else {
@@ -229,8 +196,7 @@ int parse_line(struct mb_file* file, char *line) {
                                  strlen(complete_content)+1);
         strcpy(section->lines+strlen(section->lines), complete_content);
       } else {
-        section->lines = malloc(strlen(complete_content)+1);
-        strcpy(section->lines, complete_content);
+        section->lines = strdup(complete_content);
       }
 
       free(complete_content);
@@ -244,11 +210,6 @@ int parse_line(struct mb_file* file, char *line) {
   return MB_OK;
 }
 
-/* Parses the file under the path in build_file->path line by line,
- * will return MB_OK if there were no errors.
- *
- * Refer to mb_utils.h for error codes.
- * */
 int parse_file(struct mb_file* build_file) {
   FILE *file;
   char *line = NULL;
@@ -282,7 +243,7 @@ int parse_file(struct mb_file* build_file) {
 /* NOTE: The returned string of this function has to be freed after usage!!!
  */
 char *get_path_elem(char *path, int n_elem) {
-  if (path == NULL) 
+  if (path == NULL)
     return NULL;
 
   char delimiter = '/';
@@ -356,14 +317,14 @@ mb_field *find_field(struct mb_file* file, char *path) {
   char *sector_name = get_path_elem(path, 0);
   char *section_name = get_path_elem(path, 1);
   char *field_name = get_path_elem(path, 2);
- 
-  if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
-    return NULL; 
 
-  sector_name = realloc(sector_name, 
+  if ((sector_name == NULL) || (section_name == NULL) || (field_name == NULL))
+    return NULL;
+
+  sector_name = realloc(sector_name,
                         strlen(sector_name)+strlen(section_name)+2);
-  mb_section *section = find_section(file, 
-                                     strcat(strcat(sector_name, "/"), 
+  mb_section *section = find_section(file,
+                                     strcat(strcat(sector_name, "/"),
                                             section_name)
                                     );
 
@@ -382,10 +343,59 @@ mb_field *find_field(struct mb_file* file, char *path) {
       break;
     }
   }
-  
+
   free(field_name);
 
   return field;
+}
+
+char *format_files_field(struct mb_file file, char *context,
+                         char *in, int in_offs, int len) {
+  char *prefix = bstrcpy_until(in+in_offs-1, in, ' ');
+  char *postfix = strcpy_until(in+in_offs+len+1, ' ');
+
+  mb_field *f_files = find_field(&file, ".config/mariebuild/files");
+
+  char delimiter[] = ":";
+  char *files_cpy = resolve_fields(file, f_files->value, context);
+
+  char *f_file = strtok(files_cpy, delimiter);
+  char *result = malloc(strlen(f_file)+strlen(prefix)+strlen(postfix)+1);
+
+  int offs = 0;
+  while (f_file != NULL) {
+    if (offs > 0) {
+      int size =
+        strlen(result)+strlen(f_file)+strlen(prefix)+strlen(postfix)+2;
+      result = realloc(
+                  result, size
+                );
+      memcpy(result+offs, " ", 1);
+      offs++;
+    }
+
+    if (offs > 0) {
+      memcpy(result+offs, prefix, strlen(prefix));
+      offs += strlen(prefix);
+    }
+
+    memcpy(result+offs, f_file, strlen(f_file));
+    offs += strlen(f_file);
+    f_file = strtok(NULL, delimiter);
+
+    if (f_file != NULL) {
+      strcpy(result+offs, postfix);
+      offs += strlen(postfix);
+    }
+  }
+
+  memcpy(result+offs, str_terminator, 1);
+
+  free(files_cpy);
+  free(prefix);
+  free(postfix);
+
+  return result;
 }
 
 /* TODO: This is singlehandidly the worst code ive ever written, this needs a
@@ -413,7 +423,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
       int term_offs = len-2;
       if (is_local) {
-        // Subtract two from length to account for $() = -3 
+        // Subtract two from length to account for $() = -3
         // and the NULL Byte = +1
         name = malloc(strlen(context) + (len - 1));
         memcpy(name, context, strlen(context));
@@ -427,7 +437,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
         char *tmp_name = malloc((len - 1));
         memcpy(tmp_name, in+i+2, len-2);
         memcpy(tmp_name+len-2, str_terminator, 1);
-        
+
         if (str_startswith(tmp_name, prefix) != 0) {
           name = malloc(strlen(prefix) + (len - 1));
           memcpy(name, prefix, strlen(prefix));
@@ -449,47 +459,7 @@ char *resolve_fields(struct mb_file file, char *in, char *context) {
 
       char *val_tmp;
       if (strcmp(name, ".config/mariebuild/files") == 0) {
-        char *prefix = bstrcpy_until(in+i-1, in, ' ');
-        char *postfix = strcpy_until(in+i+len+1, ' ');
-        
-        char delimiter[] = ":";
-        char *files_cpy = resolve_fields(file, field->value, context);
-
-        char *f_file = strtok(files_cpy, delimiter);
-        val_tmp = malloc(strlen(f_file)+strlen(prefix)+strlen(postfix)+1);
-
-        int offs = 0;
-        while (f_file != NULL) {
-          if (offs > 0) {
-            int size = 
-              strlen(val_tmp)+strlen(f_file)+strlen(prefix)+strlen(postfix)+2;
-            val_tmp = realloc(
-                        val_tmp, size
-                      );
-            memcpy(val_tmp+offs, " ", 1);
-            offs++;
-          }
-
-          if (offs > 0) {
-            memcpy(val_tmp+offs, prefix, strlen(prefix));
-            offs += strlen(prefix);
-          }
-
-          memcpy(val_tmp+offs, f_file, strlen(f_file));
-          offs += strlen(f_file);
-          f_file = strtok(NULL, delimiter);
-          
-          if (f_file != NULL) {
-            strcpy(val_tmp+offs, postfix);
-            offs += strlen(postfix);
-          }
-        }
-
-        memcpy(val_tmp+offs, str_terminator, 1);
-
-        free(files_cpy);
-        free(prefix);
-        free(postfix);
+        val_tmp = format_files_field(file, context, in, i, len);
       } else {
         val_tmp = resolve_fields(file, field->value, context);
       }

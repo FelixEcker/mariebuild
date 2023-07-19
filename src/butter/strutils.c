@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 const char str_terminator[] = "\0";
 
@@ -29,7 +30,7 @@ char *strcpy_until(char *src, char delimiter) {
   char *res = malloc(offs+1);
   memcpy(res, src, offs);
   memcpy(res+offs, str_terminator, 1);
-  
+
   return res;
 }
 
@@ -46,7 +47,7 @@ char *bstrcpy_until(char *src, char *src_org, char delimiter) {
   char *res = malloc(offs+1);
   memcpy(res, src-offs+1, offs);
   memcpy(res+offs, str_terminator, 1);
-  
+
   return res;
 }
 
@@ -71,7 +72,7 @@ char *str_replace(char *orig, char *rep, char *with) {
 
   // count the number of replacements needed
   ins = orig;
-  for (count = 0; tmp = strstr(ins, rep); ++count) {
+  for (count = 0; (tmp = strstr(ins, rep)); ++count) {
     ins = tmp + len_rep;
   }
 
@@ -97,3 +98,21 @@ char *str_replace(char *orig, char *rep, char *with) {
   return result;
 }
 
+char *trim_whitespace(char *str) {
+  char *end;
+
+  // Trim leading space
+  while(isspace((unsigned char)*str)) str++;
+
+  if(*str == 0)  // All spaces?
+    return str;
+
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+
+  // Write new null terminator character
+  end[1] = str_terminator[0];
+
+  return str;
+}

@@ -19,10 +19,12 @@
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
 
+/* argp.h argument parsing functionality */
+
 const char *argp_program_version = "mariebuild 0.1.0";
-const char *argp_program_bug_address = 
+const char *argp_program_bug_address =
   "https://github.com/FelixEcker/mariebuild/issues";
-const char description[] = 
+const char description[] =
   "A simple build system inspired by my hate against makefiles\n"
   "Author: Marie Eckert";
 const char args_doc[] = "";
@@ -33,12 +35,13 @@ static struct argp_option options[] = {
 , {"check", 'c', 0, 0, "Check if a build file is valid"}
 , {"mode", 'm', "MODE", 0, "Specify the building mode"}
 , {"platform", 'p', "PLATFORM", 0, "Specify the targeted platform"}
-, {"list-platforms", 'l', 0, 0, 
+, {"list-platforms", 'l', 0, 0,
    "Get a list of platforms supported by the build-file"}
-, {"disable-extensions", 'd', 0, 0, 
+, {"disable-extensions", 'd', 0, 0,
    "Disable all extensions used by the build-file"}
 , {"quiet", 'q', 0, 0, "Disable all output except for Important messages"}
 , {"verbose", 'v', 0, 0, "Output all messages"}
+, {"structure", 's', 0, 0, "Print parsed structure then exit"}
 , {0, 0, 0, 0}
 };
 
@@ -50,6 +53,7 @@ struct arguments {
   char *platform;
   bool disable_extensions;
   int  log_level;
+  bool print_structure;
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
@@ -63,6 +67,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   case 'd': args->disable_extensions = true; break;
   case 'q': args->log_level = MB_LOGLVL_IMP; break;
   case 'v': args->log_level = MB_LOGLVL_LOW; break;
+  case 's': args->print_structure = true; break;
   default: return ARGP_ERR_UNKNOWN;
   }
 
@@ -71,6 +76,9 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 
 static struct argp argp = { options, parse_opt, args_doc, description };
 
+/* Debugging function which prints the structure and
+ * contents of a mb_file struct to stdout.
+ */
 void print_structure(struct mb_file* build_file) {
   printf("\n==========================\n\n");
   for (int i = 0; i < build_file->sector_count; i++) {
@@ -114,7 +122,7 @@ int main(int argc, char **argv) {
 
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Parsing failed: Line %d\n", build_file->line);
-    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", errcode_msg(result), 
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", errcode_msg(result),
                                                           result);
     mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
@@ -126,6 +134,11 @@ int main(int argc, char **argv) {
     goto mb_exit;
   }
   
+  if (args.print_structure) {
+    print_structure(build_file);
+    goto mb_exit;
+  }
+
   struct mb_exec_params exec_params;
   exec_params.exec_script      = args.exec_script;
   exec_params.platform         = args.platform;
