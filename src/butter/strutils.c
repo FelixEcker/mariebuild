@@ -72,7 +72,7 @@ char *str_replace(char *orig, char *rep, char *with) {
 
   // count the number of replacements needed
   ins = orig;
-  for (count = 0; tmp = strstr(ins, rep); ++count) {
+  for (count = 0; (tmp = strstr(ins, rep)); ++count) {
     ins = tmp + len_rep;
   }
 
@@ -112,7 +112,7 @@ char *trim_whitespace(char *str) {
   while(end > str && isspace((unsigned char)*end)) end--;
 
   // Write new null terminator character
-  end[1] = '\0';
+  end[1] = str_terminator[0];
 
   return str;
 }
