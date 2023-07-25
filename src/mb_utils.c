@@ -15,12 +15,12 @@
 #include <mariebuild/mb_parse.h>
 #include <mariebuild/mb_execute.h>
 
+#include <butter/strutils.h>
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-
-const char *newline = "\n";
 
 int mb_logging_level = MB_LOGLVL_LOW;
 char *mb_errtext = "";
