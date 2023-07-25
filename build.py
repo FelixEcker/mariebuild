@@ -1,3 +1,4 @@
+#!/usr/bin/python
 # This python buildscript is intended to build mariebuild
 # if there is no build already present,
 
