@@ -59,8 +59,6 @@ typedef SSIZE_T ssize_t;
 
 /******** Globals ********/
 
-extern const char *newline;
-
 /* The minimum logging level to be output
  */
 extern int mb_logging_level;
