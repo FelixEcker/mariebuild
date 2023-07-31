@@ -12,8 +12,9 @@
 
 #include <mariebuild/mb_execute.h>
 
+#include <mcfg.h>
+
 #include <mariebuild/mb_utils.h>
-#include <mariebuild/mb_parse.h>
 #include <mariebuild/mb_script.h>
 
 #include <stdlib.h>
@@ -26,12 +27,12 @@
 char fn_files[] = ".config/mariebuild/files";
 char fn_comp_cmd[] = ".config/mariebuild/comp_cmd";
 
-int check_required_fields(struct mb_file* file) {
-  mb_field *f_files = find_field(file, fn_files);
+int check_required_fields(struct mcfg_file* file) {
+  mcfg_field *f_files = find_field(file, fn_files);
   if ((f_files == NULL) || (f_files->value == NULL))
     return MB_BERR_MISSING_FILES;
 
-  mb_field *f_comp_cmd = find_field(file, fn_comp_cmd);
+  mcfg_field *f_comp_cmd = find_field(file, fn_comp_cmd);
 
   if ((f_comp_cmd == NULL) || (f_comp_cmd->value == NULL))
     return MB_BERR_MISSING_COMPCMD;
@@ -53,7 +54,7 @@ int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
 int mb_exec_prepare(struct mb_build* build) {
   int result = MB_OK;
 
-  mb_section *prepare_script = find_section(build->build_file,
+  mcfg_section *prepare_script = find_section(build->build_file,
                                             ".scripts/prepare");
   if (prepare_script == NULL)
     goto prepare_finished;
@@ -80,12 +81,12 @@ int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   pflags = strcat(pflags, mode);
   pflags = strcat(pflags, pflags_postfix);
 
-  mb_field *f_flags = find_field(build->build_file, pflags);
+  mcfg_field *f_flags = find_field(build->build_file, pflags);
   if ((f_flags == NULL) || (f_flags->value == NULL))
     goto prepare_script_exec;
 
   char pmode_flags[] = ".config/mariebuild/mode_flags";
-  mb_field *f_mode_flags = find_field(build->build_file, pmode_flags);
+  mcfg_field *f_mode_flags = find_field(build->build_file, pmode_flags);
 
   if (f_mode_flags == NULL) {
     register_field(
@@ -112,7 +113,7 @@ prepare_script_exec:
   strcpy(path, pscripts);
   path = strcat(path, name);
 
-  mb_section *prepare_script = find_section(build->build_file, path);
+  mcfg_section *prepare_script = find_section(build->build_file, path);
   if (prepare_script == NULL)
     goto prepare_finished;
 
@@ -137,7 +138,7 @@ int mb_exec_compile(struct mb_build* build) {
   char pmariebuild[] = ".config/mariebuild";
 
   char pfile_field[] = ".config/mariebuild/file";
-  mb_field *f_file = find_field(build->build_file, pfile_field);
+  mcfg_field *f_file = find_field(build->build_file, pfile_field);
 
   // register field file if not existing
   if (f_file == NULL) {
@@ -147,11 +148,11 @@ int mb_exec_compile(struct mb_build* build) {
 
   // Ready requried data from build->build_file
   // File list
-  mb_field *f_files = find_field(build->build_file, fn_files);
+  mcfg_field *f_files = find_field(build->build_file, fn_files);
   char *files_cpy = resolve_fields((*build->build_file), f_files->value,
                                    ".config/mariebuild/");
 
-  mb_field *f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
+  mcfg_field *f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
 
   mb_logf(MB_LOGLVL_LOW, "File List: %s\n", f_files->value);
   char delim[] = ":";
@@ -192,7 +193,7 @@ int mb_exec_finalize(struct mb_build* build) {
     return result;
 
   char pfinalize_cmd[] = ".config/mariebuild/finalize_cmd";
-  mb_field *f_finalize_cmd = find_field(build->build_file, pfinalize_cmd);
+  mcfg_field *f_finalize_cmd = find_field(build->build_file, pfinalize_cmd);
   if ((f_finalize_cmd == NULL) || (f_finalize_cmd->value == NULL))
     return MB_OK;
 
@@ -212,7 +213,7 @@ int mb_exec_finalize(struct mb_build* build) {
   return result;
 }
 
-int mb_exec_build(struct mb_file* build_file,
+int mb_exec_build(struct mcfg_file* build_file,
                   struct mb_exec_params exec_params) {
   mb_build build;
   build.stage = MB_STAGE_NONE;
