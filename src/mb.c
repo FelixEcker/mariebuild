@@ -15,7 +15,8 @@
 #include <stdbool.h>
 #include <argp.h>
 
-#include <mariebuild/mb_parse.h>
+#include <mcfg.h>
+
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
 
@@ -113,8 +114,8 @@ int main(int argc, char **argv) {
   argp_parse(&argp, argc, argv, 0, 0, &args);
 
   mb_logging_level = args.log_level;
-  struct mb_file* build_file = malloc(sizeof(mb_file));
-  build_file->path = args.build_file;
+  struct mcfg_file* build_file = malloc(sizeof(mcfg_file));
+  mcfg_file->path = args.build_file;
   int result = parse_file(build_file);
 
   if ((result & MB_ERR_MASK_ERRNO) == MB_ERR_MASK_ERRNO)

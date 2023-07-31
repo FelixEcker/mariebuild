@@ -1,6 +1,8 @@
 sector .config
   depends:
     includes 'include/'
+    libdir   'lib/'
+    libs     '-Llib/ -lmcfg'
     srcs     'butter/strutils.c'
   
   mariebuild:
@@ -19,7 +21,7 @@ sector .config
     release_flags '-O3'
  
     comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
-    finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
+    finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o $(depends/libs)'
 
 sector .scripts
   stripfile:
