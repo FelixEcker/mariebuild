@@ -91,6 +91,7 @@ int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   if (f_mode_flags == NULL) {
     register_field(
         find_section(build->build_file, pmariebuild)
+      , STRING
       , "mode_flags"
       , f_flags->value
     );
@@ -142,7 +143,8 @@ int mb_exec_compile(struct mb_build* build) {
 
   // register field file if not existing
   if (f_file == NULL) {
-    register_field(find_section(build->build_file, pmariebuild), "file", "");
+    register_field(find_section(build->build_file, pmariebuild), STRING,
+                                  "file", "");
     f_file = find_field(build->build_file, pfile_field);
   }
 
