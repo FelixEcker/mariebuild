@@ -22,6 +22,15 @@ good. If anyone has suggestions for improving the source please create an issue
 with the details on how to improve it.
 
 ## Syntax
+Mariebuild files are basically [mcfg](https://github.com/FelixEcker/mcfg) files,
+with a few specifics:
+* Certain fields are required:
+  * .config/mariebuild/files
+  * .config/mariebuild/comp_cmd
+* Some fields are automatically generated:
+  * .config/mariebuild/mode_flags (from <mode name>_flags)
+  * .config/mariebuild/file (each element of the list .config/mariebuild/files)
+
 Example Build-File:
 ```
 sector .config
