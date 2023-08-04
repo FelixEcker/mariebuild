@@ -91,7 +91,7 @@ int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   if (f_mode_flags == NULL) {
     register_field(
         find_section(build->build_file, pmariebuild)
-      , STRING
+      , FT_STRING
       , "mode_flags"
       , f_flags->value
     );
@@ -143,7 +143,7 @@ int mb_exec_compile(struct mb_build* build) {
 
   // register field file if not existing
   if (f_file == NULL) {
-    register_field(find_section(build->build_file, pmariebuild), STRING,
+    register_field(find_section(build->build_file, pmariebuild), FT_STRING,
                                   "file", "");
     f_file = find_field(build->build_file, pfile_field);
   }
@@ -152,7 +152,7 @@ int mb_exec_compile(struct mb_build* build) {
   // File list
   mcfg_field *f_files = find_field(build->build_file, fn_files);
   char *files_cpy = resolve_fields((*build->build_file), f_files->value,
-                                   ".config/mariebuild/");
+                                   ".config/mariebuild/", 0);
 
   mcfg_field *f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
 
@@ -167,7 +167,7 @@ int mb_exec_compile(struct mb_build* build) {
     strcpy(f_file->value, file);
 
     char *cmd = resolve_fields((*build->build_file), f_comp_cmd->value,
-                               ".config/mariebuild/");
+                               ".config/mariebuild/", 0);
     mb_logf(MB_LOGLVL_STD, "%s\n", cmd);
     file = strtok(NULL, delim);
 
@@ -200,7 +200,7 @@ int mb_exec_finalize(struct mb_build* build) {
     return MB_OK;
 
   char *cmd = resolve_fields((*build->build_file), f_finalize_cmd->value,
-                             ".config/mariebuild/");
+                             ".config/mariebuild/", 0);
   mb_logf(MB_LOGLVL_STD, "%s\n", cmd);
 
   int retc = system(cmd);
