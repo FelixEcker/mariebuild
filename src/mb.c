@@ -22,7 +22,7 @@
 
 /* argp.h argument parsing functionality */
 
-const char *argp_program_version = "mariebuild 0.1.0";
+const char *argp_program_version = "mariebuild 0.2.0";
 const char *argp_program_bug_address =
   "https://github.com/FelixEcker/mariebuild/issues";
 const char description[] =
