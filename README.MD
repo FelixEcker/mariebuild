@@ -25,39 +25,43 @@ with the details on how to improve it.
 Example Build-File:
 ```
 sector .config
-  depends:
-    includes 'include/'
-    srcs     'butter/strutils.c'
+  fields depends:
+    str includes 'include/'
+    str libdir   'lib/'
+    str libs     '-Llib/ -lmcfg'
+    list srcs     ''
   
-  mariebuild:
-    name          'mb'
-    compiler      'gcc'
-    src_dir       'src'
-    obj_dir       'out'
+  fields mariebuild:
+    str name          'mb'
+    str compiler      'gcc'
+    str src_dir       'src'
+    str obj_dir       'out'
  
-    shell         'bash'
+    str shell         'bash'
 
-    srcs          'mb_utils.c:mb_parse.c:mb_script.c:mb_execute.c:mb.c'
-    files         '$(depends/srcs):$(srcs)'
+    list srcs          'mb_utils.c:mb_script.c:mb_execute.c:mb.c'
 
-    std_flags     '-Wall -I$(depends/includes)'
-    debug_flags   '-ggdb'
-    release_flags '-O3'
+    ; A required field, holding all source files in a colon-seperated list.
+    list files         '$(depends/srcs):$(srcs)'
+
+    str std_flags     '-Wall -I$(depends/includes)'
+    str debug_flags   '-ggdb'
+    str release_flags '-O3'
  
     ; Another required field, insert your compilation command in here.
     ; The command within this field is run for every file within the files field.
-    comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
+    str comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
 
     ; An optional field, run on the finalize build stage.
-    finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
+    str finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o $(depends/libs)'
 ```
 
-See `docs/specification.md` and the files in `examples/` for more details.
+See `docs/specification.md` and the files in `docs/examples/` for more details.
 
 ## mb usage
 By default mb looks for a `build.mb` file which is the executed in debug mode.
 ```
-Usage: mb [OPTION...]
+Usage: mb [OPTION...] 
 A simple build system inspired by my hate against makefiles
 Author: Marie Eckert
 
@@ -70,6 +74,7 @@ Author: Marie Eckert
   -m, --mode=MODE            Specify the building mode
   -p, --platform=PLATFORM    Specify the targeted platform
   -q, --quiet                Disable all output except for Important messages
+  -s, --structure            Print parsed structure then exit
   -v, --verbose              Output all messages
   -?, --help                 Give this help list
       --usage                Give a short usage message
@@ -79,6 +84,7 @@ Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
 
 Report bugs to https://github.com/FelixEcker/mariebuild/issues.
+
 ```
 
 ## License
