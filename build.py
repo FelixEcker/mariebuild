@@ -5,14 +5,13 @@
 # CONFIGURATION
 
 flags = "-Wall -ggdb"
+libs = "-Llib/ -lmcfg"
 target = "mb"
 source_dir = "src/"
 obj_dir = "out/"
 includes = "include/"
 sources = [
-            "butter/strutils.c",
             "mb_utils.c",
-            "mb_parse.c",
             "mb_script.c",
             "mb_execute.c",
             "mb.c"
@@ -34,7 +33,7 @@ def main():
                                                    source_dir+source))
         objs += obj_dir+source+".o "
 
-    do_cmd("gcc {0} -o {1} {2}".format(flags, target, objs))
+    do_cmd("gcc {0} -o {1} {2} {3}".format(flags, target, objs, libs))
 
 if __name__ == "__main__":
     main()
