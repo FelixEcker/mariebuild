@@ -22,7 +22,7 @@
 
 /* argp.h argument parsing functionality */
 
-const char *argp_program_version = "mariebuild 0.1.0";
+const char *argp_program_version = "mariebuild 0.2.0";
 const char *argp_program_bug_address =
   "https://github.com/FelixEcker/mariebuild/issues";
 const char description[] =
@@ -105,13 +105,14 @@ void print_structure(struct mcfg_file* file) {
 
 int main(int argc, char **argv) {
   struct arguments args;
-  args.build_file = "./build.mb";
-  args.exec_script = NULL;
-  args.check_file = false;
-  args.mode = "debug";
-  args.platform = NULL;
+  args.build_file         = "./build.mb";
+  args.exec_script        = NULL;
+  args.check_file         = false;
+  args.mode               = "debug";
+  args.platform           = NULL;
   args.disable_extensions = false;
-  args.log_level = MB_LOGLVL_STD;
+  args.log_level          = MB_LOGLVL_STD;
+	args.print_structure    = false;
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
 
@@ -125,8 +126,8 @@ int main(int argc, char **argv) {
 
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Parsing failed: Line %d\n", build_file->line);
-    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", errcode_msg(result),
-                                                          result);
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", 
+		           errcode_msg(result), result);
     mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
     goto mb_exit;
