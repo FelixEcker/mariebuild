@@ -152,11 +152,11 @@ int mb_exec_compile(struct mb_build* build) {
   // File list
   mcfg_field *f_files = find_field(build->build_file, fn_files);
   char *files_cpy = resolve_fields((*build->build_file), f_files->value,
-                                   ".config/mariebuild/", 0);
+                                   ".config/mariebuild/", 1);
 
   mcfg_field *f_comp_cmd = find_field(build->build_file, fn_comp_cmd);
 
-  mb_logf(MB_LOGLVL_LOW, "File List: %s\n", f_files->value);
+  mb_logf(MB_LOGLVL_LOW, "File List: %s\n", files_cpy);
   char delim[] = ":";
   char *file = strtok(files_cpy, delim);
 
