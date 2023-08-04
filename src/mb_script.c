@@ -9,7 +9,6 @@
 #include <mariebuild/mb_script.h>
 
 #include <mariebuild/mb_utils.h>
-#include <mariebuild/mb_parse.h>
 
 int mb_exec_script(struct mb_script* script) {
   mb_logf(MB_LOGLVL_STD, "Executing script %s...\n", script->name);

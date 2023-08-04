@@ -1,36 +1,38 @@
 sector .config
-  depends:
-    includes 'include/'
-    srcs     'butter/strutils.c'
+  fields depends:
+    str includes 'include/'
+    str libdir   'lib/'
+    str libs     '-Llib/ -lmcfg'
+    list srcs     ''
   
-  mariebuild:
-    name          'mb'
-    compiler      'gcc'
-    src_dir       'src'
-    obj_dir       'out'
+  fields mariebuild:
+    str name          'mb'
+    str compiler      'gcc'
+    str src_dir       'src'
+    str obj_dir       'out'
  
-    shell         'bash'
+    str shell         'bash'
 
-    srcs          'mb_utils.c:mb_parse.c:mb_script.c:mb_execute.c:mb.c'
-    files         '$(depends/srcs):$(srcs)'
+    list srcs          'mb_utils.c:mb_script.c:mb_execute.c:mb.c'
+    list files         '$(depends/srcs):$(srcs)'
 
-    std_flags     '-Wall -I$(depends/includes)'
-    debug_flags   '-ggdb'
-    release_flags '-O3'
+    str std_flags     '-Wall -I$(depends/includes)'
+    str debug_flags   '-ggdb'
+    str release_flags '-O3'
  
-    comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
-    finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o'
+    str comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
+    str finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o $(depends/libs)'
 
 sector .scripts
-  stripfile:
+  lines stripfile:
     args file
     shell sed -i 's/[ \t]*$//' $(file)
 
-  stripall:
+  lines stripall:
     opt_args prefix postfix
 
     for file : $(.config/mariebuild/files)
       call stripfile $(prefix)file$(postfix)
 
-  prepare:
+  lines prepare:
     call stripall

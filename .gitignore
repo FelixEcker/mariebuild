@@ -4,3 +4,4 @@ mb
 vgcore.*
 valgrind.*
 *.log
+*.swp

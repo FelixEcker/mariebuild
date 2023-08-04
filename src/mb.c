@@ -15,7 +15,8 @@
 #include <stdbool.h>
 #include <argp.h>
 
-#include <mariebuild/mb_parse.h>
+#include <mcfg.h>
+
 #include <mariebuild/mb_execute.h>
 #include <mariebuild/mb_utils.h>
 
@@ -77,21 +78,21 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 static struct argp argp = { options, parse_opt, args_doc, description };
 
 /* Debugging function which prints the structure and
- * contents of a mb_file struct to stdout.
+ * contents of a mcfg_file struct to stdout.
  */
-void print_structure(struct mb_file* build_file) {
+void print_structure(struct mcfg_file* file) {
   printf("\n==========================\n\n");
-  for (int i = 0; i < build_file->sector_count; i++) {
-    mb_sector sector = build_file->sectors[i];
+  for (int i = 0; i < file->sector_count; i++) {
+    mcfg_sector sector = file->sectors[i];
     printf("sector: %s\n", sector.name);
     printf("sections:\n");
     for (int j = 0; j < sector.section_count; j++) {
-      mb_section section = sector.sections[j];
+      mcfg_section section = sector.sections[j];
       printf("  section: %s\n", section.name);
       printf("  lines: %s\n", section.lines);
       printf("  fields:\n");
       for (int k = 0; k < section.field_count; k++) {
-        mb_field field = section.fields[k];
+        mcfg_field field = section.fields[k];
         printf("    name: %s\n", field.name);
         printf("    value: %s\n", field.value);
       }
@@ -99,6 +100,8 @@ void print_structure(struct mb_file* build_file) {
   }
   printf("\n==========================\n");
 }
+
+
 
 int main(int argc, char **argv) {
   struct arguments args;
@@ -114,7 +117,7 @@ int main(int argc, char **argv) {
   argp_parse(&argp, argc, argv, 0, 0, &args);
 
   mb_logging_level = args.log_level;
-  struct mb_file* build_file = malloc(sizeof(mb_file));
+  struct mcfg_file* build_file = malloc(sizeof(mcfg_file));
   build_file->path = args.build_file;
   int result = parse_file(build_file);
 
@@ -155,6 +158,6 @@ int main(int argc, char **argv) {
   }
 
 mb_exit:
-  free_build_file(build_file);
+  free_mcfg_file(build_file);
   return result;
 }

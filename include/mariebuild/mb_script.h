@@ -9,12 +9,13 @@
 #ifndef MB_SCRIPT_H
 #define MB_SCRIPT_H
 
+#include <mcfg.h>
 #include <mariebuild/mb_types.h>
 
 typedef struct mb_script {
   char      *name;
   char      *lines;
-  mb_sector *parent_sector;
+  mcfg_sector *parent_sector;
 } mb_script_context;
 
 int mb_exec_script(struct mb_script* script);

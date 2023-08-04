@@ -9,7 +9,7 @@
 #ifndef MB_EXECUTE_H
 #define MB_EXECUTE_H
 
-#include <mariebuild/mb_types.h>
+#include <mcfg.h>
 #include <mariebuild/mb_script.h>
 
 #define MB_STAGE_NONE        -1
@@ -31,7 +31,7 @@ typedef struct mb_exec_params {
  */
 typedef struct mb_build {
   int             stage;
-  struct mb_file* build_file;
+  struct mcfg_file* build_file;
 } mb_build;
 
 /******** Build Stage functions ********/
@@ -44,7 +44,7 @@ int mb_exec_finalize(struct mb_build* build);
 
 /* Execute an entire build for the given build file
  */
-int mb_exec_build(struct mb_file* build_file,
+int mb_exec_build(struct mcfg_file* build_file,
                   struct mb_exec_params exec_params);
 
 #endif
