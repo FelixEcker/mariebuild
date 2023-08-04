@@ -2,6 +2,14 @@
 A build system primarly designed and intended for my use.
 
 ## Building
+### Setup
+To quickly setup mariebuild for development, simply run the `setup.sh` script. This will
+automatically build [libmcfg](https://github.com/FelixEcker/mcfg) from the latest release.
+
+If there is no pre-existing install of mariebuild on the system, the script will download the
+latest binary and use it for building. This gets deleted after the setup script is finished.
+
+### Compiling
 If you do not have any binary of mariebuild, you can build it by running the
 `build.py` python script.
 
