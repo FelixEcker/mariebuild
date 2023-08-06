@@ -12,7 +12,6 @@ obj_dir = "out/"
 includes = "include/"
 sources = [
             "mb_utils.c",
-            "mb_script.c",
             "mb_execute.c",
             "mb.c"
           ]

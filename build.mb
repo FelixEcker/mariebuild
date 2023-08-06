@@ -13,7 +13,7 @@ sector .config
  
     str shell         'bash'
 
-    list srcs          'mb_utils.c:mb_script.c:mb_execute.c:mb.c'
+    list srcs          'mb_utils.c:mb_execute.c:mb.c'
     list files         '$(depends/srcs):$(srcs)'
 
     str std_flags     '-Wall -I$(depends/includes)'
