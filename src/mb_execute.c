@@ -15,7 +15,6 @@
 #include <mcfg.h>
 
 #include <mariebuild/mb_utils.h>
-#include <mariebuild/mb_script.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,12 +42,7 @@ int check_required_fields(struct mcfg_file* file) {
 /******** Build Stage Functions ********/
 
 int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
-  struct mb_script script;
-  script.name = name;
-  script.lines = lines;
-  script.parent_sector = find_sector(build->build_file, ".scripts");
-
-  return mb_exec_script(&script);
+  return MB_OK;
 }
 
 int mb_exec_prepare(struct mb_build* build) {

@@ -10,7 +10,6 @@
 #define MB_EXECUTE_H
 
 #include <mcfg.h>
-#include <mariebuild/mb_script.h>
 
 #define MB_STAGE_NONE        -1
 #define MB_STAGE_PREPARE      0
