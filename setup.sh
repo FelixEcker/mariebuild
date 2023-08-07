@@ -4,6 +4,11 @@ LIBMCFG_GZ="https://github.com/FelixEcker/mcfg/archive/refs/tags/1.0.1.tar.gz"
 MB_BACKUP_BIN="https://github.com/FelixEcker/mariebuild/releases/download/0.3.1/mb"
 ARCHIVE_NAME="libmcfg_src"
 
+mode="debug"
+if [[ $1 ]]; then
+  mode=$1
+fi
+
 echo ==\> Creating lib and out dirs
 
 mkdir lib
@@ -29,9 +34,9 @@ then
 	echo ==\> mb not installed on the system, downloading latest binary to build
 	wget $MB_BACKUP_BIN
 	chmod +x ./mb
-	./mb -v
+        ./mb -v -m $mode
 else
-	mb -v
+	mb -v -m $mode
 fi
 
 ranlib libmcfg.a
