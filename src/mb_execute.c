@@ -54,8 +54,9 @@ int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
   char *shell = "/bin/sh";
   bool shell_allocd = false; // flag to check if *shell has to be freed
   if (str_startswith(first_line, "#!") == 0) {
-    shell = malloc(strlen(first_line)-2);
-    memcpy(shell, first_line+2, strlen(first_line)-2);
+    shell = malloc(lfpos-1);
+    memcpy(shell, first_line+2, lfpos-2);
+    shell[lfpos-2] = 0;
     shell_allocd = true;
   }
 
