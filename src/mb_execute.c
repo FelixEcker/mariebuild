@@ -81,21 +81,31 @@ mb_exec_script_finished:
   return ret;
 }
 
-int mb_exec_prepare(struct mb_build* build) {
+int mb_exec_script(struct mb_build* build, char *name) {
   int result = MB_OK;
 
-  mcfg_section *prepare_script = find_section(build->build_file,
-                                            ".scripts/prepare");
-  if (prepare_script == NULL)
-    goto prepare_finished;
+  char *prefix = ".scripts/";
+  char *path = malloc(strlen(prefix)+strlen(name)+1);
+  strcpy(path, prefix);
+  path = strcat(path, name);
 
-  if (prepare_script->lines == NULL)
-    goto prepare_finished;
+  mcfg_section *script = find_section(build->build_file,
+                                            path);
+  if (script == NULL)
+    goto mb_exec_script_finished;
 
-  result = _mb_exec_script(build, "prepare", prepare_script->lines);
+  if (script->lines == NULL)
+    goto mb_exec_script_finished;
 
-prepare_finished:
+  result = _mb_exec_script(build, name, script->lines);
+
+mb_exec_script_finished:
+  free(path);
   return result;
+}
+
+int mb_exec_prepare(struct mb_build* build) {
+  return mb_exec_script(build, "prepare");
 }
 
 int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
@@ -252,6 +262,10 @@ int mb_exec_build(struct mcfg_file* build_file,
   build.build_file = build_file;
 
   int result;
+
+  if (exec_params.exec_script != NULL) {
+    return mb_exec_script(&build, exec_params.exec_script);
+  }
 
   mb_log(MB_LOGLVL_LOW, "Entering prepration stage\n");
   result = mb_exec_prepare(&build);
