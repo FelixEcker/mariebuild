@@ -24,15 +24,11 @@ sector .config
     str finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o $(depends/libs)'
 
 sector .scripts
-  lines stripfile:
-    args file
-    shell sed -i 's/[ \t]*$//' $(file)
 
-  lines stripall:
-    opt_args prefix postfix
-
-    for file : $(.config/mariebuild/files)
-      call stripfile $(prefix)file$(postfix)
-
-  lines prepare:
-    call stripall
+lines prepare:
+#!/usr/bin/bash
+if [[ -d "./out/" ]]; then
+  rm -rf out/*
+else
+  mkdir -p out/
+fi

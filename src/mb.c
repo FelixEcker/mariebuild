@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
 
   if (result != 0) {
     mb_logf(MB_LOGLVL_IMP, "Parsing failed: Line %d\n", build_file->line);
-    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n", 
+    mb_logf(MB_LOGLVL_IMP, "Parsing failed: %s (0x%.8x)\n",
 		           errcode_msg(result), result);
     mb_log(MB_LOGLVL_IMP, "Aborting build...\n");
 
@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
     mb_log(MB_LOGLVL_IMP, "Build-File passed\n");
     goto mb_exit;
   }
-  
+
   if (args.print_structure) {
     print_structure(build_file);
     goto mb_exit;
