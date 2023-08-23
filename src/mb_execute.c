@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 /******** mb_execute.h ********/
 
@@ -44,18 +45,40 @@ int check_required_fields(struct mcfg_file* file) {
 
 int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
   if (lines == NULL) return MB_OK;
+  int ret = MB_OK;
 
   int lfpos = strchr(lines, '\n') - lines;
   char *first_line = malloc(lfpos);
   strncpy(first_line, lines, lfpos);
 
   char *shell = "/bin/sh";
+  bool shell_allocd = false; // flag to check if *shell has to be freed
   if (str_startswith(first_line, "#!") == 0) {
     shell = malloc(strlen(first_line)-2);
     memcpy(shell, first_line+2, strlen(first_line)-2);
+    shell_allocd = true;
   }
 
-  return MB_OK;
+  FILE *proc = popen(shell, "w");
+  if (proc == NULL) {
+    ret = MB_BERR_C_FILE_HANDLE_ERR;
+    goto mb_exec_script_finished;
+  }
+
+  size_t written = fwrite(lines, 1, strlen(lines), proc);
+  if (written != strlen(lines)) {
+    mb_errtext = "The total amount of bytes written to the process mismatches "
+                 "the size of the data to be written.";
+    ret = MB_BERR_C_FILE_WRITE_ERR;
+  }
+
+  pclose(proc);
+
+mb_exec_script_finished:
+  free(first_line);
+  if (shell_allocd)
+    free(shell);
+  return ret;
 }
 
 int mb_exec_prepare(struct mb_build* build) {
