@@ -35,19 +35,14 @@ typedef SSIZE_T ssize_t;
 
 /* Build Errors */
 
-#define MB_BERR_MASK            0x20000000
-#define MB_BERR_MISSING_FILES   0x20000001
-#define MB_BERR_MISSING_COMPCMD 0x20000002
-#define MB_BERR_SCRIPT_ERROR    0x20000003
-#define MB_BERR_COMPILE_ERROR   0x20000004
-#define MB_BERR_FINALIZE_ERROR  0x20000005
-
-/* Scriptengine Errors */
-
-#define MB_SERR_MASK               0x30000000
-#define MB_SERR_INVALID_SYNTAX     0x30000001
-#define MB_SERR_INVALID_IDENTIFIER 0x30000002
-#define MB_SERR_SCRIPT_NOT_FOUND   0x30000003
+#define MB_BERR_MASK              0x20000000
+#define MB_BERR_MISSING_FILES     0x20000001
+#define MB_BERR_MISSING_COMPCMD   0x20000002
+#define MB_BERR_SCRIPT_ERROR      0x20000003
+#define MB_BERR_COMPILE_ERROR     0x20000004
+#define MB_BERR_FINALIZE_ERROR    0x20000005
+#define MB_BERR_C_FILE_HANDLE_ERR 0x20000006
+#define MB_BERR_C_FILE_WRITE_ERR  0x20000007
 
 /* Mask if a system error occured which reports its error in errno */
 #define MB_ERR_MASK_ERRNO       0xf0000000

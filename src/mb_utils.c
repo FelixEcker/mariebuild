@@ -123,9 +123,6 @@ char *errclass_msg(int err) {
   if ((err & MB_BERR_MASK) == 0)
     return "Building Error";
 
-  if ((err & MB_SERR_MASK) == 0)
-    return "Script Error";
-
   if ((err & MB_ERR_MASK_ERRNO) == 0)
     return "System Error";
 
@@ -158,12 +155,10 @@ char *errcode_msg(int err) {
       return "An error occured whilst compiling!";
     case MB_BERR_FINALIZE_ERROR:
       return "An errror occured whilst finalizing!";
-    case MB_SERR_INVALID_SYNTAX:
-      return "Invalid syntax";
-    case MB_SERR_INVALID_IDENTIFIER:
-      return "Invalid identifier";
-    case MB_SERR_SCRIPT_NOT_FOUND:
-      return "Script not found";
+    case MB_BERR_C_FILE_HANDLE_ERR:
+      return "An invalid file handle was returned when trying to open a file!";
+    case MB_BERR_C_FILE_WRITE_ERR:
+      return "An error occured whilst writing data to a file!";
     default:
       return "Unknown Errorcode";
   }
