@@ -12,9 +12,10 @@
 
 #include <mariebuild/mb_execute.h>
 
-#include <mcfg.h>
-
 #include <mariebuild/mb_utils.h>
+
+#include <mcfg.h>
+#include <butter/strutils.h>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,6 +43,18 @@ int check_required_fields(struct mcfg_file* file) {
 /******** Build Stage Functions ********/
 
 int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
+  if (lines == NULL) return MB_OK;
+
+  int lfpos = strchr(lines, '\n') - lines;
+  char *first_line = malloc(lfpos);
+  strncpy(first_line, lines, lfpos);
+
+  char *shell = "/bin/sh";
+  if (str_startswith(first_line, "#!") == 0) {
+    shell = malloc(strlen(first_line)-2);
+    memcpy(shell, first_line+2, strlen(first_line)-2);
+  }
+
   return MB_OK;
 }
 
