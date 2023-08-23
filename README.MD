@@ -65,7 +65,7 @@ sector .config
     str finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o $(depends/libs)'
 ```
 
-See `docs/specification.md` and the files in `docs/examples/` for more details.
+See `doc/intro.md` and `doc/intro.md` and the files in `doc/examples/` for more details.
 
 ## mb usage
 By default mb looks for a `build.mb` file which is the executed in debug mode.
