@@ -10,9 +10,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <mariebuild/mb_utils.h>
+#include <mb_utils.h>
 
-#include <mariebuild/mb_execute.h>
+#include <mb_execute.h>
 
 #include <butter/strutils.h>
 
