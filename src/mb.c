@@ -17,8 +17,8 @@
 
 #include <mcfg.h>
 
-#include <mariebuild/mb_execute.h>
-#include <mariebuild/mb_utils.h>
+#include <mb_execute.h>
+#include <mb_utils.h>
 
 /* argp.h argument parsing functionality */
 

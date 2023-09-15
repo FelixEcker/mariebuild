@@ -10,9 +10,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <mariebuild/mb_execute.h>
+#include <mb_execute.h>
 
-#include <mariebuild/mb_utils.h>
+#include <mb_utils.h>
 
 #include <mcfg.h>
 #include <butter/strutils.h>
@@ -199,7 +199,8 @@ int mb_exec_compile(struct mb_build* build) {
 
   mb_logf(MB_LOGLVL_LOW, "File List: %s\n", files_cpy);
   char delim[] = ":";
-  char *file = strtok(files_cpy, delim);
+  char *file_saveptr;
+  char *file = strtok_r(files_cpy, delim, &file_saveptr);
 
   // Run compilation command for each file
   while (file != NULL) {
@@ -210,7 +211,7 @@ int mb_exec_compile(struct mb_build* build) {
     char *cmd = resolve_fields((*build->build_file), f_comp_cmd->value,
                                ".config/mariebuild/", 0);
     mb_logf(MB_LOGLVL_STD, "%s\n", cmd);
-    file = strtok(NULL, delim);
+    file = strtok_r(NULL, delim, &file_saveptr);
 
     int retc = system(cmd);
     free(cmd);
