@@ -1,7 +1,6 @@
 #!/bin/sh
 
-LIBMCFG_GZ="https://github.com/FelixEcker/mcfg/archive/refs/tags/1.0.1.tar.gz"
-MB_BACKUP_BIN="https://github.com/FelixEcker/mariebuild/releases/download/0.3.1/mb"
+LIBMCFG_GZ="https://github.com/FelixEcker/mcfg/archive/refs/tags/1.0.2.tar.gz"
 ARCHIVE_NAME="libmcfg_src"
 
 mode="debug"
@@ -31,15 +30,10 @@ cd $(tar --list -f $ARCHIVE_NAME.tar | head -1)
 mkdir out/butter -p
 if ! command -v mb &> /dev/null
 then
-	echo ==\> mb not installed on the system, downloading latest binary to build
-	wget $MB_BACKUP_BIN
-	chmod +x ./mb
-        ./mb -v -m $mode
+  bash build.bash
 else
-	mb -v -m $mode
+  mb -v -m $mode
 fi
-
-ranlib libmcfg.a
 
 echo ==\> Copying libmcfg
 
