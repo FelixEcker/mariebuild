@@ -1,6 +1,6 @@
 sector .config
   fields depends:
-    str includes 'include/'
+    list includes 'include/:src/'
     str libdir   'lib/'
     str libs     '-Llib/ -lmcfg'
     list srcs     ''
