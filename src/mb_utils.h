@@ -44,6 +44,14 @@ typedef SSIZE_T ssize_t;
 #define MB_BERR_C_FILE_HANDLE_ERR 0x20000006
 #define MB_BERR_C_FILE_WRITE_ERR  0x20000007
 
+/* Extension Errors */
+#define MB_XERR_MASK                    0x30000000
+#define MB_XERR_NO_SUCH_EXTENSION       0x30000001
+#define MB_XERR_NO_SUCH_SCRIPT          0x00000002
+#define MB_XERR_LOADING_ERROR           0x30000003
+#define MB_XERR_EXECUTION_ERROR         0x30000004
+#define MB_XERR_INVALID_MANIFEST_FORMAT 0x30000004
+
 /* Mask if a system error occured which reports its error in errno */
 #define MB_ERR_MASK_ERRNO       0xf0000000
 
