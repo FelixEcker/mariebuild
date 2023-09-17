@@ -1,19 +1,19 @@
 sector .config
   fields depends:
     list includes 'include/:src/'
-    str libdir   'lib/'
-    str libs     '-Llib/ -lmcfg'
-    list srcs     ''
+    str libdir    'lib/'
+    str libs      '-Llib/ -lmcfg'
+    list srcs     'butter/fsutils.c'
   
   fields mariebuild:
     str name          'mb'
-    str compiler      'gcc'
+    str compiler      'clang'
     str src_dir       'src'
     str obj_dir       'out'
  
     str shell         'bash'
 
-    list srcs          'mb_utils.c:mb_execute.c:mb.c'
+    list srcs          'mb_extensions.c:mb_utils.c:mb_execute.c:mb.c'
     list files         '$(depends/srcs):$(srcs)'
 
     str std_flags     '-Wall -I$(depends/includes)'
@@ -29,6 +29,6 @@ lines prepare:
 #!/usr/bin/bash
 if [[ -d "./out/" ]]; then
   rm -rf out/*
-else
-  mkdir -p out/
 fi
+
+mkdir -p out/butter
