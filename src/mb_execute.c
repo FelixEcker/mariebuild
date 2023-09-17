@@ -13,6 +13,7 @@
 #include <mb_execute.h>
 
 #include <mb_utils.h>
+#include <mb_extensions.h>
 
 #include <mcfg.h>
 #include <butter/strutils.h>
@@ -144,7 +145,7 @@ int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
     strcpy(f_mode_flags->value, f_flags->value);
   }
 
-prepare_script_exec:
+prepare_script_exec:;
   char prefix[] = "prepare_";
   char *name = malloc(strlen(mode)+strlen(prefix)+1);
   strcpy(name, prefix);
@@ -267,6 +268,12 @@ int mb_exec_build(struct mcfg_file* build_file,
 
   if (exec_params.exec_script != NULL) {
     return mb_exec_script(&build, exec_params.exec_script);
+  }
+
+  if (exec_params.allow_extensions == 1) {
+    mb_log(MB_LOGLVL_LOW, "Loading extensions...");
+    mb_ext_register = malloc(sizeof(mb_ext_reg));
+    mb_register_extensions((*build_file), mb_ext_register);
   }
 
   mb_log(MB_LOGLVL_LOW, "Entering prepration stage\n");

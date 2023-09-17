@@ -11,6 +11,8 @@
 
 #include <mcfg.h>
 
+#define MB_EXT_HOME "MBEXT_HOME"
+
 typedef struct mb_extension {
   char             *name;
   char             *path;
@@ -20,7 +22,9 @@ typedef struct mb_extension {
 typedef struct mb_ext_reg {
   int           extension_count;
   mb_extension *extensions;
-}
+} mb_ext_reg;
+
+extern struct mb_ext_reg *mb_ext_register;
 
 /* Registers all extensions which are listed in the build file into the
  * provided registry
