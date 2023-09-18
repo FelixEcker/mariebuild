@@ -264,7 +264,7 @@ int mb_exec_build(struct mcfg_file* build_file,
   build.stage = MB_STAGE_NONE;
   build.build_file = build_file;
 
-  int result;
+  int result = MB_OK;
 
   if (exec_params.exec_script != NULL) {
     return mb_exec_script(&build, exec_params.exec_script);
@@ -273,28 +273,32 @@ int mb_exec_build(struct mcfg_file* build_file,
   if (exec_params.allow_extensions == 1) {
     mb_log(MB_LOGLVL_LOW, "Loading extensions...\n");
     mb_ext_register = malloc(sizeof(mb_ext_reg));
+    mb_ext_register->extension_count = 0;
     mb_register_extensions((*build_file), mb_ext_register);
   }
 
   mb_log(MB_LOGLVL_LOW, "Entering prepration stage\n");
   result = mb_exec_prepare(&build);
   if (result != MB_OK)
-    return result;
+    goto mb_exec_build_end;
 
   mb_logf(MB_LOGLVL_LOW, "Entering %s-preparation stage\n", exec_params.mode);
   result = mb_exec_prepare_mode(&build, exec_params.mode);
   if (result != MB_OK)
-    return result;
+    goto mb_exec_build_end;
 
   mb_log(MB_LOGLVL_LOW, "Entering compilation stage\n");
   result = mb_exec_compile(&build);
   if (result != MB_OK)
-    return result;
+    goto mb_exec_build_end;
 
   mb_log(MB_LOGLVL_LOW, "Finishing up...\n");
   result = mb_exec_finalize(&build);
   if (result != MB_OK)
-    return result;
+    goto mb_exec_build_end;
 
-  return MB_OK;
+mb_exec_build_end:;
+  if (mb_ext_register != NULL)
+    mb_free_ext_reg(mb_ext_register);
+  return result;
 }

@@ -20,8 +20,9 @@ typedef SSIZE_T ssize_t;
 
 /******** Return Codes ********/
 
-#define MB_OK          0x00000000
-#define MB_ERR_UNKNOWN 0x00000001
+#define MB_OK           0x00000000
+#define MB_ERR_UNKNOWN  0x00000001
+#define MB_GERR_NULLPTR 0x00000002
 
 /* Parsing Errors */
 

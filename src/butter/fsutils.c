@@ -109,6 +109,6 @@ char *expand_path(char *path) {
   }
 
   expanded[toalloc] = 0;
-
+  wordfree(&expandres);
   return expanded;
 }

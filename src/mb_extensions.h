@@ -26,6 +26,10 @@ typedef struct mb_ext_reg {
 
 extern struct mb_ext_reg *mb_ext_register;
 
+/* Frees a mb_ext_reg struct and all members.
+ */
+void mb_free_ext_reg(struct mb_ext_reg *registry);
+
 /* Registers all extensions which are listed in the build file into the
  * provided registry
  */
