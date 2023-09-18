@@ -271,7 +271,7 @@ int mb_exec_build(struct mcfg_file* build_file,
   }
 
   if (exec_params.allow_extensions == 1) {
-    mb_log(MB_LOGLVL_LOW, "Loading extensions...");
+    mb_log(MB_LOGLVL_LOW, "Loading extensions...\n");
     mb_ext_register = malloc(sizeof(mb_ext_reg));
     mb_register_extensions((*build_file), mb_ext_register);
   }

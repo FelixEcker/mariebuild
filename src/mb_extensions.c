@@ -10,6 +10,19 @@
 struct mb_ext_reg *mb_ext_register = NULL;
 
 int mb_register_extensions(mcfg_file build_file, struct mb_ext_reg *registry) {
+  mcfg_section *extlist = find_section(&build_file, ".config/extensions");
+  if (extlist == NULL) {
+    mb_log(MB_LOGLVL_LOW, "section .config/extensions does not exist, aborting!"
+                          "\n");
+    return MB_OK;
+  }
+
+  if (extlist->type != ST_LINES) {
+    mb_log(MB_LOGLVL_LOW, "section .config/extensions is not of type lines, "
+                          "aborting!\n");
+    return MB_OK;
+  }
+
   char *ext_home = getenv(MB_EXT_HOME);
   if (ext_home == NULL) {
     mb_log(MB_LOGLVL_IMP, "environment variable MBEXT_HOME is unset; "
@@ -18,7 +31,7 @@ int mb_register_extensions(mcfg_file build_file, struct mb_ext_reg *registry) {
   }
 
   char *expanded = expand_path(ext_home);
-  printf("%s\n", expanded);
+
   free(expanded);
   return MB_OK;
 }
