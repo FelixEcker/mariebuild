@@ -274,7 +274,13 @@ int mb_exec_build(struct mcfg_file* build_file,
     mb_log(MB_LOGLVL_LOW, "Loading extensions...\n");
     mb_ext_register = malloc(sizeof(mb_ext_reg));
     mb_ext_register->extension_count = 0;
-    mb_register_extensions((*build_file), mb_ext_register);
+    result = mb_register_extensions((*build_file), mb_ext_register);
+    if (result != MB_OK)
+      goto mb_exec_build_end;
+
+    result = mb_load_extensions(mb_ext_register);
+    if (result != MB_OK)
+      goto mb_exec_build_end;
   }
 
   mb_log(MB_LOGLVL_LOW, "Entering prepration stage\n");

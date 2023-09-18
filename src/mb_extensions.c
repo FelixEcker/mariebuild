@@ -31,7 +31,7 @@ void mb_free_ext_reg(struct mb_ext_reg *registry) {
 /* Registry & Loading Functions */
 
 static int _reg_ext(struct mb_ext_reg *registry, char *name, char *path) {
-  if (name == NULL || path == NULL) {
+  if (name == NULL || path == NULL || registry == NULL) {
     mb_errtext = "Encountered nullptr in static int mb_extensions::_reg_ext";
     return MB_GERR_NULLPTR;
   }
@@ -96,7 +96,22 @@ mb_register_extension_end:;
   return ret;
 }
 
+int _check_manifest(struct mcfg_file *manifest) {
+  return MB_OK;
+}
+
 int mb_load_extensions(struct mb_ext_reg *registry) {
+  for (int i = 0; i < registry->extension_count; i++) {
+    mb_extension *extension = &registry->extensions[i];
+    extension->file = malloc(sizeof(mcfg_file));
+    extension->file->path = extension->path;
+    int ret = parse_file(extension->file);
+    if (ret != MB_OK) {
+      mb_logf(MB_LOGLVL_IMP, "failed to parse extension manifest for \"%s\"\n",
+              extension->name);
+      return ret;
+    }
+  }
   return MB_OK;
 }
 
