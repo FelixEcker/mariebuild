@@ -22,7 +22,10 @@
 
 /* argp.h argument parsing functionality */
 
-const char *argp_program_version = "mariebuild 0.3.0";
+#define VERSION_STRING "0.3.2"
+#define VERSION_TYPE "develop"
+
+const char *argp_program_version = "mariebuild " VERSION_STRING " (" VERSION_TYPE ")";
 const char *argp_program_bug_address =
   "https://github.com/FelixEcker/mariebuild/issues";
 const char description[] =
@@ -43,6 +46,7 @@ static struct argp_option options[] = {
 , {"quiet", 'q', 0, 0, "Disable all output except for Important messages"}
 , {"verbose", 'v', 0, 0, "Output all messages"}
 , {"structure", 's', 0, 0, "Print parsed structure then exit"}
+, {"no-splash", 'n', 0, 0, "Disable splash screen/logo"}
 , {0, 0, 0, 0}
 };
 
@@ -55,6 +59,7 @@ struct arguments {
   bool disable_extensions;
   int  log_level;
   bool print_structure;
+  bool print_splash;
 };
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
@@ -69,6 +74,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   case 'q': args->log_level = MB_LOGLVL_IMP; break;
   case 'v': args->log_level = MB_LOGLVL_LOW; break;
   case 's': args->print_structure = true; break;
+  case 'n': args->print_splash = false; break;
   default: return ARGP_ERR_UNKNOWN;
   }
 
@@ -101,7 +107,17 @@ void print_structure(struct mcfg_file* file) {
   printf("\n==========================\n");
 }
 
+const char logo[] =
+"\n\x1b[31m"
+"\x1b[1m█▀▄▀█ ▄▀█ █▀█ █ █▀▀ \x1b[0m\x1b[31m█▄▄ █ █ █ █   █▀▄\n"
+"\x1b[1m█ ▀ █ █▀█ █▀▄ █ ██▄ \x1b[0m\x1b[31m█▄█ █▄█ █ █▄▄ █▄▀\n"
+"\n\x1b[0m";
 
+void print_logo() {
+  printf(logo);
+  printf("\x1b[1m\x1b[3m// version " VERSION_STRING " (" VERSION_TYPE ") //\x1b[0m\n");
+  printf("\n");
+}
 
 int main(int argc, char **argv) {
   struct arguments args;
@@ -112,11 +128,15 @@ int main(int argc, char **argv) {
   args.platform           = NULL;
   args.disable_extensions = false;
   args.log_level          = MB_LOGLVL_STD;
-	args.print_structure    = false;
+  args.print_structure    = false;
+  args.print_splash       = true;
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
 
   mb_logging_level = args.log_level;
+  if (args.print_splash)
+    print_logo();
+
   struct mcfg_file* build_file = malloc(sizeof(mcfg_file));
   build_file->path = args.build_file;
   int result = parse_file(build_file);

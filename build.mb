@@ -27,8 +27,12 @@ sector .scripts
 
 lines prepare:
 #!/usr/bin/bash
+if [[ ! -f lib/libmcfg.a ]]; then
+  sh setup.sh
+fi
+
 if [[ -d "./out/" ]]; then
   rm -rf out/*
-else
-  mkdir -p out/
 fi
+
+mkdir -p out/
