@@ -18,7 +18,7 @@
 
 /* argp.h argument parsing functionality */
 
-#define VERSION_STRING "0.3.2"
+#define VERSION_STRING "0.3.3"
 #define VERSION_TYPE "develop"
 
 const char *argp_program_version = "mariebuild " VERSION_STRING " (" VERSION_TYPE ")";
