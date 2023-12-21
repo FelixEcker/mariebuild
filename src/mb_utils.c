@@ -110,7 +110,7 @@ void mb_log(int level, char *msg) {
 }
 
 void *malloc_or_die(size_t size) {
-  void *res = malloc_or_die(size);
+  void *res = malloc(size);
   if (res == NULL)
     abort();
   return res;
