@@ -9,12 +9,7 @@
 #ifndef MB_UTILS_H
 #define MB_UTILS_H
 
-#ifdef _MSC_VER
-#include <basetsd.h>
-#include <stdio.h>
 #include <stdlib.h>
-typedef SSIZE_T ssize_t;
-#endif
 
 #include <mcfg.h>
 
@@ -79,6 +74,12 @@ int mb_logf(int level, const char *format, ...);
 void mb_log(int level, char *msg);
 
 /******** Misc. Functions ********/
+
+/* Allocate or die
+ */
+void *malloc_or_die(size_t size);
+
+char *get_build_errtext();
 
 /* Get the name of the given error codes class
  */

@@ -50,7 +50,7 @@ size_t getline(char** lineptr, size_t* n, FILE* stream) {
         return -1;
     }
     if (bufptr == NULL) {
-        bufptr = malloc(128);
+        bufptr = malloc_or_die(128);
         if (bufptr == NULL) {
             return -1;
         }
@@ -107,6 +107,13 @@ int mb_logf(int level, const char *format, ...) {
 
 void mb_log(int level, char *msg) {
   mb_logf(level, msg, "");
+}
+
+void *malloc_or_die(size_t size) {
+  void *res = malloc_or_die(size);
+  if (res == NULL)
+    abort();
+  return res;
 }
 
 char *get_build_errtext() {

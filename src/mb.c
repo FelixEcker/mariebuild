@@ -137,7 +137,7 @@ int main(int argc, char **argv) {
   if (args.print_splash)
     print_logo();
 
-  struct mcfg_file* build_file = malloc(sizeof(mcfg_file));
+  struct mcfg_file* build_file = malloc_or_die(sizeof(mcfg_file));
   build_file->path = args.build_file;
   int result = parse_file(build_file);
 
