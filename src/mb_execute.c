@@ -10,13 +10,13 @@
 
 #include <mb_utils.h>
 
-#include <mcfg.h>
 #include <butter/strutils.h>
+#include <mcfg.h>
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 /******** mb_execute.h ********/
 
@@ -24,7 +24,7 @@
 char fn_files[] = ".config/mariebuild/files";
 char fn_comp_cmd[] = ".config/mariebuild/comp_cmd";
 
-int check_required_fields(struct mcfg_file* file) {
+int check_required_fields(struct mcfg_file *file) {
   mcfg_field *f_files = find_field(file, fn_files);
   if ((f_files == NULL) || (f_files->value == NULL))
     return MB_BERR_MISSING_FILES;
@@ -39,8 +39,9 @@ int check_required_fields(struct mcfg_file* file) {
 
 /******** Build Stage Functions ********/
 
-int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
-  if (lines == NULL) return MB_OK;
+int _mb_exec_script(struct mb_build *build, char *name, char *lines) {
+  if (lines == NULL)
+    return MB_OK;
   int ret = MB_OK;
 
   int lfpos = strchr(lines, '\n') - lines;
@@ -50,9 +51,9 @@ int _mb_exec_script(struct mb_build* build, char *name, char *lines) {
   char *shell = "/bin/sh";
   bool shell_allocd = false; // flag to check if *shell has to be freed
   if (str_startswith(first_line, "#!") == 0) {
-    shell = malloc_or_die(lfpos-1);
-    memcpy(shell, first_line+2, lfpos-2);
-    shell[lfpos-2] = 0;
+    shell = malloc_or_die(lfpos - 1);
+    memcpy(shell, first_line + 2, lfpos - 2);
+    shell[lfpos - 2] = 0;
     shell_allocd = true;
   }
 
@@ -78,16 +79,15 @@ mb_exec_script_finished:
   return ret;
 }
 
-int mb_exec_script(struct mb_build* build, char *name) {
+int mb_exec_script(struct mb_build *build, char *name) {
   int result = MB_OK;
 
   char *prefix = ".scripts/";
-  char *path = malloc_or_die(strlen(prefix)+strlen(name)+1);
+  char *path = malloc_or_die(strlen(prefix) + strlen(name) + 1);
   strcpy(path, prefix);
   path = strcat(path, name);
 
-  mcfg_section *script = find_section(build->build_file,
-                                            path);
+  mcfg_section *script = find_section(build->build_file, path);
   if (script == NULL)
     goto mb_exec_script_finished;
 
@@ -101,18 +101,18 @@ mb_exec_script_finished:
   return result;
 }
 
-int mb_exec_prepare(struct mb_build* build) {
+int mb_exec_prepare(struct mb_build *build) {
   return mb_exec_script(build, "prepare");
 }
 
-int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
+int mb_exec_prepare_mode(struct mb_build *build, char *mode) {
   int result = MB_OK;
 
   // Register and copy mode specific flags
   char pmariebuild[] = ".config/mariebuild/";
   char pflags_postfix[] = "_flags";
-  char *pflags = malloc_or_die(strlen(pmariebuild)+strlen(mode)+strlen(pflags_postfix)
-                       +1);
+  char *pflags = malloc_or_die(strlen(pmariebuild) + strlen(mode) +
+                               strlen(pflags_postfix) + 1);
 
   strcpy(pflags, pmariebuild);
   pflags = strcat(pflags, mode);
@@ -126,28 +126,24 @@ int mb_exec_prepare_mode(struct mb_build* build, char *mode) {
   mcfg_field *f_mode_flags = find_field(build->build_file, pmode_flags);
 
   if (f_mode_flags == NULL) {
-    register_field(
-        find_section(build->build_file, pmariebuild)
-      , FT_STRING
-      , "mode_flags"
-      , f_flags->value
-    );
+    register_field(find_section(build->build_file, pmariebuild), FT_STRING,
+                   "mode_flags", f_flags->value);
   } else {
     if (f_flags->value == NULL)
       goto prepare_script_exec;
 
-    f_mode_flags->value = malloc_or_die(strlen(f_flags->value)+1);
+    f_mode_flags->value = malloc_or_die(strlen(f_flags->value) + 1);
     strcpy(f_mode_flags->value, f_flags->value);
   }
 
 prepare_script_exec:
   char prefix[] = "prepare_";
-  char *name = malloc_or_die(strlen(mode)+strlen(prefix)+1);
+  char *name = malloc_or_die(strlen(mode) + strlen(prefix) + 1);
   strcpy(name, prefix);
   name = strcat(name, mode);
 
   char pscripts[] = ".scripts/";
-  char *path = malloc_or_die(strlen(name)+strlen(pscripts)+1);
+  char *path = malloc_or_die(strlen(name) + strlen(pscripts) + 1);
   strcpy(path, pscripts);
   path = strcat(path, name);
 
@@ -158,7 +154,6 @@ prepare_script_exec:
   if (prepare_script->lines == NULL)
     goto prepare_finished;
 
-
   result = _mb_exec_script(build, strcat(name, mode), prepare_script->lines);
 
 prepare_finished:
@@ -168,7 +163,7 @@ prepare_finished:
   return result;
 }
 
-int mb_exec_compile(struct mb_build* build) {
+int mb_exec_compile(struct mb_build *build) {
   int result = check_required_fields(build->build_file);
   if (result != MB_OK)
     return result;
@@ -181,7 +176,7 @@ int mb_exec_compile(struct mb_build* build) {
   // register field file if not existing
   if (f_file == NULL) {
     register_field(find_section(build->build_file, pmariebuild), FT_STRING,
-                                  "file", "");
+                   "file", "");
     f_file = find_field(build->build_file, pfile_field);
   }
 
@@ -200,8 +195,9 @@ int mb_exec_compile(struct mb_build* build) {
 
   // Run compilation command for each file
   while (file != NULL) {
-    if (f_file->value != NULL) free(f_file->value);
-    f_file->value = malloc_or_die(strlen(file)+1);
+    if (f_file->value != NULL)
+      free(f_file->value);
+    f_file->value = malloc_or_die(strlen(file) + 1);
     strcpy(f_file->value, file);
 
     char *cmd = resolve_fields((*build->build_file), f_comp_cmd->value,
@@ -227,7 +223,7 @@ int mb_exec_compile(struct mb_build* build) {
   return MB_OK;
 }
 
-int mb_exec_finalize(struct mb_build* build) {
+int mb_exec_finalize(struct mb_build *build) {
   int result = check_required_fields(build->build_file);
   if (result != MB_OK)
     return result;
@@ -253,7 +249,7 @@ int mb_exec_finalize(struct mb_build* build) {
   return result;
 }
 
-int mb_exec_build(struct mcfg_file* build_file,
+int mb_exec_build(struct mcfg_file *build_file,
                   struct mb_exec_params exec_params) {
   mb_build build;
   build.stage = MB_STAGE_NONE;
