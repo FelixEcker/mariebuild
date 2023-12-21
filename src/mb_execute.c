@@ -6,10 +6,6 @@
  * <https://github.com/FelixEcker/mariebuild/blob/master/LICENSE>
  */
 
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
 #include <mb_execute.h>
 
 #include <mb_utils.h>

@@ -64,10 +64,6 @@ extern char *mb_errtext;
  * under the microsoft c compiler are to be implemented here
  */
 
-#ifdef _MSC_VER
-size_t getline(char** lineptr, size_t* n, FILE* stream);
-#endif
-
 /******** Logging Functions ********/
 
 int mb_logf(int level, const char *format, ...);
