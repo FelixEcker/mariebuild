@@ -18,7 +18,7 @@
 #include <string.h>
 
 int mb_logging_level = MB_LOGLVL_LOW;
-char *mb_errtext = "";
+char *mb_errtext = NULL;
 
 int mb_logf(int level, const char *format, ...) {
   if (level < mb_logging_level)
@@ -64,15 +64,15 @@ char *get_build_errtext() {
 }
 
 char *errclass_msg(int err) {
-  if ((err & MB_PERR_MASK) == 0)
-    return "Parsing Error";
+  if ((err & MB_ERR_MASK_ERRNO) == MB_ERR_MASK_ERRNO)
+    return "OS Error";
 
-  if ((err & MB_BERR_MASK) == 0)
+  if ((err & MB_BERR_MASK) == MB_BERR_MASK)
     return "Building Error";
 
-  if ((err & MB_ERR_MASK_ERRNO) == 0)
-    return "System Error";
-
+  if ((err & MB_PERR_MASK) == MB_PERR_MASK)
+    return "Parsing Error";
+ 
   return "Unknown Error-Class";
 }
 
