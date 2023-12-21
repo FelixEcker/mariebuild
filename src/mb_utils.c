@@ -107,6 +107,8 @@ char *errcode_msg(int err) {
     case MB_BERR_C_FILE_WRITE_ERR:
       return "An error occured whilst writing data to a file!";
     default:
+      if ((err & MB_ERR_MASK_ERRNO) == MB_ERR_MASK_ERRNO)
+        return strerror(err & 0x0fffffff);
       return "Unknown Errorcode";
   }
 }
