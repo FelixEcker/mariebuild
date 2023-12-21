@@ -33,13 +33,13 @@ int mb_logf(int level, const char *format, ...) {
     default: level_prefix = "_>"; break;
   }
 
-  printf("%s ", level_prefix);
+  fprintf(stderr, "%s ", level_prefix);
 
   va_list arg;
   int done;
 
   va_start(arg, format);
-  done = vfprintf(stdout, format, arg);
+  done = vfprintf(stderr, format, arg);
   va_end(arg);
 
   return done;
