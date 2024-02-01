@@ -1,46 +1,46 @@
 #!/bin/sh
 
-LIBMCFG_GZ="https://github.com/FelixEcker/mcfg/archive/refs/tags/1.0.2.tar.gz"
-ARCHIVE_NAME="libmcfg_src"
+function directory_setup() {
+  if [ -d lib ]; then
+    rm -rf lib
+  fi
 
-mode="debug"
-if [[ $1 ]]; then
-  mode=$1
-fi
+  if [ -d obj ]; then
+    rm -rf obj
+  fi
 
-echo ==\> Creating lib and out dirs
+  if [ -d include ]; then
+    rm -rf include
+  fi
 
-mkdir lib
-mkdir out
+  mkdir lib
+  mkdir obj
+  mkdir include
+}
 
-lwd="$(pwd)"
+function libmcfg_2_setup() {
+  BUILD_DIR=".libmcfg_2.build"
+  if [ -d $BUILD_DIR ]; then
+    rm -rf $BUILD_DIR
+  fi
 
-echo ==\> Building libmcfg
+  mkdir $BUILD_DIR
+  cd $BUILD_DIR
 
-mkdir .depends
-cd .depends
+  git clone https://github.com/FelixEcker/mcfg_2.git
 
-wget -O $ARCHIVE_NAME.tar.gz $LIBMCFG_GZ 
-gzip -d $ARCHIVE_NAME.tar.gz
-tar -xf $ARCHIVE_NAME.tar
+  cd mcfg_2
+  sh setup.sh || exit
+  sh build.sh --lib-only || return
 
-cd $(tar --list -f $ARCHIVE_NAME.tar | head -1)
+  mv include/* ../../include/
+  mv libmcfg_2.a ../../lib/
+  cd ../..
 
-# This should be put into a setup script for libmcfg in its next release
-mkdir out/butter -p
-if ! command -v mb &> /dev/null
-then
-  bash build.bash
-else
-  mb -v -m $mode
-fi
+  rm -rf $BUILD_DIR
+}
 
-echo ==\> Copying libmcfg
-
-cp libmcfg.a $lwd/lib/
-cd $lwd
-
-echo ==\> Cleaning up
-rm -rf .depends
-
-echo ==\> Setup for development!
+echo "==> setting up directories"
+directory_setup
+echo "==> building libraries"
+libmcfg_2_setup
