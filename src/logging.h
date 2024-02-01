@@ -7,11 +7,23 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-enum log_level {
-  LOG_DEBUG,
+typedef enum log_level {
+  LOG_INVALID = -1,
+  LOG_DEBUG = 0,
   LOG_INFO,
   LOG_WARNING,
   LOG_ERROR,
-};
+} log_level_t;
+
+#if !defined(DEFAULT_LOG_LEVEL)
+#define DEFAULT_LOG_LEVEL LOG_INFO
+#endif
+
+extern log_level_t mb_log_level;
+
+log_level_t str_to_loglvl(char *str);
+
+int mb_logf(log_level_t level, const char *format, ...);
+void mb_log(int level, char *msg);
 
 #endif // #ifndef LOGGING_H
