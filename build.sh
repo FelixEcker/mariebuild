@@ -4,7 +4,7 @@ CC="clang"
 SRCDIR="src/"
 OBJDIR="obj/"
 
-CFLAGS="-ggdb -Iinclude/ -Isrc/"
+CFLAGS="-ggdb -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG"
 LDFLAGS="-lm -Llib/ -lmcfg_2"
 
 BIN_NAME="mb"
@@ -26,7 +26,7 @@ function build_objs() {
 }
 
 function build() {
-  OBJECTS=("main")
+  OBJECTS=("logging main")
 
   echo "==> Compiling Sources for \"$BIN_NAME\""
   build_objs "${OBJECTS[@]}"
