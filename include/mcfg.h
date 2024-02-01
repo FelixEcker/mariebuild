@@ -1,170 +1,393 @@
-/*
- * mcfg.h ; author: Marie Eckert
- *
- * mcfg parser and utilities.
- * This header and its source file originally stem from mariebuild and have
- * been partially rewritten to be used as a general configuration file.
- *
- * Copyright (c) 2023, Marie Eckert
- * Licensed under the BSD 3-Clause License
- * <https://github.com/FelixEcker/mcfg/blob/master/LICENSE>
- */
+// mcfg.h ; marie config format parser header
+// for MCFG/2
+//
+// Copyright (c) 2023, Marie Eckert
+// Licensend under the BSD 3-Clause License.
+//------------------------------------------------------------------------------
 
 #ifndef MCFG_H
 #define MCFG_H
 
-#define MCFG_OK                      0
-#define MCFG_ERR_UNKNOWN             0x00000001
-#define MCFG_PERR_MASK               0x10000000
-#define MCFG_PERR_MISSING_REQUIRED   0x10000001
-#define MCFG_PERR_DUPLICATE_SECTION  0x10000002
-#define MCFG_PERR_DUPLICATE_SECTOR   0x10000003
-#define MCFG_PERR_DUPLICATE_FIELD    0x10000004
-#define MCFG_PERR_INVALID_IDENTIFIER 0x10000005
-#define MCFG_PERR_INVALID_SYNTAX     0x10000006
-#define MCFG_PERR_INVALID_FTYPE      0x10000007
-#define MCFG_PERR_INVALID_STYPE      0x10000008
-#define MCFG_ERR_MASK_ERRNO          0xf0000000
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <sys/types.h>
 
-/* Used to set the type of a field. If the type ever is FT_UNKOWN an error
- * should be thrown
- */
-typedef enum mcfg_ftype {
-  FT_STRING,
-  FT_LIST,
-  FT_UNKNOWN
-} mcfg_ftype;
+#define MCFG_2_VERSION "0.2.0 (develop)"
 
-/* Used to set the type of a sector. If the type ever is ST_UNKNOWN an error
- * should be thrown
- */
-typedef enum mcfg_stype {
-  ST_FIELDS,
-  ST_LINES,
-	ST_UNKNOWN
-} mcfg_stype;
+typedef enum mcfg_err {
+  MCFG_OK,
+  MCFG_TODO,
+  MCFG_INVALID_PARSER_STATE,
+  MCFG_SYNTAX_ERROR,
+  MCFG_INVALID_KEYWORD,
+  MCFG_END_IN_NOWHERE,
+  MCFG_STRUCTURE_ERROR,
+  MCFG_DUPLICATE_SECTOR,
+  MCFG_DUPLICATE_SECTION,
+  MCFG_DUPLICATE_FIELD,
+  MCFG_DUPLICATE_DYNFIELD,
+  MCFG_INVALID_TYPE,
+  MCFG_NULLPTR,
+  MCFG_INTEGER_OUT_OF_BOUNDS,
+  MCFG_OS_ERROR_MASK = 0xf000
+} mcfg_err_t;
 
-/* Holds a field specified within a config section.
- */
+typedef enum mcfg_field_type {
+  TYPE_INVALID = -1,
+  TYPE_STRING,
+  TYPE_LIST,
+  TYPE_BOOL,
+  TYPE_I8,
+  TYPE_U8,
+  TYPE_I16,
+  TYPE_U16,
+  TYPE_I32,
+  TYPE_U32,
+} mcfg_field_type_t;
+
+typedef enum mcfg_boolean {
+  BOOL_FALSE = 0,
+  BOOL_TRUE = 1,
+} mcfg_boolean_t;
+
 typedef struct mcfg_field {
-  mcfg_ftype  type;
-  char       *name;
-  char       *value;
-} mcfg_field;
+  char *name;
+  mcfg_field_type_t type;
+  void *data;
+  size_t size;
+} mcfg_field_t;
 
-/* Defines a section of a sector within a mcfg file
- */
+typedef struct mcfg_list {
+  mcfg_field_type_t type;
+  size_t field_count;
+  mcfg_field_t *fields;
+} mcfg_list_t;
+
 typedef struct mcfg_section {
-  mcfg_stype  type;
-  char       *name;
-  int         section_type;
-  char       *lines;
-  int         field_count;
-  mcfg_field *fields;
-} mcfg_section;
+  char *name;
+  size_t field_count;
+  mcfg_field_t *fields;
+} mcfg_section_t;
 
-/* Defines a sector of a mcfg file
- */
 typedef struct mcfg_sector {
-  char       *name;
-  int        section_count;
-  mcfg_section *sections;
-} mcfg_sector;
+  char *name;
+  size_t section_count;
+  mcfg_section_t *sections;
+} mcfg_sector_t;
 
-/* C-Representation of a mcfg file
- */
 typedef struct mcfg_file {
-  char      *path;
-  int       line;
-  int       sector_count;
-  mcfg_sector *sectors;
-} mcfg_file;
+  size_t sector_count;
+  mcfg_sector_t *sectors;
 
-/* Completely and recursively free a mcfg_file struct
- */
-void free_mcfg_file(mcfg_file* file);
+  size_t dynfield_count;
+  mcfg_field_t *dynfields;
+} mcfg_file_t;
 
-/* Parsing Functions */
-/* NOTE: After using any of these registering functions, pointers to members
- *       of the targeted mcfg-file need to be reassigned since registering
- *       breaks the old pointers.
- */
-int register_sector(struct mcfg_file* file, char *name);
-int register_section(struct mcfg_sector* sector, mcfg_stype type, char *name);
-int register_field(struct mcfg_section* section, mcfg_ftype type,
-                       char *name, char *value);
+typedef struct mcfg_parser_ctxt {
+  mcfg_file_t *target_file;
+  mcfg_sector_t *target_sector;
+  mcfg_section_t *target_section;
+  mcfg_field_t *target_field;
 
-int parse_line(struct mcfg_file* file, char *line);
+  uint32_t linenum;
+  char *file_path;
+} mcfg_parser_ctxt_t;
 
-/* Parses the file under the path in file->path line by line,
- * will return MCFG_OK if there were no errors.
- */
-int parse_file(struct mcfg_file* file);
+typedef struct mcfg_data_parse_result {
+  mcfg_err_t error;
 
-/* Navigation Functions */
+  char *parse_end;
 
-mcfg_sector *find_sector(struct mcfg_file* file, char *sector_name);
-mcfg_section *find_section(struct mcfg_file* file, char *path);
-mcfg_field *find_field(struct mcfg_file* file, char *path);
+  bool multiline;
+  void *data;
+  size_t size;
+} mcfg_data_parse_result_t;
 
-/* Formats the contents of a list field.
+typedef enum mcfg_token {
+  TOKEN_INVALID = -1,
+  TOKEN_SECTOR,
+  TOKEN_SECTION,
+  TOKEN_END,
+  TOKEN_COMMENT,
+  TOKEN_STR,
+  TOKEN_LIST,
+  TOKEN_BOOL,
+  TOKEN_I8,
+  TOKEN_U8,
+  TOKEN_I16,
+  TOKEN_U16,
+  TOKEN_I32,
+  TOKEN_U32,
+  TOKEN_EMPTY,
+} mcfg_token_t;
 
- * Parameters:
- *   file   : The file structure from which to take the files field
- *   field  : The field to be formatted
- *   context: Path of the section which is to be used for local fields
- *   in     : The string in which the files field is embedded
- *   in_offs: Offset for the input string
- *   len    : Length of the embed including $()
- *
- * Returns:
- *   A dynamically allocated string with the formatted result.
- *   The caller is responsible for freeing the memory.
- *
- * Notes:
- *   - The list is inserted with space-seperation. Chars which come immediatly
- *     after or before the embed are post- or prefixed to every file.
- *
- * Example:
- *  files = 'file1:file2'
- *  format_files_field(file, ".config/mariebuild", "out/$(files).o", offs, len)
- *  = out/file1.o out/file2.o
- */
-char *format_list_field(struct mcfg_file file, mcfg_field field, char *context,
-                         char *in, int in_offs, int len);
+//-----------------------------------------------------------------------------
+// Get the according string name/description for the input
+//
+// Params:
+// err The error enum value
+//
+// Returns:
+// Matching string name/description for input; "invalid error code" if no
+// matching string could be found.
+// Inputs which match MCFG_OS_ERROR_MASK will return the return value of
+// strerror and require the return value to be freed after usage.
+char *mcfg_err_string(mcfg_err_t err);
 
-/*
- * Resolve the field values in the given input string by replacing field-
- * references with their corresponding values.
- *
- * Parameters:
- *   file       : The build file structure containing the sectors,
- *              | sections, and fields.
- *   in         : The input string to be resolved.
- *   context    : The context in which the field references should be resolved.
- *              | It specifies the path prefix for the field lookups.
- *   leave_lists: If set to 1 lists are not formatted, any other value will
- *                cause lists to be formatted
- *
- * Returns:
- *   A dynamically allocated string containing the resolved input string.
- *   The caller is responsible for freeing the memory allocated for the
- *   resolved string.
- *
- * Notes:
- *   - The input string may contain field references in the format
- *     "$(path/to/field)".
- *   - Field references will be replaced with their corresponding values
- *     found in the mcfg file.
- *   - Field references can include the context prefix to specify the
- *     location of the field lookup.
- *   - If a field reference cannot be resolved or a field value is NULL,
- *     it will not be replaced in the output string.
- *   - The resolved string is returned as a dynamically allocated string.
- *     The caller must free the memory allocated for the resolved string
- *     when it's no longer needed.
- */
-char *resolve_fields(struct mcfg_file file, char *in, char *context, 
-                       int leave_lists);
+//------------------------------------------------------------------------------
+// Get the size for the given type in bytes.
+//
+// Params:
+// type The type to get the size of
+//
+// Returns:
+// -1 if the type is invalid or its size is dynamic. Otherwise a positive number
+// indicating the size of the datatype in bytes.
+ssize_t mcfg_sizeof(mcfg_field_type_t type);
 
-#endif
+//------------------------------------------------------------------------------
+// Convert the input string to its matching mcfg_field_type enum.
+//
+// Params:
+// strtype The string for which to find the matching mcfg_field_type enum
+//
+// Returns:
+// Matching mcfg_field_type enum. Returns TYPE_INVALID if no match could be
+// found.
+mcfg_field_type_t mcfg_str_to_type(char *strtype);
+
+//------------------------------------------------------------------------------
+// Gets the count of tokens in the input string
+//
+// Params:
+// in The string for which to count the tokens
+//
+// Returns:
+// The amount of tokens found in the string, space-seperated.
+size_t mcfg_get_token_count(char *in);
+
+//------------------------------------------------------------------------------
+// Gets the token at index from string in.
+//
+// Params:
+// in The string from which to get the token
+// index The 0-based index of the token to be grabbed.
+//
+// Returns:
+// The token at index. If the string is emtpy or the index invalid an empty
+// string is returned.
+// Every return value is allocated on the heap so it has to be freed.
+char *mcfg_get_token_raw(char *in, uint16_t index);
+
+//------------------------------------------------------------------------------
+// Gets the mcfg_token enum value for token at index from string in.
+//
+// Params:
+// in The string from which to get the token
+// index The 0-based index of the token to be grabbed.
+//
+// Returns:
+// The mcfg_token enum value for the token at index. Returns TOKEN_INVALID if
+// index is invalid, input string is empty/NULL or no valid token could be found
+// at index.
+mcfg_token_t mcfg_get_token(char *in, uint16_t index);
+
+//------------------------------------------------------------------------------
+// Parses a field-declaration.
+//
+// Params:
+// type The type of the field
+// str The entire line of the field declaration.
+//
+// Returns:
+// see declaration of struct mcfg_data_parse_result
+mcfg_data_parse_result_t mcfg_parse_field_data(mcfg_field_type_t type,
+                                               char *str);
+
+//------------------------------------------------------------------------------
+// Parse a line of mcfg
+//
+// Params:
+// line The line to be parsed
+// ctxt The parser context in which the line is to be parsed
+//
+// Returns:
+// MCFG_OK if no errors occured, for other return values see the declaration of
+// mcfg_err_t.
+mcfg_err_t mcfg_parse_line(char *line, mcfg_parser_ctxt_t *ctxt);
+
+//------------------------------------------------------------------------------
+// Parse a file from disk
+//
+// Params:
+// path The path to the file
+// file The mcfg_file struct into which the file should be parsed
+// ctxt_out Location for the parser context to be put. Can be NULL
+//
+// Returns:
+// MCFG_OK if no errors occured, for other return values see the declaration of
+// mcfg_err_t.
+mcfg_err_t mcfg_parse_file_ctxto(char *path, mcfg_file_t *file,
+                                 mcfg_parser_ctxt_t **ctxt_out);
+
+//------------------------------------------------------------------------------
+// Parse a file from disk
+//
+// Params:
+// path The path to the file
+// file The mcfg_file struct into which the file should be parsed
+//
+// Returns:
+// MCFG_OK if no errors occured, for other return values see the declaration of
+// mcfg_err_t.
+mcfg_err_t mcfg_parse_file(char *path, mcfg_file_t *file);
+
+//------------------------------------------------------------------------------
+// Add a sector to a file
+//
+// Params:
+// file The mcfg_file struct into which the sector should be added
+// name The name of the sector to be added
+//
+// Returns:
+// MCFG_OK if no errors occured, MCFG_DUPLICATE_SECTOR if a sector with given
+// name already exists in file.
+mcfg_err_t mcfg_add_sector(mcfg_file_t *file, char *name);
+
+//------------------------------------------------------------------------------
+// Add a section to a sector
+//
+// Params:
+// sector The mcfg_sector struct into which the section should be added
+// name The name of the section to be added
+//
+// Returns:
+// MCFG_OK if no errors occured, MCFG_DUPLICATE_SECTION if a section with given
+// name already exists in sector.
+mcfg_err_t mcfg_add_section(mcfg_sector_t *sector, char *name);
+
+//------------------------------------------------------------------------------
+// Add a dynfield to a file
+//
+// Params:
+// file The mcfg_file struct into which the dynfield should be added
+// type The datatype of the dynfield which is to be added
+// name The name of the dynfield which is to be added
+// data Pointer to the data of the dynfield which is to be added
+// size The size of data in bytes
+//
+// Returns:
+// MCFG_OK if no errors occured, MCFG_DUPLICATE_DYNFIELD if a dynfield with
+// the given name already exists in the file.
+mcfg_err_t mcfg_add_dynfield(mcfg_file_t *file, mcfg_field_type_t type,
+                             char *name, void *data, size_t size);
+
+//------------------------------------------------------------------------------
+// Add a field to a section
+//
+// Params:
+// section The mcfg_section struct into which the field should be added
+// type The datatype of the field which is to be added
+// name The name of the field which is to be added
+// data Pointer to the data of the field which is to be added
+// size The size of data in bytes
+//
+// Returns:
+// MCFG_OK if no errors occured, MCFG_DUPLICATE_FIELD if a field with given name
+// already exists in section.
+mcfg_err_t mcfg_add_field(mcfg_section_t *section, mcfg_field_type_t type,
+                          char *name, void *data, size_t size);
+
+//------------------------------------------------------------------------------
+// Add a field to a list
+//
+// Params:
+// list The mcfg_list to add the field to
+// size The size of the data of the new field
+// data Pointer to the data of the new field
+//
+// Returns:
+// MCFG_OK if no errors occured, MCFG_NULLPTR if list or data is NULL.
+mcfg_err_t mcfg_add_list_field(mcfg_list_t *list, size_t size, void *data);
+
+//------------------------------------------------------------------------------
+// Get the sector with name from file
+//
+// Params:
+// file The file from which the sector is to be grabbed
+// name The name of the sector
+//
+// Returns:
+// Pointer to the sector, NULL if no sector with given name could be found.
+mcfg_sector_t *mcfg_get_sector(mcfg_file_t *file, char *name);
+
+//------------------------------------------------------------------------------
+// Get the section with name from sector
+//
+// Params:
+// sector The sector from which the section is to be grabbed
+// name The name of the section
+//
+// Returns:
+// Pointer to the section, NULL if no section with given name could be found.
+mcfg_section_t *mcfg_get_section(mcfg_sector_t *sector, char *name);
+
+//------------------------------------------------------------------------------
+// Get the dynamically generated fiekd with name from file
+//
+// Params:
+// file The file from which the field is to be grabbed
+// name The name of the dynfield.
+//
+// Returns:
+// Pointer to the field, NULL if no field with given name could be found.
+mcfg_field_t *mcfg_get_dynfield(mcfg_file_t *file, char *name);
+
+//------------------------------------------------------------------------------
+// Get the field with name from section
+//
+// Params:
+// section The section from which the field is to be grabbed
+// name The name of the field
+//
+// Returns:
+// Pointer to the field, NULL if no field with given name could be found.
+mcfg_field_t *mcfg_get_field(mcfg_section_t *section, char *name);
+
+//------------------------------------------------------------------------------
+// Free the contents of given list
+//
+// Params:
+// list The list of which the contents should be freed
+void mcfg_free_list(mcfg_list_t *list);
+
+//------------------------------------------------------------------------------
+// Free the contents of given field
+//
+// Params:
+// field The field of which the contents should be freed
+void mcfg_free_field(mcfg_field_t *field);
+
+//------------------------------------------------------------------------------
+// Free the contents of given section
+//
+// Params:
+// section The section of which the contents should be freed
+void mcfg_free_section(mcfg_section_t *section);
+
+//------------------------------------------------------------------------------
+// Free the contents of given sector
+//
+// Params:
+// sector The sector of which the contents should be freed
+void mcfg_free_sector(mcfg_sector_t *sector);
+
+//------------------------------------------------------------------------------
+// Free the given file
+//
+// Params:
+// file The file which should be freed.
+void mcfg_free_file(mcfg_file_t *file);
+
+#endif // ifndef MCFG_H
