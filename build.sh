@@ -26,7 +26,7 @@ function build_objs() {
 }
 
 function build() {
-  OBJECTS=("logging main")
+  OBJECTS=("xmem strlist logging build main")
 
   echo "==> Compiling Sources for \"$BIN_NAME\""
   build_objs "${OBJECTS[@]}"
