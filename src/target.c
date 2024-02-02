@@ -13,6 +13,53 @@
 #include "strlist.h"
 #include "xmem.h"
 
+int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
+                         strlist_t *target_history) {
+  mcfg_field_t *field_required_targets =
+      mcfg_get_field(target, "required_targets");
+  if (field_required_targets == NULL)
+    return 0;
+
+  mcfg_list_t *required_targets = mcfg_data_as_list(*field_required_targets);
+  mcfg_sector_t *targets = mcfg_get_sector(file, "targets");
+
+  for (size_t ix = 0; ix < required_targets->field_count; ix++) {
+    char *curr_target_name = mcfg_data_to_string(required_targets->fields[ix]);
+    if (curr_target_name == NULL) {
+      mb_logf(LOG_WARNING, "%s/%s:%d: curr_target_name is NULL!\n", __FILE__,
+              __FUNCTION__, __LINE__);
+      continue;
+    }
+
+    mcfg_section_t *curr_target = mcfg_get_section(targets, curr_target_name);
+    if (curr_target == NULL) {
+      mb_logf(LOG_ERROR,
+              "target \"%s\" required by target \"%s\" does not exist.\n",
+              curr_target_name, target->name);
+      xfree(curr_target_name);
+      return 1;
+    }
+
+    int ret = mb_run_target(file, curr_target, target_history);
+    xfree(curr_target_name);
+
+    if (ret != 0)
+      return ret;
+  }
+
+  return 0;
+}
+
+int run_c_rules(mcfg_file_t *file, mcfg_section_t *target) {
+  mcfg_field_t *field_c_rules = mcfg_get_field(target, "c_rules");
+  if (field_c_rules == NULL)
+    return 0;
+
+  mcfg_list_t *c_rules = mcfg_data_as_list(*field_c_rules);
+  mb_log(LOG_DEBUG, "c_rule execution is to be implemented!\n");
+  return 0;
+}
+
 int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
                   strlist_t *target_history) {
   if (target_history == NULL) {
@@ -35,56 +82,19 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
   mb_logf(LOG_INFO, "building target \"%s\"\n", target->name);
 
-  mcfg_field_t *field_required_targets =
-      mcfg_get_field(target, "required_targets");
-  mcfg_list_t *required_targets = NULL;
-  if (field_required_targets != NULL) {
-    required_targets = mcfg_data_as_list(*field_required_targets);
-  }
-
-  mcfg_field_t *field_c_rules = mcfg_get_field(target, "c_rules");
-  mcfg_list_t *c_rules = NULL;
-  if (field_c_rules != NULL) {
-    c_rules = mcfg_data_as_list(*field_c_rules);
-  }
-
   // Target Execution Order
   // 1. required targets
   // 2. compilation rules
   // 3. "exec" field
 
-  if (required_targets != NULL) {
-    mcfg_sector_t *targets = mcfg_get_sector(file, "targets");
+  int ret;
+  ret = run_required_targets(file, target, target_history);
+  if (ret != 0)
+    return ret;
 
-    for (size_t ix = 0; ix < required_targets->field_count; ix++) {
-      char *curr_target_name =
-          mcfg_data_to_string(required_targets->fields[ix]);
-      if (curr_target_name == NULL) {
-        mb_logf(LOG_WARNING, "%s/%s:%d: curr_target_name is NULL!\n", __FILE__,
-                __FUNCTION__, __LINE__);
-        continue;
-      }
-
-      mcfg_section_t *curr_target = mcfg_get_section(targets, curr_target_name);
-      if (curr_target == NULL) {
-        mb_logf(LOG_ERROR,
-                "target \"%s\" required by target \"%s\" does not exist.\n",
-                curr_target_name, target->name);
-        xfree(curr_target_name);
-        return 1;
-      }
-
-      int ret = mb_run_target(file, curr_target, target_history);
-      xfree(curr_target_name);
-
-      if (ret != 0)
-        return ret;
-    }
-  }
-
-  if (c_rules != NULL) {
-    mb_log(LOG_DEBUG, "c_rule execution is to be implemented!\n");
-  }
+  ret = run_c_rules(file, target);
+  if (ret != 0)
+    return ret;
 
   mcfg_field_t *field_exec = mcfg_get_field(target, "exec");
   char *exec = NULL;

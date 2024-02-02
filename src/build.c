@@ -110,6 +110,8 @@ int mb_start(args_t args) {
   return_code = mb_begin_build(file, cfg);
   if (return_code != 0)
     mb_log(LOG_ERROR, "build failed!\n");
+  else
+    mb_log(LOG_INFO, "build succeeded!\n");
 
 exit:
   mcfg_free_file(file);
