@@ -11,15 +11,16 @@
 #include "mcfg.h"
 #include "mcfg_util.h"
 
-#include "xmem.h"
 #include "logging.h"
+#include "target.h"
+#include "xmem.h"
 
 config_t default_config = {
-  .default_target = "debug",
-  .target = NULL,
-  .public_targets = { .capacity = 0, .item_count = 0, .items = NULL },
-  .always_force = false,
-  .ignore_failures = false,
+    .default_target = "debug",
+    .target = NULL,
+    .public_targets = {.capacity = 0, .item_count = 0, .items = NULL},
+    .always_force = false,
+    .ignore_failures = false,
 };
 
 bool check_file_validity(mcfg_file_t *file) {
@@ -50,12 +51,30 @@ config_t mb_load_configuration(mcfg_file_t file) {
 
   mcfg_field_t *field_targets = mcfg_get_field(config, "targets");
   if (field_targets != NULL) {
-    mcfg_list_t targets = mcfg_data_as_list(*field_targets);
-    ret.public_targets = strlist_init(targets.field_count);
+    mcfg_list_t targets = *mcfg_data_as_list(*field_targets);
+    ret.public_targets = strlist_new(targets.field_count);
 
     if (targets.type != TYPE_STRING) {
       mb_log(LOG_WARNING, "mariebuild target list is not a string-list!");
     }
+
+    for (size_t ix = 0; ix < targets.field_count; ix++) {
+      char *str = mcfg_data_to_string(targets.fields[ix]);
+      if (str != NULL)
+        strlist_append(&ret.public_targets, str);
+    }
+
+    mb_logf(LOG_DEBUG, "registered %zu public targets\n",
+            ret.public_targets.item_count);
+  } else {
+    ret.public_targets = fallback.public_targets;
+  }
+
+  mcfg_field_t *field_default_target = mcfg_get_field(config, "default");
+  if (field_default_target != NULL) {
+    ret.default_target = mcfg_data_to_string(*field_default_target);
+  } else {
+    ret.default_target = fallback.default_target;
   }
 
   return ret;
@@ -73,8 +92,8 @@ int mb_start(args_t args) {
   mcfg_parser_ctxt_t *ctxt;
   mcfg_err_t ret = mcfg_parse_file_ctxto(args.buildfile, file, &ctxt);
   if (ret != MCFG_OK) {
-    mb_logf(LOG_ERROR, "buildfile parsing failed: %s (%d)\n", mcfg_err_string(ret),
-            ret);
+    mb_logf(LOG_ERROR, "buildfile parsing failed: %s (%d)\n",
+            mcfg_err_string(ret), ret);
     mb_logf(LOG_ERROR, "in file \"%s\" on line %d\n", args.buildfile,
             ctxt->linenum);
 
@@ -85,7 +104,7 @@ int mb_start(args_t args) {
   if (!check_file_validity(file))
     goto exit;
 
-  cfg = mb_load_configuration(*file);
+  config_t cfg = mb_load_configuration(*file);
   cfg.target = args.target == NULL ? cfg.default_target : args.target;
 
   return_code = mb_begin_build(file, cfg);
@@ -105,16 +124,16 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
   }
 
   build_state_t state = {
-    .target = mcfg_get_section(targets, cfg.target),
-    .current_target = NULL,
-    .current_rule = NULL,
+      .target = mcfg_get_section(targets, cfg.target),
+      .current_target = NULL,
+      .current_rule = NULL,
   };
 
   if (state.target == NULL) {
-    mb_logf(LOG_ERROR, "target \"%s\" is not declared within build file!\n", 
+    mb_logf(LOG_ERROR, "target \"%s\" is not declared within build file!\n",
             cfg.target);
     return 1;
   }
 
-  return 0;
+  return mb_run_target(file, state.target);
 }

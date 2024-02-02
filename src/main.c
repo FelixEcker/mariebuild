@@ -11,8 +11,8 @@
 
 #include "mcfg.h"
 
-#include "logging.h"
 #include "build.h"
+#include "logging.h"
 
 #define MARIEBUILD_COLORED_LOGO
 

@@ -16,7 +16,7 @@ function build_objs() {
   do
     OUTNAME="$OBJDIR$i.o"
     INNAME="$SRCDIR$i.c"
-    
+
     echo "  CC $INNAME"
 
     $CC $CFLAGS -c -o $OUTNAME $INNAME || exit
@@ -26,7 +26,7 @@ function build_objs() {
 }
 
 function build() {
-  OBJECTS=("xmem strlist logging build main")
+  OBJECTS=("xmem strlist logging target build main")
 
   echo "==> Compiling Sources for \"$BIN_NAME\""
   build_objs "${OBJECTS[@]}"
