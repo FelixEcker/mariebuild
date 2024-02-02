@@ -13,10 +13,10 @@
 #include "strlist.h"
 #include "xmem.h"
 
-int mb_run_target(mcfg_file_t *file, mcfg_section_t *target, 
-                    strlist_t *target_history) {
+int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
+                  strlist_t *target_history) {
   if (target_history == NULL) {
-    mb_log(LOG_ERROR, 
+    mb_log(LOG_ERROR,
            "internal: mb_run_target was passed a NULL target_history!\n");
     return 1;
   }
