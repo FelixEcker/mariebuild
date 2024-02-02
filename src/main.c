@@ -1,3 +1,9 @@
+// main.c ; mariebuild main entry point
+//
+// Copyright (c) 2024, Marie Eckert
+// Licensend under the BSD 3-Clause License.
+//------------------------------------------------------------------------------
+
 #include <argp.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -6,6 +12,7 @@
 #include "mcfg.h"
 
 #include "logging.h"
+#include "build.h"
 
 #define MARIEBUILD_COLORED_LOGO
 
@@ -23,15 +30,6 @@
   "█ ▀ █ █▀█ █▀▄ █ ██▄ █▄█ █▄█ █ █▄▄ █▄▀\n"
 #endif
 // clang-format on
-
-struct args {
-  char *buildfile;
-  char *target;
-  bool force;
-  bool no_splash;
-  bool keep_going; // they're hot on your heels!
-  log_level_t verbosity;
-};
 
 const char *argp_program_version = "mariebuild " MARIEBUILD_VERSION "\n"
                                    "using MCFG/2 " MCFG_2_VERSION;
@@ -52,7 +50,7 @@ static struct argp_option options[] = {
     {0, 0, 0, 0}};
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
-  struct args *args = state->input;
+  args_t *args = state->input;
   switch (key) {
   case 'i':
     args->buildfile = arg;
@@ -89,9 +87,9 @@ void print_splash() {
 }
 
 int main(int argc, char **argv) {
-  struct args args;
+  args_t args;
   args.buildfile = "build.mb";
-  args.target = "all";
+  args.target = NULL;
   args.force = false;
   args.no_splash = false;
   args.keep_going = false;
@@ -104,20 +102,5 @@ int main(int argc, char **argv) {
 
   mb_log_level = args.verbosity;
 
-  mb_log(LOG_DEBUG, "using MCFG/2 " MCFG_2_VERSION "\n");
-
-  mcfg_file_t *file = malloc(sizeof(mcfg_file_t));
-  mcfg_parser_ctxt_t *ctxt;
-  mcfg_err_t ret = mcfg_parse_file_ctxto(args.buildfile, file, &ctxt);
-  if (ret != MCFG_OK) {
-    fprintf(stderr, "buildfile parsing failed: %s (%d)\n", mcfg_err_string(ret),
-            ret);
-    fprintf(stderr, "in file \"%s\" on line %d\n", args.buildfile,
-            ctxt->linenum);
-    mcfg_free_file(file);
-    return ret;
-  }
-
-  mcfg_free_file(file);
-  return 0;
+  return mb_start(args);
 }
