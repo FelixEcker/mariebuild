@@ -11,7 +11,7 @@
 
 #include "strlist.h"
 
-int mb_run_target(mcfg_file_t *file, mcfg_section_t *target, 
-                    strlist_t *target_history);
+int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
+                  strlist_t *target_history);
 
 #endif
