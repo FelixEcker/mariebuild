@@ -1,20 +1,25 @@
 #include "logging.h"
 
 #include <stdarg.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 log_level_t mb_log_level;
 
 log_level_t str_to_loglvl(char *str) {
   long int converted = strtol(str, NULL, 10);
-  
+
   switch (converted) {
-  case LOG_DEBUG: return LOG_DEBUG;
-  case LOG_INFO: return LOG_INFO;
-  case LOG_WARNING: return LOG_WARNING;
-  case LOG_ERROR: return LOG_ERROR;
-  default: return LOG_INVALID;
+  case LOG_DEBUG:
+    return LOG_DEBUG;
+  case LOG_INFO:
+    return LOG_INFO;
+  case LOG_WARNING:
+    return LOG_WARNING;
+  case LOG_ERROR:
+    return LOG_ERROR;
+  default:
+    return LOG_INVALID;
   }
 }
 
