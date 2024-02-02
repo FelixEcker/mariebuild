@@ -7,6 +7,7 @@
 #ifndef STRLIST_H
 #define STRLIST_H
 
+#include <stdbool.h>
 #include <stddef.h>
 
 typedef struct strlist {
@@ -20,6 +21,8 @@ strlist_t strlist_new(size_t capacity);
 void strlist_append(strlist_t *strlist, char *item);
 
 char *strlist_get(strlist_t *strlist, size_t index);
+
+int strlist_contains_value(strlist_t *strlist, char *item);
 
 void strlist_destroy(strlist_t *strlist);
 

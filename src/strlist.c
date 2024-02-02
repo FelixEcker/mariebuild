@@ -6,6 +6,8 @@
 
 #include "strlist.h"
 
+#include <string.h>
+
 #include "xmem.h"
 
 strlist_t strlist_new(size_t capacity) {
@@ -19,6 +21,9 @@ strlist_t strlist_new(size_t capacity) {
 }
 
 void strlist_append(strlist_t *strlist, char *item) {
+  if (strlist == NULL)
+    return;
+
   size_t ix = strlist->item_count;
   strlist->item_count++;
 
@@ -32,9 +37,21 @@ void strlist_append(strlist_t *strlist, char *item) {
 
 char *strlist_get(strlist_t *strlist, size_t index) {
   if (index >= strlist->item_count)
-    return NULL;
+    return "";
 
   return strlist->items[index];
+}
+
+int strlist_contains_value(strlist_t *strlist, char *item) {
+  if (strlist == NULL)
+    return -1;
+
+  for (size_t ix = 0; ix < strlist->item_count; ix++) {
+    if (strlist->items[ix] != NULL && strcmp(strlist->items[ix], item) == 0)
+      return ix;
+  }
+
+  return -1;
 }
 
 void strlist_destroy(strlist_t *strlist) { xfree(strlist->items); }

@@ -135,5 +135,6 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
     return 1;
   }
 
-  return mb_run_target(file, state.target);
+  strlist_t history = strlist_new(1);
+  return mb_run_target(file, state.target, &history);
 }

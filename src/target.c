@@ -10,9 +10,29 @@
 #include "mcfg_util.h"
 
 #include "logging.h"
+#include "strlist.h"
 #include "xmem.h"
 
-int mb_run_target(mcfg_file_t *file, mcfg_section_t *target) {
+int mb_run_target(mcfg_file_t *file, mcfg_section_t *target, 
+                    strlist_t *target_history) {
+  if (target_history == NULL) {
+    mb_log(LOG_ERROR, 
+           "internal: mb_run_target was passed a NULL target_history!\n");
+    return 1;
+  }
+
+  if (strlist_contains_value(target_history, target->name) != -1) {
+    mb_logf(LOG_ERROR, "circucal target dependency for target \"%s\"\n",
+            target->name);
+    mb_log(LOG_ERROR, "target history:\n");
+    for (size_t ix = 0; ix < target_history->item_count; ix++) {
+      mb_logf(LOG_ERROR, "  %s\n", strlist_get(target_history, ix));
+    }
+    return 1;
+  }
+
+  strlist_append(target_history, target->name);
+
   mb_logf(LOG_INFO, "building target \"%s\"\n", target->name);
 
   mcfg_field_t *field_required_targets =
@@ -54,7 +74,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target) {
         return 1;
       }
 
-      int ret = mb_run_target(file, curr_target);
+      int ret = mb_run_target(file, curr_target, target_history);
       xfree(curr_target_name);
 
       if (ret != 0)
@@ -75,5 +95,6 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target) {
     mb_logf(LOG_DEBUG, "Executing:\n%s\n", exec);
   }
 
+  target_history->item_count--;
   return 0;
 }
