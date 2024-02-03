@@ -6,10 +6,13 @@
 
 #include "executor.h"
 
+#include <errno.h>
+#include <fcntl.h>
 #include <limits.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -40,12 +43,31 @@ int mb_exec(char *script, char *name) {
 
   name = create_name(name);
   mb_logf(LOG_DEBUG, "writing script to \"%s\"\n", name);
-  FILE *outfile = fopen(name, "w");
+
+  int fd = open(name, O_RDWR | O_CREAT, 0777);
+  FILE *outfile = fdopen(fd, "w");
+
+  if (outfile == NULL) {
+    mb_logf(LOG_ERROR, "failed to save script to \"%s\"\n", name);
+    char *errname = strerror(errno);
+    mb_logf(LOG_ERROR, "OS Error %d (%s)\n", errno, errname);
+    xfree(errname);
+
+    goto exit;
+  }
 
   fprintf(outfile, "%s", script);
 
   fclose(outfile);
+  close(fd);
 
+  ret = system(name);
+  if (ret != 0)
+    mb_logf(LOG_ERROR, "execution for script \"%s\" failed: %d\n", name, ret);
+
+  remove(name);
+
+exit:
   xfree(name);
   return ret;
 }

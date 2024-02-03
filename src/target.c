@@ -105,7 +105,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   if (exec != NULL) {
     ret = mb_exec(exec, target->name);
     if (ret != 0)
-      return 0;
+      return ret;
   }
 
   target_history->item_count--;
