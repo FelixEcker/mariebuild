@@ -10,11 +10,12 @@
 
 #include "xmem.h"
 
-strlist_t strlist_new(size_t capacity) {
+strlist_t strlist_new(size_t capacity, bool heap_items) {
   strlist_t strlist = {
+      .heap_items = heap_items,
       .capacity = capacity,
       .item_count = 0,
-      .items = xmalloc(capacity),
+      .items = xmalloc(sizeof(char *) * (capacity + 1)),
   };
 
   return strlist;
@@ -54,4 +55,10 @@ int strlist_contains_value(strlist_t *strlist, char *item) {
   return -1;
 }
 
-void strlist_destroy(strlist_t *strlist) { xfree(strlist->items); }
+void strlist_destroy(strlist_t *strlist) {
+  if (strlist->heap_items)
+    for (size_t ix = 0; ix < strlist->item_count; ix++)
+      xfree(&strlist->items[ix]);
+
+  xfree(strlist->items);
+}
