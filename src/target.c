@@ -9,6 +9,7 @@
 #include "mcfg.h"
 #include "mcfg_util.h"
 
+#include "executor.h"
 #include "logging.h"
 #include "strlist.h"
 #include "xmem.h"
@@ -102,7 +103,9 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
     exec = mcfg_data_to_string(*field_exec);
 
   if (exec != NULL) {
-    mb_logf(LOG_DEBUG, "Executing:\n%s\n", exec);
+    ret = mb_exec(exec, target->name);
+    if (ret != 0)
+      return 0;
   }
 
   target_history->item_count--;
