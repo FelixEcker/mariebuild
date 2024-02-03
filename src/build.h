@@ -29,12 +29,6 @@ typedef struct config {
   bool ignore_failures;
 } config_t;
 
-typedef struct build_state {
-  mcfg_section_t *target;
-  mcfg_section_t *current_target;
-  mcfg_section_t *current_rule;
-} build_state_t;
-
 int mb_start(args_t args);
 
 int mb_begin_build(mcfg_file_t *file, config_t cfg);

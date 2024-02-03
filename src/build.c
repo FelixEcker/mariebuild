@@ -128,20 +128,16 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
     return 1;
   }
 
-  build_state_t state = {
-      .target = mcfg_get_section(targets, cfg.target),
-      .current_target = NULL,
-      .current_rule = NULL,
-  };
+  mcfg_section_t *target = mcfg_get_section(targets, cfg.target),
 
-  if (state.target == NULL) {
+  if (target == NULL) {
     mb_logf(LOG_ERROR, "target \"%s\" is not declared within build file!\n",
             cfg.target);
     return 1;
   }
 
   strlist_t history = strlist_new(1, true);
-  int ret = mb_run_target(file, state.target, &history);
+  int ret = mb_run_target(file, target, &history);
   strlist_destroy(&history);
 
   return ret;
