@@ -11,12 +11,13 @@
 #include <stddef.h>
 
 typedef struct strlist {
+  bool heap_items;
   size_t capacity;
   size_t item_count;
   char **items;
 } strlist_t;
 
-strlist_t strlist_new(size_t capacity);
+strlist_t strlist_new(size_t capacity, bool heap_items);
 
 void strlist_append(strlist_t *strlist, char *item);
 

@@ -52,27 +52,29 @@ config_t mb_load_configuration(mcfg_file_t file) {
   mcfg_field_t *field_targets = mcfg_get_field(config, "targets");
   if (field_targets != NULL) {
     mcfg_list_t targets = *mcfg_data_as_list(*field_targets);
-    ret.public_targets = strlist_new(targets.field_count);
+    ret.public_targets = strlist_new(targets.field_count, false);
 
     if (targets.type != TYPE_STRING) {
       mb_log(LOG_WARNING, "mariebuild target list is not a string-list!");
     }
 
     for (size_t ix = 0; ix < targets.field_count; ix++) {
-      char *str = mcfg_data_to_string(targets.fields[ix]);
+      char *str = mcfg_data_as_string(targets.fields[ix]);
       if (str != NULL)
         strlist_append(&ret.public_targets, str);
     }
 
     mb_logf(LOG_DEBUG, "registered %zu public targets\n",
             ret.public_targets.item_count);
+
+    strlist_destroy(&fallback.public_targets);
   } else {
     ret.public_targets = fallback.public_targets;
   }
 
   mcfg_field_t *field_default_target = mcfg_get_field(config, "default");
   if (field_default_target != NULL) {
-    ret.default_target = mcfg_data_to_string(*field_default_target);
+    ret.default_target = mcfg_data_as_string(*field_default_target);
   } else {
     ret.default_target = fallback.default_target;
   }
@@ -81,7 +83,7 @@ config_t mb_load_configuration(mcfg_file_t file) {
 }
 
 int mb_start(args_t args) {
-  default_config.public_targets = strlist_new(1);
+  default_config.public_targets = strlist_new(1, false);
   strlist_append(&default_config.public_targets, "debug");
 
   int return_code = 0;
@@ -114,6 +116,7 @@ int mb_start(args_t args) {
     mb_log(LOG_INFO, "build succeeded!\n");
 
 exit:
+  strlist_destroy(&cfg.public_targets);
   mcfg_free_file(file);
   return return_code;
 }
@@ -137,6 +140,9 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
     return 1;
   }
 
-  strlist_t history = strlist_new(1);
-  return mb_run_target(file, state.target, &history);
+  strlist_t history = strlist_new(1, true);
+  int ret = mb_run_target(file, state.target, &history);
+  strlist_destroy(&history);
+
+  return ret;
 }

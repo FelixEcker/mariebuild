@@ -104,6 +104,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
   if (exec != NULL) {
     ret = mb_exec(exec, target->name);
+    xfree(exec);
     if (ret != 0)
       return ret;
   }
