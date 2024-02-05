@@ -7,6 +7,8 @@
 #ifndef TYPES_H
 #define TYPES_H
 
+#include "strlist.h"
+
 typedef struct config {
   char *default_target;
   char *target;

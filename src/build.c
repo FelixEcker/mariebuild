@@ -35,6 +35,11 @@ bool check_file_validity(mcfg_file_t *file) {
     return false;
   }
 
+  if (mcfg_get_sector(file, "targets") == NULL) {
+    mb_log(LOG_ERROR, "no targets defined!\n");
+    return false;
+  }
+
   return true;
 }
 

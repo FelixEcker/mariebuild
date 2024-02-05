@@ -7,7 +7,8 @@
 log_level_t mb_log_level;
 
 log_level_t str_to_loglvl(char *str) {
-  if (str == NULL) return LOG_DEBUG;
+  if (str == NULL)
+    return LOG_DEBUG;
 
   long int converted = strtol(str, NULL, 10);
 
