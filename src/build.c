@@ -13,6 +13,7 @@
 
 #include "logging.h"
 #include "target.h"
+#include "types.h"
 #include "xmem.h"
 
 config_t default_config = {
@@ -137,7 +138,7 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
   }
 
   strlist_t history = strlist_new(1, true);
-  int ret = mb_run_target(file, target, &history);
+  int ret = mb_run_target(file, target, &history, cfg);
   strlist_destroy(&history);
 
   return ret;

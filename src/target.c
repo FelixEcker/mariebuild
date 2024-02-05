@@ -12,10 +12,11 @@
 #include "executor.h"
 #include "logging.h"
 #include "strlist.h"
+#include "types.h"
 #include "xmem.h"
 
 int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
-                         strlist_t *target_history) {
+                         strlist_t *target_history, config_t cfg) {
   mcfg_field_t *field_required_targets =
       mcfg_get_field(target, "required_targets");
   if (field_required_targets == NULL)
@@ -38,20 +39,24 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
               "target \"%s\" required by target \"%s\" does not exist.\n",
               curr_target_name, target->name);
       xfree(curr_target_name);
+
+      if (cfg.ignore_failures)
+        continue;
+
       return 1;
     }
 
-    int ret = mb_run_target(file, curr_target, target_history);
+    int ret = mb_run_target(file, curr_target, target_history, cfg);
     xfree(curr_target_name);
 
-    if (ret != 0)
+    if (ret != 0 && !cfg.ignore_failures)
       return ret;
   }
 
   return 0;
 }
 
-int run_c_rules(mcfg_file_t *file, mcfg_section_t *target) {
+int run_c_rules(mcfg_file_t *file, mcfg_section_t *target, config_t cfg) {
   mcfg_field_t *field_c_rules = mcfg_get_field(target, "c_rules");
   if (field_c_rules == NULL)
     return 0;
@@ -62,7 +67,7 @@ int run_c_rules(mcfg_file_t *file, mcfg_section_t *target) {
 }
 
 int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
-                  strlist_t *target_history) {
+                  strlist_t *target_history, config_t cfg) {
   if (target_history == NULL) {
     mb_log(LOG_ERROR,
            "internal: mb_run_target was passed a NULL target_history!\n");
@@ -89,11 +94,11 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   // 3. "exec" field
 
   int ret;
-  ret = run_required_targets(file, target, target_history);
+  ret = run_required_targets(file, target, target_history, cfg);
   if (ret != 0)
     return ret;
 
-  ret = run_c_rules(file, target);
+  ret = run_c_rules(file, target, cfg);
   if (ret != 0)
     return ret;
 
@@ -105,7 +110,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   if (exec != NULL) {
     ret = mb_exec(exec, target->name);
     xfree(exec);
-    if (ret != 0)
+    if (ret != 0 && !cfg.ignore_failures)
       return ret;
   }
 
