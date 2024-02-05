@@ -9,6 +9,7 @@
 #include "mcfg.h"
 #include "mcfg_util.h"
 
+#include "c_rule.h"
 #include "executor.h"
 #include "logging.h"
 #include "strlist.h"
@@ -56,16 +57,6 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
   return 0;
 }
 
-int run_c_rules(mcfg_file_t *file, mcfg_section_t *target, config_t cfg) {
-  mcfg_field_t *field_c_rules = mcfg_get_field(target, "c_rules");
-  if (field_c_rules == NULL)
-    return 0;
-
-  mcfg_list_t *c_rules = mcfg_data_as_list(*field_c_rules);
-  mb_log(LOG_DEBUG, "c_rule execution is to be implemented!\n");
-  return 0;
-}
-
 int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
                   strlist_t *target_history, config_t cfg) {
   if (target_history == NULL) {
@@ -98,7 +89,8 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   if (ret != 0)
     return ret;
 
-  ret = run_c_rules(file, target, cfg);
+  ret = mb_run_c_rules(file, mcfg_get_field(target, "c_rules"), TARGET,
+                       target->name, cfg);
   if (ret != 0)
     return ret;
 
