@@ -70,7 +70,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   }
 
   if (strlist_contains_value(target_history, target->name) != -1) {
-    mb_logf(LOG_ERROR, "circucal target dependency for target \"%s\"\n",
+    mb_logf(LOG_ERROR, "circular target dependency for target \"%s\"\n",
             target->name);
     mb_log(LOG_ERROR, "target history:\n");
     for (size_t ix = 0; ix < target_history->item_count; ix++) {

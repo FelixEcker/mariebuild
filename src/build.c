@@ -128,7 +128,7 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
     return 1;
   }
 
-  mcfg_section_t *target = mcfg_get_section(targets, cfg.target),
+  mcfg_section_t *target = mcfg_get_section(targets, cfg.target);
 
   if (target == NULL) {
     mb_logf(LOG_ERROR, "target \"%s\" is not declared within build file!\n",
