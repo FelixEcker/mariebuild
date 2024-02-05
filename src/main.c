@@ -46,7 +46,7 @@ static struct argp_option options[] = {
     {"force", 'f', 0, 0, "Force a build, regardless if target is incremental"},
     {"no-splash", 'n', 0, 0, "Disable splash screen/logo"},
     {"keep-going", 'k', 0, 0, "Ignore any failures and keep on building"},
-    {"verbosity", 'v', 0, 0, "Set the verbosity level (0-3)"},
+    {"verbosity", 'v', "LEVEL", 0, "Set the verbosity level (0-3)"},
     {0, 0, 0, 0}};
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
