@@ -30,8 +30,8 @@ function libmcfg_2_setup() {
   git clone https://github.com/FelixEcker/mcfg_2.git
 
   cd mcfg_2
-  sh setup.sh || exit
-  sh build.sh --lib-only || return
+  bash setup.bash || exit
+  bash build.bash --lib-only || return
 
   mv include/* ../../include/
   mv libmcfg_2.a ../../lib/
