@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 function directory_setup() {
   if [ -d lib ]; then
