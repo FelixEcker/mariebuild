@@ -26,6 +26,13 @@ typedef struct config {
   bool ignore_failures;
 } config_t;
 
+typedef enum exec_mode {
+  EXEC_MODE_SINGULAR = 0,
+  EXEC_MODE_UNIFY,
+} exec_mode_t;
+
 build_type_t str_to_build_type(char *src, build_type_t fallback);
+
+exec_mode_t str_to_exec_mode(char *src, exec_mode_t fallback);
 
 #endif // #ifndef TYPES_H
