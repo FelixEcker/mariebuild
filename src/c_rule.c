@@ -14,7 +14,7 @@
 #include "xmem.h"
 
 int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
-                   int org_type, char *org_name, config_t cfg) {
+                   int org_type, char *org_name, const config_t cfg) {
   if (field_required_c_rules == NULL)
     return 0;
 
@@ -57,7 +57,19 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
   return 0;
 }
 
-int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, config_t cfg) {
+int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
   mb_logf(LOG_INFO, "fulfilling c_rule \"%s\"\n", rule->name);
+
+  build_type_t build_type = cfg.build_type;
+  if (mcfg_get_field(rule, "build_type") != NULL) {
+    char *data = mcfg_data_to_string(*mcfg_get_field(rule, "build_type"));
+
+    build_type = str_to_build_type(data, build_type);
+
+    xfree(data);
+
+    mb_logf(LOG_DEBUG, "rules build_type is: %d\n", build_type);
+  }
+
   return 0;
 }

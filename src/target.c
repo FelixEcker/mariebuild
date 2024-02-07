@@ -17,7 +17,7 @@
 #include "xmem.h"
 
 int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
-                         strlist_t *target_history, config_t cfg) {
+                         strlist_t *target_history, const config_t cfg) {
   mcfg_field_t *field_required_targets =
       mcfg_get_field(target, "required_targets");
   if (field_required_targets == NULL)
@@ -58,7 +58,7 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
 }
 
 int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
-                  strlist_t *target_history, config_t cfg) {
+                  strlist_t *target_history, const config_t cfg) {
   if (target_history == NULL) {
     mb_log(LOG_ERROR,
            "internal: mb_run_target was passed a NULL target_history!\n");
