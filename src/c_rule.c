@@ -57,6 +57,16 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
   return 0;
 }
 
+int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
+                 build_type_t build_type) {
+  return 0;
+}
+
+int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
+              build_type_t build_type) {
+  return 0;
+}
+
 int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
   mb_logf(LOG_INFO, "fulfilling c_rule \"%s\"\n", rule->name);
 
@@ -67,9 +77,24 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
     build_type = str_to_build_type(data, build_type);
 
     xfree(data);
-
-    mb_logf(LOG_DEBUG, "rules build_type is: %d\n", build_type);
   }
 
-  return 0;
+  exec_mode_t exec_mode = EXEC_MODE_SINGULAR;
+  if (mcfg_get_field(rule, "exec_mode") != NULL) {
+    char *data = mcfg_data_to_string(*mcfg_get_field(rule, "exec_mode"));
+
+    exec_mode = str_to_exec_mode(data, exec_mode);
+
+    xfree(data);
+  }
+
+  switch (exec_mode) {
+  case EXEC_MODE_SINGULAR:
+    return run_singular(file, rule, cfg, build_type);
+  case EXEC_MODE_UNIFY:
+    return run_unify(file, rule, cfg, build_type);
+    break;
+  }
+
+  return 1;
 }
