@@ -10,7 +10,7 @@ sector config
     section mariebuild
         ; mariebuild now supports incremental building. In this mode, a compilation rule
         ; is only executed if a file it executes upon is 
-        str mode 'incremental'
+        str build_type 'incremental'
 
         ; mcfg 2 has brought along a new list syntax, where each element is its own string
         ; and seperated by commas.
@@ -61,6 +61,8 @@ sector c_rules
         ; These are executed in order.
         list str c_rules 'main'
         list str binname 'example'
+
+        str build_type 'full'
 
         list str objs '$(/config/files/obj)$(/c_rules/main/sources).o'
 
