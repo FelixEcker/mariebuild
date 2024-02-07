@@ -13,6 +13,6 @@
 #include "types.h"
 
 int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
-                  strlist_t *target_history, config_t cfg);
+                  strlist_t *target_history, const config_t cfg);
 
 #endif

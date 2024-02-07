@@ -15,8 +15,8 @@
 #define C_RULE 1
 
 int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
-                   int org_type, char *org_name, config_t cfg);
+                   int org_type, char *org_name, const config_t cfg);
 
-int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, config_t cfg);
+int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg);
 
 #endif // #infdef C_RULE_H

@@ -17,6 +17,7 @@
 #include "xmem.h"
 
 config_t default_config = {
+    .build_type = BUILD_TYPE_INCREMENTAL,
     .default_target = "debug",
     .target = NULL,
     .public_targets = {.capacity = 0, .item_count = 0, .items = NULL},
@@ -83,6 +84,14 @@ config_t mb_load_configuration(mcfg_file_t file) {
     ret.default_target = mcfg_data_as_string(*field_default_target);
   } else {
     ret.default_target = fallback.default_target;
+  }
+
+  mcfg_field_t *field_build_type = mcfg_get_field(config, "build_type");
+  if (field_build_type != NULL) {
+    ret.build_type = str_to_build_type(mcfg_data_as_string(*field_build_type),
+                                       fallback.build_type);
+  } else {
+    ret.build_type = fallback.build_type;
   }
 
   return ret;
