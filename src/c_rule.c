@@ -59,6 +59,30 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
 
 int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
                  build_type_t build_type) {
+  mcfg_field_t *field_input_format = mcfg_get_field(rule, "input_format");
+  mcfg_field_t *field_output_format = mcfg_get_field(rule, "output_format");
+
+  if (field_input_format == NULL || field_output_format == NULL) {
+    mb_logf(LOG_ERROR, "c_rule missing field \"%s\"!\n",
+            field_input_format == NULL ? "input_format" : "output_format");
+    return 1;
+  } else if (field_input_format->type != TYPE_STRING ||
+             field_output_format->type != TYPE_STRING) {
+    mb_logf(LOG_ERROR, "invalid datatype for field \"%s\"! Expected str\n",
+            field_input_format->type != TYPE_STRING ? "input_format"
+                                                    : "output_format");
+    return 1;
+  }
+
+  char *input_format = mcfg_data_as_string(*field_input_format);
+  char *output_format = mcfg_data_as_string(*field_output_format);
+
+  if (input_format == NULL || output_format == NULL) {
+    mb_logf(LOG_ERROR, "field \"%s\" is missing data!\n",
+            input_format == NULL ? "input_format" : "output_format");
+    return 1;
+  }
+
   return 0;
 }
 
