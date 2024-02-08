@@ -6,6 +6,8 @@
 
 #include "c_rule.h"
 
+#include <stdio.h>
+
 #include "mcfg.h"
 #include "mcfg_util.h"
 
@@ -83,6 +85,50 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     return 1;
   }
 
+  mcfg_field_t *field_input = mcfg_get_field(rule, "input");
+  if (field_input == NULL) {
+    mb_log(LOG_ERROR, "missing input element list!\n");
+    return 1;
+  }
+
+  if (field_input->type != TYPE_LIST) {
+    mb_log(LOG_ERROR, "field \"input\" is not of type list!\n");
+    return 1;
+  }
+
+  mcfg_field_t *field_output = mcfg_get_field(rule, "output");
+  if (field_output == NULL) {
+    field_output = field_input;
+  } else if (field_output->type != TYPE_LIST) {
+    mb_log(LOG_ERROR, "field \"output\" is not of type list!\n");
+    return 1;
+  }
+
+  mcfg_list_t *list_input = mcfg_data_as_list(*field_input);
+  mcfg_list_t *list_output = mcfg_data_as_list(*field_output);
+
+  mcfg_path_t pathrel = {.absolute = true,
+                         .dynfield_path = false,
+
+                         .sector = "c_rules",
+                         .section = rule->name,
+                         .field = ""};
+
+  for (size_t ix = 0; ix < list_output->field_count; ix++) {
+    char *raw_in = mcfg_data_to_string(list_input->fields[ix]);
+    char *raw_out = mcfg_data_to_string(list_output->fields[ix]);
+
+    char *in = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+    char *out = mcfg_format_field_embeds_str(output_format, *file, pathrel);
+
+    fprintf(stderr, "    exec: %s > %s\n", in, out);
+
+    xfree(raw_in);
+    xfree(raw_out);
+    xfree(in);
+    xfree(out);
+  }
+
   return 0;
 }
 
@@ -93,6 +139,17 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
 int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
   mb_logf(LOG_INFO, "fulfilling c_rule \"%s\"\n", rule->name);
+
+  mcfg_field_t *field_c_rules = mcfg_get_field(rule, "c_rules");
+  if (field_c_rules != NULL) {
+    if (field_c_rules->type != TYPE_LIST) {
+      mb_log(LOG_WARNING, "field c_rules is of incorrect type! ignoring.\n");
+    } else {
+      int ret = mb_run_c_rules(file, field_c_rules, C_RULE, rule->name, cfg);
+      if (ret != 0)
+        return ret;
+    }
+  }
 
   build_type_t build_type = cfg.build_type;
   if (mcfg_get_field(rule, "build_type") != NULL) {
