@@ -7,3 +7,4 @@ vgcore.*
 valgrind.*
 *.log
 *.swp
+compile_flags.txt
