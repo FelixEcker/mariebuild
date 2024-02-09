@@ -63,6 +63,12 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
 
 int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
                  build_type_t build_type) {
+  mcfg_field_t *field_exec = mcfg_get_field(rule, "exec");
+  if (field_exec == NULL || field_exec->data == NULL) {
+    mb_log(LOG_ERROR, "c_rule missing field \"exec\"\n");
+    return 1;
+  }
+
   mcfg_field_t *field_input_format = mcfg_get_field(rule, "input_format");
   mcfg_field_t *field_output_format = mcfg_get_field(rule, "output_format");
 
@@ -117,39 +123,69 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
                          .field = ""};
 
   if (mcfg_get_dynfield(file, "element") == NULL) {
-    mcfg_err_t err = mcfg_add_dynfield(file, TYPE_STRING, 
-                                       strdup("element"), NULL, 0);
+    mcfg_err_t err =
+        mcfg_add_dynfield(file, TYPE_STRING, strdup("element"), NULL, 0);
     if (err != MCFG_OK) {
       mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
               mcfg_err_string(err), err);
     }
   }
 
-  mcfg_field_t *field_element = mcfg_get_dynfield(file, "element");
+  if (mcfg_get_dynfield(file, "input") == NULL) {
+    mcfg_err_t err =
+        mcfg_add_dynfield(file, TYPE_STRING, strdup("input"), NULL, 0);
+    if (err != MCFG_OK) {
+      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
+              mcfg_err_string(err), err);
+    }
+  }
+
+  if (mcfg_get_dynfield(file, "output") == NULL) {
+    mcfg_err_t err =
+        mcfg_add_dynfield(file, TYPE_STRING, strdup("output"), NULL, 0);
+    if (err != MCFG_OK) {
+      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
+              mcfg_err_string(err), err);
+    }
+  }
+
+  mcfg_field_t *dynfield_element = mcfg_get_dynfield(file, "element");
+  mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
+  mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
   for (size_t ix = 0; ix < list_output->field_count; ix++) {
     char *raw_in = mcfg_data_to_string(list_input->fields[ix]);
     char *raw_out = mcfg_data_to_string(list_output->fields[ix]);
 
-    field_element->data = raw_in;
-    field_element->size = strlen(raw_in) + 1;
+    dynfield_element->data = raw_in;
+    dynfield_element->size = strlen(raw_in) + 1;
 
     char *in = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+    dynfield_input->data = in;
+    dynfield_input->size = strlen(in) + 1;
 
-    field_element->data = raw_out;
-    field_element->size = strlen(raw_in) + 1;
+    dynfield_element->data = raw_out;
+    dynfield_element->size = strlen(raw_in) + 1;
 
     char *out = mcfg_format_field_embeds_str(output_format, *file, pathrel);
+    dynfield_output->data = out;
+    dynfield_output->size = strlen(out) + 1;
 
+    char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
+
+    fprintf(stderr, "%s\n", script);
     fprintf(stderr, "    exec: %s > %s\n", in, out);
 
+    xfree(script);
     xfree(raw_in);
     xfree(raw_out);
     xfree(in);
     xfree(out);
   }
 
-  field_element->data = NULL;
+  dynfield_element->data = NULL;
+  dynfield_input->data = NULL;
+  dynfield_output->data = NULL;
 
   return 0;
 }
@@ -196,7 +232,6 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
     return run_singular(file, rule, cfg, build_type);
   case EXEC_MODE_UNIFY:
     return run_unify(file, rule, cfg, build_type);
-    break;
   }
 
   return 1;
