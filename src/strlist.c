@@ -57,10 +57,8 @@ int strlist_contains_value(strlist_t *strlist, char *item) {
 }
 
 void strlist_destroy(strlist_t *strlist) {
-  fprintf(stderr, "item count = %zu\n", strlist->item_count);
   if (strlist->heap_items) {
     for (size_t ix = 0; ix < strlist->item_count; ix++) {
-      fprintf(stderr, "item %zu = %s\n", ix, strlist->items[ix]);
       xfree(strlist->items[ix]);
 
       for (size_t ix_2 = 0; ix_2 < strlist->item_count; ix_2++)
