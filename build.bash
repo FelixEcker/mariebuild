@@ -39,8 +39,7 @@ function build() {
 echo "MB build script. "
 
 if [ "$1" = "--compile-flags" ]; then
- sed -E 's/ /\
-/g' <<<"${CFLAGS[@]}" > compile_flags.txt
+ sed --posix 's/ /\n/g' <<<"${CFLAGS[@]}" > compile_flags.txt
 
  echo "==> Generated compile_flags.txt"
 else
