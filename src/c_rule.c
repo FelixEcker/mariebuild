@@ -12,6 +12,7 @@
 #include "mcfg.h"
 #include "mcfg_util.h"
 
+#include "executor.h"
 #include "logging.h"
 #include "types.h"
 #include "xmem.h"
@@ -153,6 +154,8 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
   mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
+  int ret = 0;
+
   for (size_t ix = 0; ix < list_output->field_count; ix++) {
     char *raw_in = mcfg_data_to_string(list_input->fields[ix]);
     char *raw_out = mcfg_data_to_string(list_output->fields[ix]);
@@ -173,21 +176,25 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
 
-    fprintf(stderr, "%s\n", script);
     fprintf(stderr, "    exec: %s > %s\n", in, out);
+
+    ret = mb_exec(script, rule->name);
 
     xfree(script);
     xfree(raw_in);
     xfree(raw_out);
     xfree(in);
     xfree(out);
+
+    if (ret != 0 && !cfg.ignore_failures)
+      break;
   }
 
   dynfield_element->data = NULL;
   dynfield_input->data = NULL;
   dynfield_output->data = NULL;
 
-  return 0;
+  return ret;
 }
 
 int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
