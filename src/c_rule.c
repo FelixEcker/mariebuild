@@ -135,6 +135,10 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     field_element->size = strlen(raw_in) + 1;
 
     char *in = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+
+    field_element->data = raw_out;
+    field_element->size = strlen(raw_in) + 1;
+
     char *out = mcfg_format_field_embeds_str(output_format, *file, pathrel);
 
     fprintf(stderr, "    exec: %s > %s\n", in, out);
