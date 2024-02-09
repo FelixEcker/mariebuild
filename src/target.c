@@ -6,6 +6,8 @@
 
 #include "target.h"
 
+#include <string.h>
+
 #include "mcfg.h"
 #include "mcfg_util.h"
 
@@ -75,7 +77,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
     return 1;
   }
 
-  strlist_append(target_history, target->name);
+  strlist_append(target_history, strdup(target->name));
 
   mb_logf(LOG_INFO, "building target \"%s\"\n", target->name);
 
@@ -106,6 +108,9 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
       return ret;
   }
 
+  int ix = strlist_contains_value(target_history, target->name);
+  if (ix > -1)
+    xfree(target_history->items[ix]);
   target_history->item_count--;
   return 0;
 }
