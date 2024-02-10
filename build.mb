@@ -12,6 +12,8 @@ sector config
         ; is only executed if a file it executes upon is 
         str build_type 'incremental'
 
+        str cc 'clang'
+
         ; mcfg 2 has brought along a new list syntax, where each element is its own string
         ; and seperated by commas.
         list str targets 'all', 'clean', 'debug', 'release'
@@ -98,8 +100,10 @@ sector c_rules
         str input_format '$(src)$(%element%).c'
         str output_format '$(obj)$(%element%).o'
 
+        str cflags '-ggdb -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG'
+
         str exec '
-        $(/config/mariebuild/cc) $(/config/mariebuild/cflags) $(%target%/cflags) -c $(%input%) -o $(%output%)
+        $(/config/mariebuild/cc) $(cflags) -c $(%input%) -o $(%output%)
         '
     end
 end
