@@ -431,6 +431,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     xfree(fmted);
   }
 
+  _append_char((char **)&dynfield_input->data, wix, &dynfield_input->size, 0);
+  wix++;
+
   fprintf(stderr, "%%input%% = %s\n", dynfield_input->data);
 
   int ret = 0;
