@@ -7,6 +7,10 @@ sector config
         str license 'BSD-3'
     end
 
+    section files
+        list str sources 'xmem', 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
+    end
+
     section mariebuild
         ; mariebuild now supports incremental building. In this mode, a compilation rule
         ; is only executed if a file it executes upon is 
@@ -62,11 +66,11 @@ sector c_rules
         ; Compilation rules can list other compilation rules which they require
         ; These are executed in order.
         list str c_rules 'main'
-        list str binname 'example'
+        list str binname 'mb'
 
         str build_type 'full'
 
-        list str objs '$(/config/files/obj)$(/c_rules/main/sources).o'
+        str input_src '/config/files/sources'
 
         str input_format '$(/config/files/obj)$(%element%).o'
         str output_format '$(binname)'
@@ -80,7 +84,7 @@ sector c_rules
         ; The command which is specified in the exec field is executed for each member of
         ; the list specified in exec_on
         str exec '
-        $(/config/mariebuild/cc) $(/config/mariebuild/ldflags) $(%target%/ldflags) -o $(%input%) $(objs)
+        $(/config/mariebuild/cc) $(/config/mariebuild/ldflags) $(ldflags) -o $(%input%) $(objs)
         '
     end
 
@@ -90,7 +94,8 @@ sector c_rules
 
         ; Declare our set of input elements. If no output list is defined,
         ; the input list is used for that as well.
-        list str input 'util', 'main'
+        str input_src '/config/files/sources'
+        str output_src '/config/files/sources'
 
         str obj 'obj/'
         str src 'src/'

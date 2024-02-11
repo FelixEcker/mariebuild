@@ -143,18 +143,57 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
   mcfg_field_t *field_input = mcfg_get_field(rule, "input");
   if (field_input == NULL) {
-    mb_log(LOG_ERROR, "missing input element list!\n");
-    return 1;
+    mcfg_field_t *field_input_src = mcfg_get_field(rule, "input_src");
+    if (field_input_src == NULL) {
+      mb_log(LOG_ERROR, "missing input element list!\n");
+      return 1;
+    }
+
+    char *raw_path = mcfg_data_to_string(*field_input_src);
+    field_input = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
+
+    if (field_input == NULL) {
+      xfree(raw_path); // mcfg_parse_path mangles the input
+
+      raw_path = mcfg_data_to_string(*field_input_src);
+      mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
+      xfree(raw_path);
+
+      return 1;
+    }
   }
 
   if (field_input->type != TYPE_LIST) {
     mb_log(LOG_ERROR, "field \"input\" is not of type list!\n");
     return 1;
   }
+  if (field_input->data == NULL) {
+    mb_log(LOG_ERROR, "field \"input\" has no data!\n");
+    return 1;
+  }
 
   mcfg_field_t *field_output = mcfg_get_field(rule, "output");
   if (field_output == NULL) {
-    field_output = field_input;
+    mcfg_field_t *field_output_src = mcfg_get_field(rule, "input_src");
+    if (field_output_src == NULL) {
+      field_output = field_input;
+      goto field_out_null_done;
+    }
+
+    char *raw_path = mcfg_data_to_string(*field_output_src);
+    field_output = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
+
+    if (field_output == NULL) {
+      xfree(raw_path); // mcfg_parse_path mangles the input
+
+      raw_path = mcfg_data_to_string(*field_output_src);
+      mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
+      xfree(raw_path);
+
+      return 1;
+    }
+
+  field_out_null_done:;
   } else if (field_output->type != TYPE_LIST) {
     mb_log(LOG_ERROR, "field \"output\" is not of type list!\n");
     return 1;
@@ -242,6 +281,8 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
       break;
   }
 
+  // We have to do this to avoid double-frees when running mcfg_free_file at
+  // exit in build.c
   dynfield_element->data = NULL;
   dynfield_input->data = NULL;
   dynfield_output->data = NULL;
@@ -251,6 +292,7 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
 int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
               build_type_t build_type) {
+
   return 0;
 }
 
