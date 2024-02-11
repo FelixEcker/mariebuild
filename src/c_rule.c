@@ -25,6 +25,12 @@ struct io_fields {
   mcfg_field_t *output;
 };
 
+void free_path(mcfg_path_t path) {
+  xfree(path.sector);
+  xfree(path.section);
+  xfree(path.field);
+}
+
 bool is_file_newer(char *file1, char *file2) {
   FILE *f_1 = fopen(file1, "r");
   FILE *f_2 = fopen(file2, "r");
@@ -80,13 +86,17 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
     }
 
     char *raw_path = mcfg_data_to_string(*field_input_src);
-    field_input = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
+    mcfg_path_t path = mcfg_parse_path(raw_path);
+
+    field_input = mcfg_get_field_by_path(file, path);
+
+    free_path(path); // TODO: impl in MCFG/2
+    xfree(raw_path);
 
     if (field_input == NULL) {
-      xfree(raw_path); // mcfg_parse_path mangles the input
-
       raw_path = mcfg_data_to_string(*field_input_src);
       mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
+
       xfree(raw_path);
 
       return false;
@@ -111,13 +121,17 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
     }
 
     char *raw_path = mcfg_data_to_string(*field_output_src);
-    field_output = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
+    mcfg_path_t path = mcfg_parse_path(raw_path);
+
+    field_output = mcfg_get_field_by_path(file, path);
+
+    free_path(path);
+    xfree(raw_path);
 
     if (field_output == NULL) {
-      xfree(raw_path); // mcfg_parse_path mangles the input
-
       raw_path = mcfg_data_to_string(*field_output_src);
       mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
+
       xfree(raw_path);
 
       return false;
