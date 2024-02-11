@@ -6,8 +6,11 @@
 
 #include "c_rule.h"
 
+#include <errno.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/stat.h>
 
 #include "mcfg.h"
 #include "mcfg_util.h"
@@ -16,6 +19,50 @@
 #include "logging.h"
 #include "types.h"
 #include "xmem.h"
+
+bool is_file_newer(char *file1, char *file2) {
+  FILE *f_1 = fopen(file1, "r");
+  FILE *f_2 = fopen(file2, "r");
+
+  int f_1_mtime = 0;
+  int f_2_mtime = 0;
+
+  if (f_1 == NULL || f_2 == NULL) {
+    if (errno != ENOENT) {
+      mb_logf(LOG_DEBUG, "file opening for file %d failed: OS Error %d (%s)\n",
+              f_1 == NULL ? 1 : 2, errno, strerror(errno));
+    }
+    goto exit;
+  }
+
+  int fd_1 = fileno(f_1);
+  int fd_2 = fileno(f_2);
+
+  struct stat f_1_stat;
+  if (fstat(fd_1, &f_1_stat) != 0) {
+    mb_logf(LOG_ERROR, "%s/%s:%d: fstat for f_1 failed: OS Error %d (%s)\n",
+            __FILE__, __FUNCTION__, __LINE__, errno, strerror(errno));
+    goto exit;
+  }
+
+  struct stat f_2_stat;
+  if (fstat(fd_2, &f_2_stat) != 0) {
+    mb_logf(LOG_ERROR, "%s/%s:%d: fstat for f_2 failed: OS Error %d (%s)\n",
+            __FILE__, __FUNCTION__, __LINE__, errno, strerror(errno));
+    goto exit;
+  }
+
+  f_1_mtime = f_1_stat.st_mtim.tv_sec;
+  f_2_mtime = f_2_stat.st_mtim.tv_sec;
+
+exit:
+  if (f_1 != NULL)
+    fclose(f_1);
+  if (f_2 != NULL)
+    fclose(f_2);
+
+  return f_1_mtime > f_2_mtime;
+}
 
 int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
                    int org_type, char *org_name, const config_t cfg) {
@@ -164,15 +211,19 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     dynfield_element->size = strlen(raw_in) + 1;
 
     char *in = mcfg_format_field_embeds_str(input_format, *file, pathrel);
-    dynfield_input->data = in;
-    dynfield_input->size = strlen(in) + 1;
 
     dynfield_element->data = raw_out;
     dynfield_element->size = strlen(raw_in) + 1;
 
     char *out = mcfg_format_field_embeds_str(output_format, *file, pathrel);
+
+    if (build_type == BUILD_TYPE_INCREMENTAL && !is_file_newer(in, out))
+      goto build_loop_continue;
+
     dynfield_output->data = out;
     dynfield_output->size = strlen(out) + 1;
+    dynfield_input->data = in;
+    dynfield_input->size = strlen(in) + 1;
 
     char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
 
@@ -181,6 +232,7 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     ret = mb_exec(script, rule->name);
 
     xfree(script);
+  build_loop_continue:
     xfree(raw_in);
     xfree(raw_out);
     xfree(in);
