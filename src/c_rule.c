@@ -29,7 +29,7 @@ bool is_file_newer(char *file1, char *file2) {
   FILE *f_1 = fopen(file1, "r");
   FILE *f_2 = fopen(file2, "r");
 
-  int f_1_mtime = 0;
+  int f_1_mtime = 1;
   int f_2_mtime = 0;
 
   if (f_1 == NULL || f_2 == NULL) {
