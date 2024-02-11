@@ -498,15 +498,14 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
   switch (exec_mode) {
   case EXEC_MODE_SINGULAR:
     ret = run_singular(file, rule, cfg, build_type);
-    if (ret == 0)
-      mb_log(LOG_INFO, "fulfilled c_rule!\n");
     break;
   case EXEC_MODE_UNIFY:
     ret = run_unify(file, rule, cfg, build_type);
-    if (ret == 0)
-      mb_log(LOG_INFO, "fulfilled c_rule!\n");
     break;
   }
+
+  if (ret == 0)
+    mb_log(LOG_INFO, "fulfilled c_rule!\n");
 
   return ret;
 }
