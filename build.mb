@@ -69,14 +69,13 @@ sector c_rules
     list str c_rules 'main'
     list str binname 'mb'
 
-    str build_type 'full'
+    str build_type 'incremental'
 
     str input_src '/config/files/sources'
 
     str input_format '$(/config/files/obj)$(%element%).o'
     str output_format '$(binname)'
 
-    ; exec_cmp_against specified which list of files to compare the input exec_cmp_against
     str exec_mode 'unify'
 
     ; The command which is specified in the exec field is executed for each member of
