@@ -403,21 +403,41 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
   mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
+  dynfield_output->data =
+      mcfg_format_field_embeds_str(output_format, *file, pathrel);
+  dynfield_output->size = strlen(dynfield_output->data) + 1;
+
   size_t wix = 0;
   dynfield_input->size = 16;
   dynfield_input->data = xmalloc(dynfield_input->size);
   for (size_t ix = 0; ix < list_input->field_count; ix++) {
-    char *fmted = mcfg_format_field_embeds_str(
-        mcfg_data_to_string(list_input->fields[ix]), *file, pathrel);
+    char *raw_in = mcfg_data_to_string(list_input->fields[ix]);
+    dynfield_element->data = raw_in;
+    dynfield_element->size = strlen(raw_in) + 1;
+
+    char *fmted = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+
+    if (build_type == BUILD_TYPE_INCREMENTAL &&
+        !is_file_newer(fmted, dynfield_output->data))
+      goto input_assembly_continue;
+
     wix = _append_str((char **)&dynfield_input->data, wix,
                       &dynfield_input->size, fmted);
     _append_char((char **)&dynfield_input->data, wix, &dynfield_input->size,
                  ' ');
     wix++;
+  input_assembly_continue:
+    xfree(raw_in);
     xfree(fmted);
   }
 
+  fprintf(stderr, "%%input%% = %s\n", dynfield_input->data);
+
   int ret = 0;
+
+  dynfield_element->data = NULL;
+  dynfield_input->data = NULL;
+  dynfield_output->data = NULL;
 
   return ret;
 }
