@@ -20,6 +20,11 @@
 #include "types.h"
 #include "xmem.h"
 
+struct io_fields {
+  mcfg_field_t *input;
+  mcfg_field_t *output;
+};
+
 bool is_file_newer(char *file1, char *file2) {
   FILE *f_1 = fopen(file1, "r");
   FILE *f_2 = fopen(file2, "r");
@@ -62,6 +67,71 @@ exit:
     fclose(f_2);
 
   return f_1_mtime > f_2_mtime;
+}
+
+bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
+                   struct io_fields *dest) {
+  mcfg_field_t *field_input = mcfg_get_field(rule, "input");
+  if (field_input == NULL) {
+    mcfg_field_t *field_input_src = mcfg_get_field(rule, "input_src");
+    if (field_input_src == NULL) {
+      mb_log(LOG_ERROR, "missing input element list!\n");
+      return false;
+    }
+
+    char *raw_path = mcfg_data_to_string(*field_input_src);
+    field_input = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
+
+    if (field_input == NULL) {
+      xfree(raw_path); // mcfg_parse_path mangles the input
+
+      raw_path = mcfg_data_to_string(*field_input_src);
+      mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
+      xfree(raw_path);
+
+      return false;
+    }
+  }
+
+  if (field_input->type != TYPE_LIST) {
+    mb_log(LOG_ERROR, "field \"input\" is not of type list!\n");
+    return false;
+  }
+  if (field_input->data == NULL) {
+    mb_log(LOG_ERROR, "field \"input\" has no data!\n");
+    return false;
+  }
+
+  mcfg_field_t *field_output = mcfg_get_field(rule, "output");
+  if (field_output == NULL) {
+    mcfg_field_t *field_output_src = mcfg_get_field(rule, "input_src");
+    if (field_output_src == NULL) {
+      field_output = field_input;
+      goto field_out_null_done;
+    }
+
+    char *raw_path = mcfg_data_to_string(*field_output_src);
+    field_output = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
+
+    if (field_output == NULL) {
+      xfree(raw_path); // mcfg_parse_path mangles the input
+
+      raw_path = mcfg_data_to_string(*field_output_src);
+      mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
+      xfree(raw_path);
+
+      return false;
+    }
+
+  field_out_null_done:;
+  } else if (field_output->type != TYPE_LIST) {
+    mb_log(LOG_ERROR, "field \"output\" is not of type list!\n");
+    return false;
+  }
+
+  dest->input = field_input;
+  dest->output = field_output;
+  return true;
 }
 
 int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
@@ -141,66 +211,12 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     return 1;
   }
 
-  mcfg_field_t *field_input = mcfg_get_field(rule, "input");
-  if (field_input == NULL) {
-    mcfg_field_t *field_input_src = mcfg_get_field(rule, "input_src");
-    if (field_input_src == NULL) {
-      mb_log(LOG_ERROR, "missing input element list!\n");
-      return 1;
-    }
-
-    char *raw_path = mcfg_data_to_string(*field_input_src);
-    field_input = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
-
-    if (field_input == NULL) {
-      xfree(raw_path); // mcfg_parse_path mangles the input
-
-      raw_path = mcfg_data_to_string(*field_input_src);
-      mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
-      xfree(raw_path);
-
-      return 1;
-    }
-  }
-
-  if (field_input->type != TYPE_LIST) {
-    mb_log(LOG_ERROR, "field \"input\" is not of type list!\n");
+  struct io_fields io_fields;
+  if (!get_io_fields(file, rule, &io_fields))
     return 1;
-  }
-  if (field_input->data == NULL) {
-    mb_log(LOG_ERROR, "field \"input\" has no data!\n");
-    return 1;
-  }
 
-  mcfg_field_t *field_output = mcfg_get_field(rule, "output");
-  if (field_output == NULL) {
-    mcfg_field_t *field_output_src = mcfg_get_field(rule, "input_src");
-    if (field_output_src == NULL) {
-      field_output = field_input;
-      goto field_out_null_done;
-    }
-
-    char *raw_path = mcfg_data_to_string(*field_output_src);
-    field_output = mcfg_get_field_by_path(file, mcfg_parse_path(raw_path));
-
-    if (field_output == NULL) {
-      xfree(raw_path); // mcfg_parse_path mangles the input
-
-      raw_path = mcfg_data_to_string(*field_output_src);
-      mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
-      xfree(raw_path);
-
-      return 1;
-    }
-
-  field_out_null_done:;
-  } else if (field_output->type != TYPE_LIST) {
-    mb_log(LOG_ERROR, "field \"output\" is not of type list!\n");
-    return 1;
-  }
-
-  mcfg_list_t *list_input = mcfg_data_as_list(*field_input);
-  mcfg_list_t *list_output = mcfg_data_as_list(*field_output);
+  mcfg_list_t *list_input = mcfg_data_as_list(*io_fields.input);
+  mcfg_list_t *list_output = mcfg_data_as_list(*io_fields.output);
 
   mcfg_path_t pathrel = {.absolute = true,
                          .dynfield_path = false,
