@@ -31,6 +31,13 @@ void free_path(mcfg_path_t path) {
   xfree(path.field);
 }
 
+size_t _size_t_max(size_t a, size_t b);
+
+// Helper function to append and resize a heap allocated string
+// stolen from MCFG/2
+void _append_char(char **dest, size_t wix, size_t *dest_size, char chr);
+size_t _append_str(char **dest, size_t wix, size_t *dest_size, char *src);
+
 bool is_file_newer(char *file1, char *file2) {
   FILE *f_1 = fopen(file1, "r");
   FILE *f_2 = fopen(file2, "r");
@@ -322,8 +329,97 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
 int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
               build_type_t build_type) {
+  mcfg_field_t *field_exec = mcfg_get_field(rule, "exec");
+  if (field_exec == NULL || field_exec->data == NULL) {
+    mb_log(LOG_ERROR, "c_rule missing field \"exec\"\n");
+    return 1;
+  }
 
-  return 0;
+  mcfg_field_t *field_input_format = mcfg_get_field(rule, "input_format");
+  mcfg_field_t *field_output_format = mcfg_get_field(rule, "output_format");
+
+  if (field_input_format == NULL || field_output_format == NULL) {
+    mb_logf(LOG_ERROR, "c_rule missing field \"%s\"!\n",
+            field_input_format == NULL ? "input_format" : "output_format");
+    return 1;
+  } else if (field_input_format->type != TYPE_STRING ||
+             field_output_format->type != TYPE_STRING) {
+    mb_logf(LOG_ERROR, "invalid datatype for field \"%s\"! Expected str\n",
+            field_input_format->type != TYPE_STRING ? "input_format"
+                                                    : "output_format");
+    return 1;
+  }
+
+  char *input_format = mcfg_data_as_string(*field_input_format);
+  char *output_format = mcfg_data_as_string(*field_output_format);
+
+  if (input_format == NULL || output_format == NULL) {
+    mb_logf(LOG_ERROR, "field \"%s\" is missing data!\n",
+            input_format == NULL ? "input_format" : "output_format");
+    return 1;
+  }
+
+  struct io_fields io_fields;
+  if (!get_io_fields(file, rule, &io_fields))
+    return 1;
+
+  mcfg_list_t *list_input = mcfg_data_as_list(*io_fields.input);
+
+  mcfg_path_t pathrel = {.absolute = true,
+                         .dynfield_path = false,
+
+                         .sector = "c_rules",
+                         .section = rule->name,
+                         .field = ""};
+
+  if (mcfg_get_dynfield(file, "element") == NULL) {
+    mcfg_err_t err =
+        mcfg_add_dynfield(file, TYPE_STRING, strdup("element"), NULL, 0);
+    if (err != MCFG_OK) {
+      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
+              mcfg_err_string(err), err);
+    }
+  }
+
+  if (mcfg_get_dynfield(file, "input") == NULL) {
+    mcfg_err_t err =
+        mcfg_add_dynfield(file, TYPE_STRING, strdup("input"), NULL, 0);
+    if (err != MCFG_OK) {
+      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
+              mcfg_err_string(err), err);
+    }
+  }
+
+  if (mcfg_get_dynfield(file, "output") == NULL) {
+    mcfg_err_t err =
+        mcfg_add_dynfield(file, TYPE_STRING, strdup("output"), NULL, 0);
+    if (err != MCFG_OK) {
+      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
+              mcfg_err_string(err), err);
+    }
+  }
+
+  mcfg_field_t *dynfield_element = mcfg_get_dynfield(file, "element");
+  mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
+  mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
+
+  size_t wix = 0;
+  dynfield_input->size = 16;
+  dynfield_input->data = xmalloc(dynfield_input->size);
+  for (size_t ix = 0; ix < list_input->field_count; ix++) {
+    char *fmted = mcfg_format_field_embeds_str(
+        mcfg_data_to_string(list_input->fields[ix]), *file, pathrel);
+    wix = _append_str((char **)&dynfield_input->data, wix,
+                      &dynfield_input->size, fmted);
+    _append_char((char **)&dynfield_input->data, wix, &dynfield_input->size,
+                 ' ');
+    wix++;
+    xfree(fmted);
+  }
+
+  int ret = 0;
+
+  return ret;
 }
 
 int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
@@ -358,12 +454,20 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
     xfree(data);
   }
 
+  int ret = 0;
+
   switch (exec_mode) {
   case EXEC_MODE_SINGULAR:
-    return run_singular(file, rule, cfg, build_type);
+    ret = run_singular(file, rule, cfg, build_type);
+    if (ret == 0)
+      mb_log(LOG_INFO, "fulfilled c_rule!\n");
+    break;
   case EXEC_MODE_UNIFY:
-    return run_unify(file, rule, cfg, build_type);
+    ret = run_unify(file, rule, cfg, build_type);
+    if (ret == 0)
+      mb_log(LOG_INFO, "fulfilled c_rule!\n");
+    break;
   }
 
-  return 1;
+  return ret;
 }
