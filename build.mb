@@ -75,9 +75,6 @@ sector c_rules
         str input_format '$(/config/files/obj)$(%element%).o'
         str output_format '$(binname)'
 
-        ; exec_on specified which list holds the name for the commands to be executed on
-        str exec_on 'objs'
-
         ; exec_cmp_against specified which list of files to compare the input exec_cmp_against
         str exec_mode 'unify'
 
