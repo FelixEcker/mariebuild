@@ -73,6 +73,10 @@ bool is_file_newer(char *file1, char *file2) {
   f_1_mtime = f_1_stat.st_mtim.tv_sec;
   f_2_mtime = f_2_stat.st_mtim.tv_sec;
 
+#ifdef LOG_TIMESTAMPS
+  fprintf(stderr, "%s: %d ; %s: %d\n", file1, f_1_mtime, file2, f_2_mtime);
+#endif
+
 exit:
   if (f_1 != NULL)
     fclose(f_1);
@@ -404,7 +408,7 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
   dynfield_output->data =
-      mcfg_format_field_embeds_str(output_format, *file, pathrel) + 1; // YUCKY!
+      mcfg_format_field_embeds_str(output_format, *file, pathrel);
   dynfield_output->size = strlen(dynfield_output->data) + 1;
 
   size_t incount = 0;
@@ -447,6 +451,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   }
 
 exit:
+  xfree(dynfield_input->data);
+  xfree(dynfield_output->data);
+
   dynfield_element->data = NULL;
   dynfield_input->data = NULL;
   dynfield_output->data = NULL;
