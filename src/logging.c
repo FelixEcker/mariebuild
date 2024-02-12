@@ -48,6 +48,12 @@ int mb_logf(log_level_t level, const char *format, ...) {
   }
 
   fprintf(stderr, "%s ", level_prefix);
+  return mb_logf_noprefix(level, format);
+}
+
+int mb_logf_noprefix(log_level_t level, const char *format, ...) {
+  if (level < mb_log_level)
+    return 0;
 
   va_list arg;
   int done;

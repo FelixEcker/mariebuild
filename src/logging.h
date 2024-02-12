@@ -24,6 +24,7 @@ extern log_level_t mb_log_level;
 log_level_t str_to_loglvl(char *str);
 
 int mb_logf(log_level_t level, const char *format, ...);
+int mb_logf_noprefix(log_level_t level, const char *format, ...);
 void mb_log(int level, char *msg);
 
 #endif // #ifndef LOGGING_H
