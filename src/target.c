@@ -108,6 +108,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
       return ret;
   }
 
+  mb_logf(LOG_INFO, "built target \"%s\"!\n", target->name);
   int ix = strlist_contains_value(target_history, target->name);
   if (ix > -1)
     xfree(target_history->items[ix]);
