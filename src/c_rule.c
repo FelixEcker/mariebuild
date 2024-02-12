@@ -454,6 +454,7 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
   ret = mb_exec(script, rule->name);
 
+  xfree(script);
 exit:
   xfree(dynfield_input->data);
   xfree(dynfield_output->data);
