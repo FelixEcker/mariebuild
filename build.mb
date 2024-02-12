@@ -21,8 +21,8 @@ sector config
 
     ; mcfg 2 has brought along a new list syntax, where each element is its own string
     ; and seperated by commas.
-    list str targets 'all', 'clean', 'debug', 'release'
-    str default 'all'
+    list str targets 'clean', 'debug', 'release'
+    str default 'debug'
   end
 end
 
@@ -30,10 +30,6 @@ end
 ; Each target can list other targets which it requires. Fields
 ; from the current target are accesible via %target%.
 sector targets
-  section all
-    list str required_targets 'clean', 'debug', 'release'
-  end
-
   section clean
     str exec '
 #!/bin/sh
@@ -46,16 +42,13 @@ mkdir obj
   end
 
   section debug
-    str cflags '-ggdb'
-
     ; Each target lists c_rules (or compilation rules) which are executed in order.
     list str c_rules 'executable'
   end
 
   section release
-    str cflags '-O3'
+    list str required_targets 'clean'
 
-    ; Each target lists c_rules (or compilation rules) which are executed in order.
     list str c_rules 'executable'
   end
 end
@@ -105,7 +98,7 @@ sector c_rules
     str input_format '$(src)$(%element%).c'
     str output_format '$(obj)$(%element%).o'
 
-    str cflags '-ggdb -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG'
+    str cflags '-ggdb -Iinclude/ -Isrc/'
 
     str exec '
     $(/config/mariebuild/cc) $(cflags) -c $(%input%) -o $(%output%)
