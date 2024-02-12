@@ -450,6 +450,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     goto exit;
   }
 
+  fprintf(stderr, "    exec: %s > %s\n", mcfg_data_as_string(*dynfield_input),
+          mcfg_data_as_string(*dynfield_output));
+
   char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
 
   ret = mb_exec(script, rule->name);
@@ -510,7 +513,7 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
   }
 
   if (ret == 0)
-    mb_log(LOG_INFO, "fulfilled c_rule!\n");
+    mb_logf(LOG_INFO, "fulfilled c_rule \"%s\"!\n", rule->name);
 
   return ret;
 }
