@@ -450,6 +450,10 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     goto exit;
   }
 
+  char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
+
+  ret = mb_exec(script, rule->name);
+
 exit:
   xfree(dynfield_input->data);
   xfree(dynfield_output->data);

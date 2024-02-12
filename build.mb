@@ -67,6 +67,8 @@ sector c_rules
     ; Compilation rules can list other compilation rules which they require
     ; These are executed in order.
     list str c_rules 'main'
+
+    str ldflags '-lm -Llib/ -lmcfg_2'
     
     str binname 'mb'
 
@@ -82,7 +84,7 @@ sector c_rules
     ; The command which is specified in the exec field is executed for each member of
     ; the list specified in exec_on
     str exec '
-    $(/config/mariebuild/cc) $(/config/mariebuild/ldflags) $(ldflags) -o $(%input%) $(objs)
+    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags)
     '
   end
 
