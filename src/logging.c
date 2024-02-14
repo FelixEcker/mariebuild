@@ -48,7 +48,15 @@ int mb_logf(log_level_t level, const char *format, ...) {
   }
 
   fprintf(stderr, "%s ", level_prefix);
-  return mb_logf_noprefix(level, format);
+
+  va_list arg;
+  int done;
+
+  va_start(arg, format);
+  done = vfprintf(stderr, format, arg);
+  va_end(arg);
+
+  return done;
 }
 
 int mb_logf_noprefix(log_level_t level, const char *format, ...) {
