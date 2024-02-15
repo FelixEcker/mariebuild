@@ -14,7 +14,7 @@ sector config
 
   section mariebuild
     ; mariebuild now supports incremental building. In this mode, a compilation rule
-    ; is only executed if a file it executes upon is 
+    ; is only executed if a file it executes upon is
     str build_type 'incremental'
 
     str cc 'clang'
@@ -61,18 +61,17 @@ sector c_rules
     ; These are executed in order.
     list str c_rules 'main'
 
-    str ldflags '-lm -Llib/ -lmcfg_2'
-    
     str binname 'mb'
 
-    str build_type 'incremental'
+    str build_type 'full'
+    str exec_mode 'unify'
 
     str input_src '/config/files/sources'
 
     str input_format '$(/config/files/obj)$(%element%).o'
     str output_format '$(binname)'
 
-    str exec_mode 'unify'
+    str ldflags '-lm -Llib/ -lmcfg_2'
 
     ; The command which is specified in the exec field is executed for each member of
     ; the list specified in exec_on
@@ -85,13 +84,13 @@ sector c_rules
     ; Run the 'exec' command for each input element.
     str exec_mode 'singular'
 
+    str obj 'obj/'
+    str src 'src/'
+
     ; Declare our set of input elements. If no output list is defined,
     ; the input list is used for that as well.
     str input_src '/config/files/sources'
     str output_src '/config/files/sources'
-
-    str obj 'obj/'
-    str src 'src/'
 
     ; The input and output_format fields are used to determine if a output file
     ; is out of date. They are also used to generate the input and output dynfields

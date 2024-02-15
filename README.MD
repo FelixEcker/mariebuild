@@ -34,13 +34,15 @@ for any corresponding short options.
 Report bugs to https://github.com/FelixEcker/mariebuild/issues.
 ```
 
-## TODO
+## TODO (for mariebuild 1.0.0)
 
 - [X] Move to MCFG/2
 - [X] Incremental and Full Builds
 - [X] Unify and Singular Rules
+- [ ] Implementation of the "force" argument
 - [ ] Target-Dependant Fields
 - [ ] Inclusion of other build files
+- [ ] Documentation
 
 ## License
 Mariebuild is licensed under the BSD 3-Clause License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
