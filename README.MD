@@ -20,7 +20,7 @@ Author: Marie Eckert
   -f, --force                Force a build, regardless if target is
                              incremental
   -i, --in=FILE              Specify a buildfile
-  -k, --keep-going           Ignore any failures and keep on building
+  -k, --keep-going           Ignore any failures (if possible) and keep on building
   -n, --no-splash            Disable splash screen/logo
   -t, --target=TARGET        Specify the build target
   -v, --verbosity=LEVEL      Set the verbosity level (0-3)
@@ -33,6 +33,14 @@ for any corresponding short options.
 
 Report bugs to https://github.com/FelixEcker/mariebuild/issues.
 ```
+
+## TODO
+
+- [X] Move to MCFG/2
+- [X] Incremental and Full Builds
+- [X] Unify and Singular Rules
+- [ ] Target-Dependant Fields
+- [ ] Inclusion of other build files
 
 ## License
 Mariebuild is licensed under the BSD 3-Clause License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
