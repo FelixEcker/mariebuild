@@ -1,38 +1,106 @@
-sector .config
-  fields depends:
-    list includes 'include/:src/'
-    str libdir   'lib/'
-    str libs     '-Llib/ -lmcfg'
-    list srcs     ''
-  
-  fields mariebuild:
-    str name          'mb'
-    str compiler      'gcc'
-    str src_dir       'src'
-    str obj_dir       'out'
- 
-    str shell         'bash'
+; !MCFG_VERSION 3
 
-    list srcs          'mb_utils.c:mb_execute.c:mb.c'
-    list files         '$(depends/srcs):$(srcs)'
+sector config
+  section info
+    str name 'example'
+    str version '1.0'
+    str license 'BSD-3'
+  end
 
-    str std_flags     '-Wall -I$(depends/includes)'
-    str debug_flags   '-ggdb'
-    str release_flags '-O3'
- 
-    str comp_cmd      '$(compiler) $(mode_flags) $(std_flags) -c -o $(obj_dir)/$(file).o $(src_dir)/$(file)'
-    str finalize_cmd  '$(compiler) $(mode_flags) -o $(name) out/$(files).o $(depends/libs)'
+  section files
+    str obj 'obj/'
+    list str sources 'xmem', 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
+  end
 
-sector .scripts
+  section mariebuild
+    ; mariebuild now supports incremental building. In this mode, a compilation rule
+    ; is only executed if a file it executes upon is
+    str build_type 'incremental'
 
-lines prepare:
-#!/usr/bin/bash
-if [[ ! -f lib/libmcfg.a ]]; then
-  sh setup.sh
+    str cc 'clang'
+
+    ; mcfg 2 has brought along a new list syntax, where each element is its own string
+    ; and seperated by commas.
+    list str targets 'clean', 'debug', 'release'
+    str default 'debug'
+  end
+end
+
+; Mariebuild now works with targets defined in this sector.
+; Each target can list other targets which it requires. Fields
+; from the current target are accesible via %target%.
+sector targets
+  section clean
+    str exec '
+#!/bin/sh
+if [ -d obj ]; then
+  rm -rf obj/
 fi
 
-if [[ -d "./out/" ]]; then
-  rm -rf out/*
-fi
+mkdir obj
+      '
+  end
 
-mkdir -p out/
+  section debug
+    ; Each target lists c_rules (or compilation rules) which are executed in order.
+    list str c_rules 'executable'
+  end
+
+  section release
+    list str required_targets 'clean'
+
+    list str c_rules 'executable'
+  end
+end
+
+; Each compilation rule is defined within this sector. They can access Fields
+; of the current target using %target%.
+sector c_rules
+  section executable
+    ; Compilation rules can list other compilation rules which they require
+    ; These are executed in order.
+    list str c_rules 'main'
+
+    str binname 'mb'
+
+    str build_type 'full'
+    str exec_mode 'unify'
+
+    str input_src '/config/files/sources'
+
+    str input_format '$(/config/files/obj)$(%element%).o'
+    str output_format '$(binname)'
+
+    str ldflags '-lm -Llib/ -lmcfg_2'
+
+    ; The command which is specified in the exec field is executed for each member of
+    ; the list specified in exec_on
+    str exec '
+    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags)
+    '
+  end
+
+  section main
+    ; Run the 'exec' command for each input element.
+    str exec_mode 'singular'
+
+    str obj 'obj/'
+    str src 'src/'
+
+    ; Declare our set of input elements. If no output list is defined,
+    ; the input list is used for that as well.
+    str input_src '/config/files/sources'
+    str output_src '/config/files/sources'
+
+    ; The input and output_format fields are used to determine if a output file
+    ; is out of date. They are also used to generate the input and output dynfields
+    str input_format '$(src)$(%element%).c'
+    str output_format '$(obj)$(%element%).o'
+
+    str cflags '-ggdb -Iinclude/ -Isrc/'
+
+    str exec '
+    $(/config/mariebuild/cc) $(cflags) -c $(%input%) -o $(%output%)
+    '
+  end
+end

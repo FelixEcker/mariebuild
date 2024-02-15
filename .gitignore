@@ -1,4 +1,5 @@
-out/
+Session.vim
+obj/
 lib/
 .vs
 mb
@@ -6,3 +7,4 @@ vgcore.*
 valgrind.*
 *.log
 *.swp
+compile_flags.txt
