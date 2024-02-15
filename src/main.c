@@ -45,7 +45,8 @@ static struct argp_option options[] = {
     {"target", 't', "TARGET", 0, "Specify the build target"},
     {"force", 'f', 0, 0, "Force a build, regardless if target is incremental"},
     {"no-splash", 'n', 0, 0, "Disable splash screen/logo"},
-    {"keep-going", 'k', 0, 0, "Ignore any failures and keep on building"},
+    {"keep-going", 'k', 0, 0,
+     "Ignore any failures (if possible) and keep on building"},
     {"verbosity", 'v', "LEVEL", 0, "Set the verbosity level (0-3)"},
     {0, 0, 0, 0}};
 
