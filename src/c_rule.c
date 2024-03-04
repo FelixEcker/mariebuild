@@ -450,10 +450,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     goto exit;
   }
 
-  mb_logf_noprefix(LOG_INFO, "    exec: %s > %s\n", 
-      mcfg_data_as_string(*dynfield_input),
-      mcfg_data_as_string(*dynfield_output)
-  );
+  mb_logf_noprefix(LOG_INFO, "    exec: %s > %s\n",
+                   mcfg_data_as_string(*dynfield_input),
+                   mcfg_data_as_string(*dynfield_output));
 
   char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
 

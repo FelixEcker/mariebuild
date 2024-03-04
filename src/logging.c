@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "ansi.h"
+
 log_level_t mb_log_level;
 
 log_level_t str_to_loglvl(char *str) {
@@ -37,17 +39,17 @@ int mb_logf(log_level_t level, const char *format, ...) {
     level_prefix = "---";
     break;
   case LOG_INFO:
-    level_prefix = "==>";
+    level_prefix = ANSI_BOLD ANSI_FG_GREEN "==>" ANSI_RESET;
     break;
   case LOG_WARNING:
-    level_prefix = "WRN";
+    level_prefix = ANSI_BOLD ANSI_FG_YELLOW "WRN" ANSI_RESET;
     break;
   case LOG_ERROR:
-    level_prefix = "ERR";
+    level_prefix = ANSI_BOLD ANSI_FG_RED "ERR" ANSI_RESET;
     break;
   }
 
-  fprintf(stderr, "%s ", level_prefix);
+  fprintf(stderr, "%s %s", level_prefix, ANSI_BOLD);
 
   va_list arg;
   int done;
@@ -55,6 +57,8 @@ int mb_logf(log_level_t level, const char *format, ...) {
   va_start(arg, format);
   done = vfprintf(stderr, format, arg);
   va_end(arg);
+
+  fprintf(stderr, ANSI_RESET);
 
   return done;
 }
