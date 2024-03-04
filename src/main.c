@@ -16,14 +16,14 @@
 
 #define MARIEBUILD_COLORED_LOGO
 
-#define MARIEBUILD_VERSION "0.4.0 (develop)"
+#define MARIEBUILD_VERSION "0.4.1 (develop)"
 
 // clang-format off
 // clang-format fucks this macro definition up really badly somehow
 #ifdef MARIEBUILD_COLORED_LOGO
-#define LOGO "\n\x1b[31m" \
-  "\x1b[1m█▀▄▀█ ▄▀█ █▀█ █ █▀▀ \x1b[0m\x1b[31m█▄▄ █ █ █ █   █▀▄\n" \
-  "\x1b[1m█ ▀ █ █▀█ █▀▄ █ ██▄ \x1b[0m\x1b[31m█▄█ █▄█ █ █▄▄ █▄▀\n" \
+#define LOGO "\n" \
+  "\x1b[91m█▀▄▀█ ▄▀█ █▀█ █ █▀▀ \x1b[0m\x1b[31m█▄▄ █ █ █ █   █▀▄\n\x1b[0m" \
+  "\x1b[91m█ ▀ █ █▀█ █▀▄ █ ██▄ \x1b[0m\x1b[31m█▄█ █▄█ █ █▄▄ █▄▀\n" \
   "\n\x1b[0m"
 #else
 #define LOGO "█▀▄▀█ ▄▀█ █▀█ █ █▀▀ █▄▄ █ █ █ █   █▀▄\n" \
