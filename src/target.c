@@ -98,8 +98,17 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
   mcfg_field_t *field_exec = mcfg_get_field(target, "exec");
   char *exec = NULL;
-  if (field_exec != NULL)
-    exec = mcfg_data_to_string(*field_exec);
+  if (field_exec != NULL) {
+    char *raw_exec = mcfg_data_to_string(*field_exec);
+    mcfg_path_t pathrel = {.absolute = true,
+                           .dynfield_path = false,
+
+                           .sector = "targets",
+                           .section = target->name,
+                           .field = ""};
+    exec = mcfg_format_field_embeds_str(raw_exec, *file, pathrel);
+    xfree(raw_exec);
+  }
 
   if (exec != NULL) {
     ret = mb_exec(exec, target->name);
