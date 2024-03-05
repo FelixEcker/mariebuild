@@ -297,7 +297,8 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     char *out = mcfg_format_field_embeds_str(output_format, *file, pathrel);
 
-    if (build_type == BUILD_TYPE_INCREMENTAL && !is_file_newer(in, out))
+    if (build_type == BUILD_TYPE_INCREMENTAL && !is_file_newer(in, out) &&
+        !cfg.always_force)
       goto build_loop_continue;
 
     dynfield_output->data = out;
@@ -427,7 +428,7 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     char *fmted = mcfg_format_field_embeds_str(input_format, *file, pathrel);
 
     if (build_type == BUILD_TYPE_INCREMENTAL &&
-        !is_file_newer(fmted, dynfield_output->data))
+        !is_file_newer(fmted, dynfield_output->data) && !cfg.always_force)
       goto input_assembly_continue;
 
     wix = _append_str((char **)&dynfield_input->data, wix,

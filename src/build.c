@@ -124,6 +124,7 @@ int mb_start(args_t args) {
   config_t cfg = mb_load_configuration(*file);
   cfg.target = args.target == NULL ? cfg.default_target : args.target;
   cfg.ignore_failures = args.keep_going;
+  cfg.always_force = args.force;
 
   return_code = mb_begin_build(file, cfg);
   if (return_code != 0)
