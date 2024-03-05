@@ -1,12 +1,7 @@
-; !MCFG_VERSION 3
+; mb build file for mariebuild 0.4.0 or higher
+; this file also serves as a lead example for how to use mariebuild.
 
 sector config
-  section info
-    str name 'example'
-    str version '1.0'
-    str license 'BSD-3'
-  end
-
   section files
     str obj 'obj/'
     list str sources 'xmem', 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
