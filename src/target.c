@@ -35,7 +35,7 @@ bool remove_dynfield(mcfg_file_t *file, char *name) {
   }
 
   // This does not make any sense!
-  //mcfg_free_field(&file->dynfields[field_ix]);
+  // mcfg_free_field(&file->dynfields[field_ix]);
 
   file->dynfield_count--;
 
@@ -60,14 +60,17 @@ strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
                                        field->data, field->size);
 
     if (err == MCFG_DUPLICATE_DYNFIELD) {
-      mb_logf(LOG_DEBUG, "duplicate or not unregistered target dependant field: "
-                         "%s/%s\n", target->name, field->name);
+      mb_logf(LOG_DEBUG,
+              "duplicate or not unregistered target dependant field: "
+              "%s/%s\n",
+              target->name, field->name);
       continue;
     } else if (err != MCFG_OK) {
       char *errstr = mcfg_err_string(err);
       mb_logf(LOG_ERROR,
               "failed to link target dependant field (mcfg_add_dynfield): "
-              "%s (%d)\n", errstr, err);
+              "%s (%d)\n",
+              errstr, err);
       xfree(errstr);
       continue;
     }
