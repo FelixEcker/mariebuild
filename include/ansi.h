@@ -13,14 +13,14 @@
 #define ANSI_RESET ESC "[0m"
 #define ANSI_BOLD ESC "[1m"
 #define ANSI_DIM ESC "[2m"
-#define ANSI_ITALIC "[3m"
-#define ANSI_UNDERLINE "[4m"
-#define ANSI_SBLINK "[5m"
-#define ANSI_RBLINK "[6m"
-#define ANSI_INVERT "[7m"
-#define ANSI_HIDE "[8m"
-#define ANSI_STRIKE "[9m"
-#define ANSI_DEFAULT "[10m"
+#define ANSI_ITALIC ESC "[3m"
+#define ANSI_UNDERLINE ESC "[4m"
+#define ANSI_SBLINK ESC "[5m"
+#define ANSI_RBLINK ESC "[6m"
+#define ANSI_INVERT ESC "[7m"
+#define ANSI_HIDE ESC "[8m"
+#define ANSI_STRIKE ESC "[9m"
+#define ANSI_DEFAULT ESC "[10m"
 
 /* 3/4 bit Foreground Colors */
 
