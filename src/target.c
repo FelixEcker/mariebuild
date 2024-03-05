@@ -18,6 +18,31 @@
 #include "types.h"
 #include "xmem.h"
 
+strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
+  const char *prefix = "target_";
+
+  strlist_t ret = strlist_new(target->field_count, true);
+
+  for (size_t ix = 0; ix < target->field_count; ix++) {
+    mcfg_field_t *field = &target->fields[ix];
+    if (strncmp(field->name, prefix, strlen(prefix)) != 0)
+      continue;
+
+    mcfg_err_t err = mcfg_add_dynfield(file, field->type, field->name,
+                                       field->data, field->size);
+
+    if (err == MCFG_DUPLICATE_DYNFIELD) {
+      mb_logf(LOG_DEBUG, "duplicate or not unregistered target dependant field: "
+                         "%s/%s\n", target->name, field->name);
+      continue;
+    }
+
+    strlist_append(&ret, field->name);
+  }
+
+  return ret;
+}
+
 int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
                          strlist_t *target_history, const config_t cfg) {
   mcfg_field_t *field_required_targets =
@@ -78,6 +103,9 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   }
 
   strlist_append(target_history, strdup(target->name));
+
+  // "Link" fields with target_ prefix to dynfields with the same name
+  link_target_fields(file, target);
 
   mb_logf(LOG_INFO, "building target \"%s\"\n", target->name);
 
