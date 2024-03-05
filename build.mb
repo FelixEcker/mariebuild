@@ -1,12 +1,7 @@
-; !MCFG_VERSION 3
+; mb build file for mariebuild 0.4.0 or higher
+; this file also serves as a lead example for how to use mariebuild.
 
 sector config
-  section info
-    str name 'example'
-    str version '1.0'
-    str license 'BSD-3'
-  end
-
   section files
     str obj 'obj/'
     list str sources 'xmem', 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
@@ -42,11 +37,18 @@ mkdir obj
   end
 
   section debug
+    ; Any field defined within a target of which the name if prefixed with
+    ; target_ is registered as a dynfield with the exact same name.
+    ; (So this field can be used using $(%target_cflags%)
+    str target_cflags '-ggdb -Iinclude/ -Isrc/'
+
     ; Each target lists c_rules (or compilation rules) which are executed in order.
     list str c_rules 'executable'
   end
 
   section release
+    str target_cflags '-Oz -Iinclude/ -Isrc/'
+
     list str required_targets 'clean'
 
     list str c_rules 'executable'
@@ -97,10 +99,8 @@ sector c_rules
     str input_format '$(src)$(%element%).c'
     str output_format '$(obj)$(%element%).o'
 
-    str cflags '-ggdb -Iinclude/ -Isrc/'
-
     str exec '
-    $(/config/mariebuild/cc) $(cflags) -c $(%input%) -o $(%output%)
+    $(/config/mariebuild/cc) $(%target_cflags%) -c $(%input%) -o $(%output%)
     '
   end
 end

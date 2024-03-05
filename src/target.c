@@ -18,6 +18,76 @@
 #include "types.h"
 #include "xmem.h"
 
+bool remove_dynfield(mcfg_file_t *file, char *name) {
+  ssize_t field_ix = -1;
+
+  for (size_t ix = 0; ix < file->dynfield_count; ix++) {
+    if (strcmp(file->dynfields[ix].name, name) == 0) {
+      field_ix = ix;
+      break;
+    }
+  }
+
+  if (field_ix == -1) {
+    mb_logf(LOG_DEBUG, "could not find field \"%s\" to remove!\n", name);
+    return false;
+  }
+
+  // This does not make any sense!
+  // mcfg_free_field(&file->dynfields[field_ix]);
+
+  file->dynfield_count--;
+
+  for (size_t ix = field_ix; ix < file->dynfield_count; ix++) {
+    file->dynfields[ix] = file->dynfields[ix + 1];
+  }
+
+  return true;
+}
+
+strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
+  const char *prefix = "target_";
+
+  strlist_t ret = strlist_new(target->field_count, true);
+
+  for (size_t ix = 0; ix < target->field_count; ix++) {
+    mcfg_field_t *field = &target->fields[ix];
+    if (strncmp(field->name, prefix, strlen(prefix)) != 0)
+      continue;
+
+    mcfg_err_t err = mcfg_add_dynfield(file, field->type, field->name,
+                                       field->data, field->size);
+
+    if (err == MCFG_DUPLICATE_DYNFIELD) {
+      mb_logf(LOG_DEBUG,
+              "duplicate or not unregistered target dependant field: "
+              "%s/%s\n",
+              target->name, field->name);
+      continue;
+    } else if (err != MCFG_OK) {
+      char *errstr = mcfg_err_string(err);
+      mb_logf(LOG_ERROR,
+              "failed to link target dependant field (mcfg_add_dynfield): "
+              "%s (%d)\n",
+              errstr, err);
+      xfree(errstr);
+      continue;
+    }
+    mb_logf(LOG_DEBUG, "linked field \"%s\"\n", field->name);
+
+    strlist_append(&ret, strdup(field->name));
+  }
+
+  return ret;
+}
+
+void unlink_target_fields(mcfg_file_t *file, strlist_t fields) {
+  for (size_t ix = 0; ix < fields.item_count; ix++) {
+    remove_dynfield(file, fields.items[ix]);
+    mb_logf(LOG_DEBUG, "unlinked fields \"%s\"\n", fields.items[ix]);
+  }
+}
+
 int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
                          strlist_t *target_history, const config_t cfg) {
   mcfg_field_t *field_required_targets =
@@ -79,6 +149,9 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
   strlist_append(target_history, strdup(target->name));
 
+  // "Link" fields with target_ prefix to dynfields with the same name
+  strlist_t linked_fields = link_target_fields(file, target);
+
   mb_logf(LOG_INFO, "building target \"%s\"\n", target->name);
 
   // Target Execution Order
@@ -86,15 +159,15 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   // 2. compilation rules
   // 3. "exec" field
 
-  int ret;
+  int ret = 0;
   ret = run_required_targets(file, target, target_history, cfg);
   if (ret != 0)
-    return ret;
+    goto exit;
 
   ret = mb_run_c_rules(file, mcfg_get_field(target, "c_rules"), TARGET,
                        target->name, cfg);
   if (ret != 0)
-    return ret;
+    goto exit;
 
   mcfg_field_t *field_exec = mcfg_get_field(target, "exec");
   char *exec = NULL;
@@ -114,13 +187,19 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
     ret = mb_exec(exec, target->name);
     xfree(exec);
     if (ret != 0 && !cfg.ignore_failures)
-      return ret;
+      goto exit;
   }
 
   mb_logf(LOG_INFO, "built target \"%s\"!\n", target->name);
+
+exit:;
   int ix = strlist_contains_value(target_history, target->name);
   if (ix > -1)
     xfree(target_history->items[ix]);
+
+  unlink_target_fields(file, linked_fields);
+  strlist_destroy(&linked_fields);
+
   target_history->item_count--;
-  return 0;
+  return ret;
 }
