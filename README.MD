@@ -39,9 +39,9 @@ Report bugs to https://github.com/FelixEcker/mariebuild/issues.
 - [X] Move to MCFG/2
 - [X] Incremental and Full Builds
 - [X] Unify and Singular Rules
-- [ ] Implementation of the "force" argument
-- [ ] Target-Dependant Fields
-- [ ] Inclusion of other build files
+- [X] Implementation of the "force" argument
+- [X] Target-Dependant Fields
+- [ ] Inclusion of other build files (?)
 - [ ] Documentation
 
 ## License
