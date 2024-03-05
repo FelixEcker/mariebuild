@@ -160,15 +160,15 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   // 2. compilation rules
   // 3. "exec" field
 
-  int ret;
+  int ret = 0;
   ret = run_required_targets(file, target, target_history, cfg);
   if (ret != 0)
-    return ret;
+    goto exit;
 
   ret = mb_run_c_rules(file, mcfg_get_field(target, "c_rules"), TARGET,
                        target->name, cfg);
   if (ret != 0)
-    return ret;
+    goto exit;
 
   mcfg_field_t *field_exec = mcfg_get_field(target, "exec");
   char *exec = NULL;
@@ -188,10 +188,12 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
     ret = mb_exec(exec, target->name);
     xfree(exec);
     if (ret != 0 && !cfg.ignore_failures)
-      return ret;
+      goto exit;
   }
 
   mb_logf(LOG_INFO, "built target \"%s\"!\n", target->name);
+
+exit:;
   int ix = strlist_contains_value(target_history, target->name);
   if (ix > -1)
     xfree(target_history->items[ix]);
@@ -200,5 +202,5 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   strlist_destroy(&linked_fields);
 
   target_history->item_count--;
-  return 0;
+  return ret;
 }
