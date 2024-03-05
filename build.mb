@@ -42,11 +42,18 @@ mkdir obj
   end
 
   section debug
+    ; Any field defined within a target of which the name if prefixed with
+    ; target_ is registered as a dynfield with the exact same name.
+    ; (So this field can be used using $(%target_cflags%)
+    str target_cflags '-ggdb -Iinclude/ -Isrc/'
+
     ; Each target lists c_rules (or compilation rules) which are executed in order.
     list str c_rules 'executable'
   end
 
   section release
+    str target_cflags '-Oz -Iinclude/ -Isrc/'
+
     list str required_targets 'clean'
 
     list str c_rules 'executable'
@@ -97,10 +104,8 @@ sector c_rules
     str input_format '$(src)$(%element%).c'
     str output_format '$(obj)$(%element%).o'
 
-    str cflags '-ggdb -Iinclude/ -Isrc/'
-
     str exec '
-    $(/config/mariebuild/cc) $(cflags) -c $(%input%) -o $(%output%)
+    $(/config/mariebuild/cc) $(%target_cflags%) -c $(%input%) -o $(%output%)
     '
   end
 end
