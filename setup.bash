@@ -11,10 +11,6 @@ function directory_setup() {
     rm -rf obj
   fi
 
-  if [ -d include ]; then
-    rm -rf include
-  fi
-
   mkdir lib
   mkdir obj
   mkdir include

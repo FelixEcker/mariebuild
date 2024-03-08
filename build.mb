@@ -52,6 +52,8 @@ mkdir obj
     list str required_targets 'clean'
 
     list str c_rules 'executable'
+
+    str exec 'strip --strip-all ./mb'
   end
 end
 
