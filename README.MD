@@ -41,7 +41,6 @@ Report bugs to https://github.com/FelixEcker/mariebuild/issues.
 - [X] Unify and Singular Rules
 - [X] Implementation of the "force" argument
 - [X] Target-Dependant Fields
-- [ ] Inclusion of other build files (?)
 - [ ] Documentation
 
 ## License
