@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <math.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -63,11 +64,12 @@ int mb_exec(char *script, char *name) {
 
   ret = system(name);
   if (ret != 0)
-    mb_logf(LOG_ERROR, "execution for script \"%s\" failed: %d\n", name, ret);
+    mb_logf(LOG_ERROR, "execution for script \"%s\" failed: 0x%08x%s\n", name,
+            ret, ret < 0 ? " (system() call failed)" : "");
 
   remove(name);
 
 exit:
   xfree(name);
-  return ret;
+  return WEXITSTATUS(ret);
 }
