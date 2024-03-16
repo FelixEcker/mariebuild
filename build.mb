@@ -26,14 +26,21 @@ end
 ; from the current target are accesible via %target%.
 sector targets
   section clean
-    str exec '
-#!/bin/sh
-if [ -d obj ]; then
-  rm -rf obj/
+    str exec '#!/bin/sh
+if [ -d $(/config/files/obj) ]; then
+  rm -rf $(/config/files/obj)
 fi
 
-mkdir obj
+mkdir $(/config/files/obj)
       '
+  end
+
+  section depends
+    str exec '#!/bin/bash
+if [[ ! -f lib/libmcfg_2.a ]]; then
+  ./setup.bash
+fi
+'
   end
 
   section debug
@@ -49,7 +56,7 @@ mkdir obj
   section release
     str target_cflags '-Oz -Iinclude/ -Isrc/'
 
-    list str required_targets 'clean'
+    list str required_targets 'clean', 'depends'
 
     list str c_rules 'executable'
 

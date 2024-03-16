@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MCFG_2_COMMIT="d76bd2ac6286ce8a6c3626d7e11296a574775397"
+MCFG_2_COMMIT="f24d5dbf4bc912b56efcb3302a6f6df72585d5b9"
 
 function directory_setup() {
   if [ -d lib ]; then
