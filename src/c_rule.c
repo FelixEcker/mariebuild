@@ -172,6 +172,8 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
 
   mcfg_list_t *required_c_rules = mcfg_data_as_list(*field_required_c_rules);
 
+  int ret = 0;
+
   for (size_t ix = 0; ix < required_c_rules->field_count; ix++) {
     char *curr_c_rule_name = mcfg_data_to_string(required_c_rules->fields[ix]);
     if (curr_c_rule_name == NULL) {
@@ -187,13 +189,15 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
           curr_c_rule_name, org_type == TARGET ? "target" : "c_rule", org_name);
       xfree(curr_c_rule_name);
 
+      ret = 1;
       if (cfg.ignore_failures)
         continue;
 
-      return 1;
+      return ret;
     }
 
-    int ret = mb_run_c_rule(file, curr_c_rule, cfg);
+    int tmp_ret = mb_run_c_rule(file, curr_c_rule, cfg);
+    ret = ret > tmp_ret ? ret : tmp_ret;
     xfree(curr_c_rule_name);
 
     if (ret != 0 && !cfg.ignore_failures) {
@@ -201,7 +205,7 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
     }
   }
 
-  return 0;
+  return ret;
 }
 
 int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
@@ -310,7 +314,8 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     mb_logf_noprefix(LOG_INFO, "    exec: %s > %s\n", in, out);
 
-    ret = mb_exec(script, rule->name);
+    int tmp_ret = mb_exec(script, rule->name);
+    ret = ret > tmp_ret ? ret : tmp_ret;
 
     xfree(script);
   build_loop_continue:
@@ -457,7 +462,8 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
   char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
 
-  ret = mb_exec(script, rule->name);
+  int tmp_ret = mb_exec(script, rule->name);
+  ret = ret > tmp_ret ? ret : tmp_ret;
 
   xfree(script);
 exit:
