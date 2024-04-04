@@ -98,6 +98,8 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
   mcfg_list_t *required_targets = mcfg_data_as_list(*field_required_targets);
   mcfg_sector_t *targets = mcfg_get_sector(file, "targets");
 
+  int ret = 0;
+
   for (size_t ix = 0; ix < required_targets->field_count; ix++) {
     char *curr_target_name = mcfg_data_to_string(required_targets->fields[ix]);
     if (curr_target_name == NULL) {
@@ -113,10 +115,12 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
               curr_target_name, target->name);
       xfree(curr_target_name);
 
+      ret = 1;
+
       if (cfg.ignore_failures)
         continue;
 
-      return 1;
+      return ret;
     }
 
     int ret = mb_run_target(file, curr_target, target_history, cfg);
@@ -126,7 +130,7 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
       return ret;
   }
 
-  return 0;
+  return ret;
 }
 
 int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
@@ -161,12 +165,13 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
   int ret = 0;
   ret = run_required_targets(file, target, target_history, cfg);
-  if (ret != 0)
+  if (ret != 0 && !cfg.ignore_failures)
     goto exit;
 
-  ret = mb_run_c_rules(file, mcfg_get_field(target, "c_rules"), TARGET,
-                       target->name, cfg);
-  if (ret != 0)
+  int tmp_ret = mb_run_c_rules(file, mcfg_get_field(target, "c_rules"), TARGET,
+                               target->name, cfg);
+  ret = ret > tmp_ret ? ret : tmp_ret;
+  if (ret != 0 && !cfg.ignore_failures)
     goto exit;
 
   mcfg_field_t *field_exec = mcfg_get_field(target, "exec");
@@ -184,13 +189,16 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
   }
 
   if (exec != NULL) {
-    ret = mb_exec(exec, target->name);
+    tmp_ret = mb_exec(exec, target->name);
+    ret = ret > tmp_ret ? ret : tmp_ret;
     xfree(exec);
     if (ret != 0 && !cfg.ignore_failures)
       goto exit;
   }
 
-  mb_logf(LOG_INFO, "built target \"%s\"!\n", target->name);
+  if (ret == 0) {
+    mb_logf(LOG_INFO, "built target \"%s\"!\n", target->name);
+  }
 
 exit:;
   int ix = strlist_contains_value(target_history, target->name);
