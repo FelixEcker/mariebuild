@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# mariebuild build script. 
+# Use this only if you have no version of mariebuild which can build itself.
+
 CC="clang"
 SRCDIR="src/"
 OBJDIR="obj/"
@@ -42,6 +45,30 @@ function build() {
   $CC $CFLAGS -o  $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS
 }
 
+function setup() {
+  if [ ! -d "$OBJDIR" ]; then
+    mkdir $OBJDIR
+  fi
+
+  if [ ! -f "lib/libmcfg_2.a" ]; then
+    echo "==> libmcfg_2 is missing, running setup.bash"
+
+    # set IFS to an emtpy string so that leading spaces are kept around
+    SAVE_IFS=$IFS
+    IFS=''
+    
+    (
+      bash setup.bash 2>&1 | 
+        while read -r line; do
+          echo "setup.bash: $line"; 
+        done 
+    ) || exit
+
+    IFS=$SAVE_IFS
+    echo "==> successfully built libmcfg_2"
+  fi
+}
+
 echo "MB build script. "
 
 if [ "$1" = "--compile-flags" ]; then
@@ -49,6 +76,7 @@ if [ "$1" = "--compile-flags" ]; then
 
  echo "==> Generated compile_flags.txt"
 else
+  setup
   build
   echo "==> Finished build!"
 fi
