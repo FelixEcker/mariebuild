@@ -60,7 +60,13 @@ fi
 
     list str c_rules 'executable'
 
-    str exec 'strip --strip-all ./mb'
+    str exec '#!/bin/bash
+
+    unameOut="\$(uname -s)"
+    case "\${unameOut}" in
+      Darwin*)    strip -S -X ./mb;;
+      *)          strip --strip-all ./mb;;
+    esac'
   end
 end
 
@@ -86,8 +92,13 @@ sector c_rules
 
     ; The command which is specified in the exec field is executed for each member of
     ; the list specified in exec_on
-    str exec '
-    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags)
+    str exec '#!/bin/bash
+
+    unameOut="\$(uname -s)"
+    case "\${unameOut}" in
+      Darwin*)    LDFLAGS="-L/usr/local/lib -largp";;
+    esac
+    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) \$LDFLAGS
     '
   end
 
