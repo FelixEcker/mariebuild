@@ -4,7 +4,7 @@ CC="clang"
 SRCDIR="src/"
 OBJDIR="obj/"
 
-CFLAGS="-ggdb -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG"
+CFLAGS="-ggdb  -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG"
 LDFLAGS="-lm -Llib/ -lmcfg_2"
 
 BIN_NAME="mb"
@@ -30,10 +30,16 @@ function build() {
 
   echo "==> Compiling Sources for \"$BIN_NAME\""
   build_objs "${OBJECTS[@]}"
+
+  unameOut="$(uname -s)"
+  case "${unameOut}" in
+    Darwin*)    LDFLAGS="$LDFLAGS -L/usr/local/lib -largp";;
+  esac
+
   
   echo "==> Linking \"$BIN_NAME\""
   echo "  LD -o $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS"
-  $CC $CFLAGS -o $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS
+  $CC $CFLAGS -o  $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS
 }
 
 echo "MB build script. "

@@ -70,8 +70,13 @@ bool is_file_newer(char *file1, char *file2) {
     goto exit;
   }
 
+#ifdef __APPLE__
+  f_1_mtime = f_1_stat.st_mtimespec.tv_sec;
+  f_2_mtime = f_2_stat.st_mtimespec.tv_sec;
+#else
   f_1_mtime = f_1_stat.st_mtim.tv_sec;
   f_2_mtime = f_2_stat.st_mtim.tv_sec;
+#endif
 
 #ifdef LOG_TIMESTAMPS
   fprintf(stderr, "%s: %d ; %s: %d\n", file1, f_1_mtime, file2, f_2_mtime);
