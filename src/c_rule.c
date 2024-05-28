@@ -13,12 +13,20 @@
 #include <sys/stat.h>
 
 #include "mcfg.h"
+#include "mcfg_format.h"
 #include "mcfg_util.h"
 
 #include "executor.h"
 #include "logging.h"
 #include "types.h"
 #include "xmem.h"
+
+#define FMT_ERR_CHECK(fmt_res, tag)                                            \
+  if (fmt_res.err != MCFG_FMT_OK) {                                            \
+    mb_logf(LOG_ERROR, "[c_rule:%s] mcfg_format_field_embeds failed: %d\n",    \
+            tag, fmt_res.err);                                                 \
+    return fmt_res.err;                                                        \
+  }
 
 struct io_fields {
   mcfg_field_t *input;
@@ -31,12 +39,37 @@ void free_path(mcfg_path_t path) {
   xfree(path.field);
 }
 
-size_t _size_t_max(size_t a, size_t b);
+size_t _size_t_max(size_t a, size_t b) { return a > b ? a : b; }
 
-// Helper function to append and resize a heap allocated string
-// stolen from MCFG/2
-void _append_char(char **dest, size_t wix, size_t *dest_size, char chr);
-size_t _append_str(char **dest, size_t wix, size_t *dest_size, char *src);
+void _append_char(char **dest, size_t wix, size_t *dest_size, char chr) {
+  if (dest == NULL || *dest == NULL) {
+    return;
+  }
+
+  if (wix >= *dest_size) {
+    size_t size_diff = wix - *dest_size + 1;
+    size_t new_size =
+        *dest_size + _size_t_max(MCFG_EMBED_FORMAT_RESIZE_AMOUNT, size_diff);
+
+    *dest = xrealloc(*dest, new_size);
+    *dest_size = new_size;
+  }
+
+  (*dest)[wix] = chr;
+}
+
+size_t _append_str(char **dest, size_t wix, size_t *dest_size, char *src) {
+  if (dest == NULL || *dest == NULL || src == NULL) {
+    return 0;
+  }
+
+  for (size_t ix = 0; ix < strlen(src); ix++) {
+    _append_char(dest, wix, dest_size, src[ix]);
+    wix++;
+  }
+
+  return wix;
+}
 
 bool is_file_newer(char *file1, char *file2) {
   FILE *f_1 = fopen(file1, "r");
@@ -290,6 +323,9 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
   mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
+  /* reused for mcfg_format_field_embeds(_str) calls */
+  mcfg_fmt_res_t fmt_res;
+
   int ret = 0;
 
   for (size_t ix = 0; ix < list_output->field_count; ix++) {
@@ -299,12 +335,18 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     dynfield_element->data = raw_in;
     dynfield_element->size = strlen(raw_in) + 1;
 
-    char *in = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+    fmt_res = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+    FMT_ERR_CHECK(fmt_res, "singular_input_format");
+
+    char *in = fmt_res.formatted;
 
     dynfield_element->data = raw_out;
     dynfield_element->size = strlen(raw_in) + 1;
 
-    char *out = mcfg_format_field_embeds_str(output_format, *file, pathrel);
+    fmt_res = mcfg_format_field_embeds_str(output_format, *file, pathrel);
+    FMT_ERR_CHECK(fmt_res, "singular_output_format");
+
+    char *out = fmt_res.formatted;
 
     if (build_type == BUILD_TYPE_INCREMENTAL && !is_file_newer(in, out) &&
         !cfg.always_force)
@@ -315,7 +357,10 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     dynfield_input->data = in;
     dynfield_input->size = strlen(in) + 1;
 
-    char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
+    fmt_res = mcfg_format_field_embeds(*field_exec, *file, pathrel);
+    FMT_ERR_CHECK(fmt_res, "singular_script_format");
+
+    char *script = fmt_res.formatted;
 
     mb_logf_noprefix(LOG_INFO, "    exec: %s > %s\n", in, out);
 
@@ -418,8 +463,11 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
   mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
-  dynfield_output->data =
+  mcfg_fmt_res_t fmt_res =
       mcfg_format_field_embeds_str(output_format, *file, pathrel);
+  FMT_ERR_CHECK(fmt_res, "unify_output_format");
+
+  dynfield_output->data = fmt_res.formatted;
   dynfield_output->size = strlen(dynfield_output->data) + 1;
 
   size_t incount = 0;
@@ -435,7 +483,10 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     dynfield_element->data = raw_in;
     dynfield_element->size = strlen(raw_in) + 1;
 
-    char *fmted = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+    fmt_res = mcfg_format_field_embeds_str(input_format, *file, pathrel);
+    FMT_ERR_CHECK(fmt_res, "unify_input_format");
+
+    char *fmted = fmt_res.formatted;
 
     if (build_type == BUILD_TYPE_INCREMENTAL &&
         !is_file_newer(fmted, dynfield_output->data) && !cfg.always_force)
@@ -465,7 +516,10 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
                    mcfg_data_as_string(*dynfield_input),
                    mcfg_data_as_string(*dynfield_output));
 
-  char *script = mcfg_format_field_embeds(*field_exec, *file, pathrel);
+  fmt_res = mcfg_format_field_embeds(*field_exec, *file, pathrel);
+  FMT_ERR_CHECK(fmt_res, "unify_script_format");
+
+  char *script = fmt_res.formatted;
 
   int tmp_ret = mb_exec(script, rule->name);
   ret = ret > tmp_ret ? ret : tmp_ret;

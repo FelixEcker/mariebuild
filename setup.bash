@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MCFG_2_COMMIT="f24d5dbf4bc912b56efcb3302a6f6df72585d5b9"
+MCFG_2_TAG="0.3.2"
 
 function directory_setup() {
   if [ -d lib ]; then
@@ -29,8 +29,8 @@ function libmcfg_2_setup() {
 
   cd mcfg_2
   
-  echo "==> working on commit $MCFG_2_COMMIT"
-  git checkout $MCFG_2_COMMIT 2> /dev/null
+  echo "==> working on tag $MCFG_2_TAG"
+  git checkout $MCFG_2_TAG 2> /dev/null
   
   bash setup.bash || exit
   bash build.bash --lib-only || return
