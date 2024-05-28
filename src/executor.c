@@ -67,7 +67,7 @@ int mb_exec(char *script, char *name) {
     mb_logf(LOG_ERROR, "execution for script \"%s\" failed: 0x%08x%s\n", name,
             ret, ret < 0 ? " (system() call failed)" : "");
 
-  remove(name);
+ // remove(name);
 
 exit:
   xfree(name);
