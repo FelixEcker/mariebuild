@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "mcfg.h"
+#include "mcfg_format.h"
 #include "mcfg_util.h"
 
 #include "c_rule.h"
@@ -184,7 +185,17 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
                            .sector = "targets",
                            .section = target->name,
                            .field = ""};
-    exec = mcfg_format_field_embeds_str(raw_exec, *file, pathrel);
+
+    mcfg_fmt_res_t fmt_res =
+        mcfg_format_field_embeds_str(raw_exec, *file, pathrel);
+    if (fmt_res.err != MCFG_FMT_OK) {
+      mb_logf(LOG_ERROR,
+              "[target:exec_format] mcfg_format_field_embeds failed: %d\n",
+              fmt_res.err);
+    }
+
+    exec = fmt_res.formatted;
+
     xfree(raw_exec);
   }
 
