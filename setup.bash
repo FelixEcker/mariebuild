@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MCFG_2_TAG="0.3.2"
+MCFG_2_TAG="0.3.3"
 
 function directory_setup() {
   if [ -d lib ]; then
@@ -42,6 +42,7 @@ function libmcfg_2_setup() {
   rm -rf $BUILD_DIR
 }
 
+echo "MB setup script. "
 echo "==> setting up directories"
 directory_setup
 echo "==> building libraries"
