@@ -37,7 +37,7 @@ mkdir $(/config/files/obj)
 
   section depends
     str exec '#!/bin/bash
-if [[ ! -f lib/libmcfg_2.a ]]; then
+if [[ lib/libmcfg_2.a -ot ./setup.bash ]]; then
   ./setup.bash
 fi
 '
@@ -62,6 +62,7 @@ fi
 
     str exec '#!/bin/bash
 
+    printf "  strip ./mb\\n"
     unameOut="\$(uname -s)"
     case "${unameOut}" in
       Darwin*)    strip -S -X ./mb;;
@@ -94,11 +95,16 @@ sector c_rules
     ; the list specified in exec_on
     str exec '#!/bin/bash
 
+    printf "  LD -o $(%output%) $(%input%)\\n"
+
     unameOut="\$(uname -s)"
     case "${unameOut}" in
-      Darwin*)    LDFLAGS="-L/usr/local/lib -largp";;
+      Darwin*)
+        EXTRA_LDFLAGS="-L/usr/local/lib -largp"
+        printf "    -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
     esac
-    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $LDFLAGS
+
+    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS
     '
   end
 
@@ -120,6 +126,7 @@ sector c_rules
     str output_format '$(obj)$(%element%).o'
 
     str exec '
+    printf "  CC $(%input%)\\n"
     $(/config/mariebuild/cc) $(%target_cflags%) -c $(%input%) -o $(%output%)
     '
   end
