@@ -16,7 +16,7 @@ strlist_t strlist_new(size_t capacity, bool heap_items) {
       .heap_items = heap_items,
       .capacity = capacity,
       .item_count = 0,
-      .items = xmalloc(sizeof(char *) * (capacity + 1)),
+      .items = XMALLOC(sizeof(char *) * (capacity + 1)),
   };
 
   return strlist;
@@ -31,7 +31,7 @@ void strlist_append(strlist_t *strlist, char *item) {
 
   if (strlist->item_count >= strlist->capacity) {
     strlist->items =
-        xrealloc(strlist->items, sizeof(*strlist->items) * strlist->item_count);
+        XREALLOC(strlist->items, sizeof(*strlist->items) * strlist->item_count);
   }
 
   strlist->items[ix] = item;
@@ -59,7 +59,7 @@ int strlist_contains_value(strlist_t *strlist, char *item) {
 void strlist_destroy(strlist_t *strlist) {
   if (strlist->heap_items) {
     for (size_t ix = 0; ix < strlist->item_count; ix++) {
-      xfree(strlist->items[ix]);
+      XFREE(strlist->items[ix]);
 
       for (size_t ix_2 = 0; ix_2 < strlist->item_count; ix_2++)
         if (strlist->items[ix] == strlist->items[ix_2])
@@ -67,5 +67,5 @@ void strlist_destroy(strlist_t *strlist) {
     }
   }
 
-  xfree(strlist->items);
+  XFREE(strlist->items);
 }

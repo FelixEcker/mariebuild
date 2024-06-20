@@ -34,9 +34,9 @@ struct io_fields {
 };
 
 void free_path(mcfg_path_t path) {
-  xfree(path.sector);
-  xfree(path.section);
-  xfree(path.field);
+  XFREE(path.sector);
+  XFREE(path.section);
+  XFREE(path.field);
 }
 
 size_t _size_t_max(size_t a, size_t b) { return a > b ? a : b; }
@@ -51,7 +51,7 @@ void _append_char(char **dest, size_t wix, size_t *dest_size, char chr) {
     size_t new_size =
         *dest_size + _size_t_max(MCFG_EMBED_FORMAT_RESIZE_AMOUNT, size_diff);
 
-    *dest = xrealloc(*dest, new_size);
+    *dest = XREALLOC(*dest, new_size);
     *dest_size = new_size;
   }
 
@@ -140,13 +140,13 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
     field_input = mcfg_get_field_by_path(file, path);
 
     free_path(path); // TODO: impl in MCFG/2
-    xfree(raw_path);
+    XFREE(raw_path);
 
     if (field_input == NULL) {
       raw_path = mcfg_data_to_string(*field_input_src);
       mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
 
-      xfree(raw_path);
+      XFREE(raw_path);
 
       return false;
     }
@@ -175,13 +175,13 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
     field_output = mcfg_get_field_by_path(file, path);
 
     free_path(path);
-    xfree(raw_path);
+    XFREE(raw_path);
 
     if (field_output == NULL) {
       raw_path = mcfg_data_to_string(*field_output_src);
       mb_logf(LOG_ERROR, "field \"%s\" does not exit!\n", raw_path);
 
-      xfree(raw_path);
+      XFREE(raw_path);
 
       return false;
     }
@@ -225,7 +225,7 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
       mb_logf(
           LOG_ERROR, "c_rule \"%s\" required by %s \"%s\" does not exist.\n",
           curr_c_rule_name, org_type == TARGET ? "target" : "c_rule", org_name);
-      xfree(curr_c_rule_name);
+      XFREE(curr_c_rule_name);
 
       ret = 1;
       if (cfg.ignore_failures)
@@ -236,7 +236,7 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
 
     int tmp_ret = mb_run_c_rule(file, curr_c_rule, cfg);
     ret = ret > tmp_ret ? ret : tmp_ret;
-    xfree(curr_c_rule_name);
+    XFREE(curr_c_rule_name);
 
     if (ret != 0 && !cfg.ignore_failures) {
       return ret;
@@ -367,12 +367,12 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     int tmp_ret = mb_exec(script, rule->name);
     ret = ret > tmp_ret ? ret : tmp_ret;
 
-    xfree(script);
+    XFREE(script);
   build_loop_continue:
-    xfree(raw_in);
-    xfree(raw_out);
-    xfree(in);
-    xfree(out);
+    XFREE(raw_in);
+    XFREE(raw_out);
+    XFREE(in);
+    XFREE(out);
 
     if (ret != 0 && !cfg.ignore_failures)
       break;
@@ -474,7 +474,7 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   size_t wix = 0;
 
   dynfield_input->size = 16;
-  dynfield_input->data = xmalloc(dynfield_input->size);
+  dynfield_input->data = XMALLOC(dynfield_input->size);
 
   int ret = 0;
 
@@ -500,8 +500,8 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     incount++;
   input_assembly_continue:
-    xfree(raw_in);
-    xfree(fmted);
+    XFREE(raw_in);
+    XFREE(fmted);
   }
 
   _append_char((char **)&dynfield_input->data, wix, &dynfield_input->size, 0);
@@ -524,10 +524,10 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   int tmp_ret = mb_exec(script, rule->name);
   ret = ret > tmp_ret ? ret : tmp_ret;
 
-  xfree(script);
+  XFREE(script);
 exit:
-  xfree(dynfield_input->data);
-  xfree(dynfield_output->data);
+  XFREE(dynfield_input->data);
+  XFREE(dynfield_output->data);
 
   dynfield_element->data = NULL;
   dynfield_input->data = NULL;
@@ -556,7 +556,7 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
 
     build_type = str_to_build_type(data, build_type);
 
-    xfree(data);
+    XFREE(data);
   }
 
   exec_mode_t exec_mode = EXEC_MODE_SINGULAR;
@@ -565,7 +565,7 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
 
     exec_mode = str_to_exec_mode(data, exec_mode);
 
-    xfree(data);
+    XFREE(data);
   }
 
   int ret = 0;

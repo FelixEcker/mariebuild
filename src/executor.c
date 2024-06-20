@@ -33,7 +33,7 @@ char *create_name(char *name) {
   size_t pid_size = (size_t)floor(log10((double)INT_MAX));
   size_t size = sizeof(prefix) + pid_size + strlen(name) + 1;
 
-  char *ret = xmalloc(size);
+  char *ret = XMALLOC(size);
   snprintf(ret, size, "%s%d.%s", prefix, pid, name);
 
   return ret;
@@ -52,7 +52,7 @@ int mb_exec(char *script, char *name) {
     mb_logf(LOG_ERROR, "failed to save script to \"%s\"\n", name);
     char *errname = strerror(errno);
     mb_logf(LOG_ERROR, "OS Error %d (%s)\n", errno, errname);
-    xfree(errname);
+    XFREE(errname);
 
     goto exit;
   }
@@ -70,6 +70,6 @@ int mb_exec(char *script, char *name) {
   remove(name);
 
 exit:
-  xfree(name);
+  XFREE(name);
   return WEXITSTATUS(ret);
 }

@@ -4,7 +4,7 @@
 sector config
   section files
     str obj 'obj/'
-    list str sources 'xmem', 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
+    list str sources 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
   end
 
   section mariebuild
