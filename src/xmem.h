@@ -7,16 +7,43 @@
 #ifndef XMEM_H
 #define XMEM_H
 
-#if !defined(XMEM_LOGGING)
-#define XMEM_LOGGING 1
-#endif
+#include "logging.h"
 
-#include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
-void *xmalloc(size_t size);
+#define _STR(x) #x
+#define STR(x) _STR(x)
 
-void *xrealloc(void *org, size_t size);
+#define PANIC(s)                                                               \
+  fprintf(stderr, "%s\n", s);                                                  \
+  abort();
 
-void xfree(void *ptr);
+#define XMALLOC(s)                                                             \
+  ({                                                                           \
+    void *ret;                                                                 \
+    ret = malloc(s);                                                           \
+    if (ret == NULL) {                                                         \
+      PANIC("XMALLOC returned NULL!");                                         \
+    }                                                                          \
+    ret;                                                                       \
+  })
+
+#define XREALLOC(o, s)                                                         \
+  ({                                                                           \
+    void *ret;                                                                 \
+    ret = realloc(o, s);                                                       \
+    if (ret == NULL) {                                                         \
+      PANIC("XREALLOC returned NULL!");                                        \
+    }                                                                          \
+    ret;                                                                       \
+  })
+
+#define XFREE(p)                                                               \
+  if (p != NULL) {                                                             \
+    free(p);                                                                   \
+  } else {                                                                     \
+    mb_log(LOG_ERROR, __FILE__ ":" STR(__LINE__) ": XFREE received NULL!");    \
+  }
 
 #endif // #ifndef XMEM_H

@@ -71,7 +71,7 @@ strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
               "failed to link target dependant field (mcfg_add_dynfield): "
               "%s (%d)\n",
               errstr, err);
-      xfree(errstr);
+      XFREE(errstr);
       continue;
     }
     mb_logf(LOG_DEBUG, "linked field \"%s\"\n", field->name);
@@ -114,7 +114,7 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
       mb_logf(LOG_ERROR,
               "target \"%s\" required by target \"%s\" does not exist.\n",
               curr_target_name, target->name);
-      xfree(curr_target_name);
+      XFREE(curr_target_name);
 
       ret = 1;
 
@@ -125,7 +125,7 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
     }
 
     int ret = mb_run_target(file, curr_target, target_history, cfg);
-    xfree(curr_target_name);
+    XFREE(curr_target_name);
 
     if (ret != 0 && !cfg.ignore_failures)
       return ret;
@@ -196,13 +196,13 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
     exec = fmt_res.formatted;
 
-    xfree(raw_exec);
+    XFREE(raw_exec);
   }
 
   if (exec != NULL) {
     tmp_ret = mb_exec(exec, target->name);
     ret = ret > tmp_ret ? ret : tmp_ret;
-    xfree(exec);
+    XFREE(exec);
     if (ret != 0 && !cfg.ignore_failures)
       goto exit;
   }
@@ -214,7 +214,7 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 exit:;
   int ix = strlist_contains_value(target_history, target->name);
   if (ix > -1)
-    xfree(target_history->items[ix]);
+    XFREE(target_history->items[ix]);
 
   unlink_target_fields(file, linked_fields);
   strlist_destroy(&linked_fields);

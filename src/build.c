@@ -105,7 +105,7 @@ int mb_start(args_t args) {
 
   mb_log(LOG_DEBUG, "using MCFG/2 " MCFG_2_VERSION "\n");
 
-  mcfg_file_t *file = xmalloc(sizeof(mcfg_file_t));
+  mcfg_file_t *file = XMALLOC(sizeof(mcfg_file_t));
   mcfg_parser_ctxt_t *ctxt;
   mcfg_err_t ret = mcfg_parse_file_ctxto(args.buildfile, file, &ctxt);
   if (ret != MCFG_OK) {
