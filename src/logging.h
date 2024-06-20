@@ -10,13 +10,14 @@
 typedef enum log_level {
   LOG_INVALID = -1,
   LOG_DEBUG = 0,
+  LOG_STEPS,
   LOG_INFO,
   LOG_WARNING,
   LOG_ERROR,
 } log_level_t;
 
 #if !defined(DEFAULT_LOG_LEVEL)
-#define DEFAULT_LOG_LEVEL LOG_INFO
+#define DEFAULT_LOG_LEVEL LOG_STEPS
 #endif
 
 extern log_level_t mb_log_level;

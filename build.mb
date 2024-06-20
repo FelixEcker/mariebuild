@@ -8,6 +8,8 @@ sector config
   end
 
   section mariebuild
+    u8 default_log_level 2
+
     ; mariebuild now supports incremental building. In this mode, a compilation rule
     ; is only executed if a file it executes upon is
     str build_type 'incremental'

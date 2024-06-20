@@ -17,6 +17,8 @@ log_level_t str_to_loglvl(char *str) {
   switch (converted) {
   case LOG_DEBUG:
     return LOG_DEBUG;
+  case LOG_STEPS:
+    return LOG_STEPS;
   case LOG_INFO:
     return LOG_INFO;
   case LOG_WARNING:
@@ -37,6 +39,9 @@ int mb_logf(log_level_t level, const char *format, ...) {
   default:
   case LOG_DEBUG:
     level_prefix = "---";
+    break;
+  case LOG_STEPS:
+    level_prefix = "    ";
     break;
   case LOG_INFO:
     level_prefix = ANSI_BOLD ANSI_FG_GREEN "==>" ANSI_RESET;

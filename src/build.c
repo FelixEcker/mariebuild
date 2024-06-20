@@ -94,6 +94,17 @@ config_t mb_load_configuration(mcfg_file_t file) {
     ret.build_type = fallback.build_type;
   }
 
+  mcfg_field_t *field_default_log_level =
+      mcfg_get_field(config, "default_log_level");
+  if (field_default_log_level != NULL) {
+    log_level_t wanted_log_level =
+        str_to_loglvl(mcfg_data_to_string(*field_default_log_level));
+
+    if (wanted_log_level != LOG_INVALID) {
+      mb_log_level = wanted_log_level;
+    }
+  }
+
   return ret;
 }
 

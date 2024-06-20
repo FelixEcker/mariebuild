@@ -362,7 +362,7 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     char *script = fmt_res.formatted;
 
-    mb_logf_noprefix(LOG_INFO, "    exec: %s > %s\n", in, out);
+    mb_logf(LOG_STEPS, "exec: %s > %s\n", in, out);
 
     int tmp_ret = mb_exec(script, rule->name);
     ret = ret > tmp_ret ? ret : tmp_ret;
@@ -512,9 +512,8 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     goto exit;
   }
 
-  mb_logf_noprefix(LOG_INFO, "    exec: %s > %s\n",
-                   mcfg_data_as_string(*dynfield_input),
-                   mcfg_data_as_string(*dynfield_output));
+  mb_logf(LOG_STEPS, "exec: %s > %s\n", mcfg_data_as_string(*dynfield_input),
+          mcfg_data_as_string(*dynfield_output));
 
   fmt_res = mcfg_format_field_embeds(*field_exec, *file, pathrel);
   FMT_ERR_CHECK(fmt_res, "unify_script_format");
