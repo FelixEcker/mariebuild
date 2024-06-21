@@ -29,7 +29,7 @@ function build_objs() {
 }
 
 function build() {
-  OBJECTS=("xmem strlist logging types executor c_rule target build main")
+  OBJECTS=("strlist logging types executor c_rule target build main")
 
   echo "==> Compiling Sources for \"$BIN_NAME\""
   build_objs "${OBJECTS[@]}"
