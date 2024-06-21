@@ -20,6 +20,7 @@ typedef struct args {
   bool no_splash;
   bool keep_going; // they're hot on your heels!
   log_level_t verbosity;
+  bool verbosity_overriden; // helper flag for verbosity
 } args_t;
 
 int mb_start(args_t args);

@@ -26,8 +26,8 @@
   "\x1b[91m█ ▀ █ █▀█ █▀▄ █ ██▄ \x1b[0m\x1b[31m█▄█ █▄█ █ █▄▄ █▄▀\n" \
   "\n\x1b[0m"
 #else
-#define LOGO "█▀▄▀█ ▄▀█ █▀█ █ █▀▀ █▄▄ █ █ █ █   █▀▄\n" \
-  "█ ▀ █ █▀█ █▀▄ █ ██▄ █▄█ █▄█ █ █▄▄ █▄▀\n"
+#define LOGO "\n█▀▄▀█ ▄▀█ █▀█ █ █▀▀ █▄▄ █ █ █ █   █▀▄\n" \
+  "█ ▀ █ █▀█ █▀▄ █ ██▄ █▄█ █▄█ █ █▄▄ █▄▀\n\n"
 #endif
 // clang-format on
 
@@ -70,6 +70,7 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
     break;
   case 'v':;
     args->verbosity = str_to_loglvl(arg);
+    args->verbosity_overriden = true;
     break;
   default:
     return ARGP_ERR_UNKNOWN;
@@ -95,6 +96,7 @@ int main(int argc, char **argv) {
   args.no_splash = false;
   args.keep_going = false;
   args.verbosity = DEFAULT_LOG_LEVEL;
+  args.verbosity_overriden = false;
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
 
