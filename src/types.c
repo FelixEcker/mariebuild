@@ -21,12 +21,14 @@ struct build_type_id build_type_lookup[] = {
 const size_t BUILD_TYPE_LOOKUP_SIZE = sizeof(build_type_lookup);
 
 build_type_t str_to_build_type(char *src, build_type_t fallback) {
-  if (src == NULL)
+  if (src == NULL) {
     return fallback;
+  }
 
   for (size_t ix = 0; ix < BUILD_TYPE_LOOKUP_SIZE; ix++) {
-    if (strcmp(src, build_type_lookup[ix].name) == 0)
+    if (strcmp(src, build_type_lookup[ix].name) == 0) {
       return build_type_lookup[ix].value;
+    }
   }
 
   return fallback;
@@ -44,12 +46,14 @@ struct exec_mode_id exec_mode_lookup[] = {
 const size_t EXEC_MODE_LOOKUP_SIZE = sizeof(exec_mode_lookup);
 
 exec_mode_t str_to_exec_mode(char *src, exec_mode_t fallback) {
-  if (src == NULL)
+  if (src == NULL) {
     return fallback;
+  }
 
   for (size_t ix = 0; ix < EXEC_MODE_LOOKUP_SIZE; ix++) {
-    if (strcmp(src, exec_mode_lookup[ix].name) == 0)
+    if (strcmp(src, exec_mode_lookup[ix].name) == 0) {
       return exec_mode_lookup[ix].value;
+    }
   }
 
   return fallback;

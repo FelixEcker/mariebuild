@@ -100,8 +100,9 @@ int main(int argc, char **argv) {
 
   argp_parse(&argp, argc, argv, 0, 0, &args);
 
-  if (!args.no_splash)
+  if (!args.no_splash) {
     print_splash();
+  }
 
   mb_log_level = args.verbosity;
 

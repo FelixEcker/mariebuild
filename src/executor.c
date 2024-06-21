@@ -63,9 +63,10 @@ int mb_exec(char *script, char *name) {
   close(fd);
 
   ret = system(name);
-  if (ret != 0)
+  if (ret != 0) {
     mb_logf(LOG_ERROR, "execution for script \"%s\" failed: 0x%08x%s\n", name,
             ret, ret < 0 ? " (system() call failed)" : "");
+  }
 
   remove(name);
 
