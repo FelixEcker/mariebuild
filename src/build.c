@@ -49,12 +49,14 @@ config_t mb_load_configuration(mcfg_file_t file, args_t args) {
   config_t ret;
 
   mcfg_sector_t *sector = mcfg_get_sector(&file, "config");
-  if (sector == NULL)
+  if (sector == NULL) {
     return fallback;
+  }
 
   mcfg_section_t *config = mcfg_get_section(sector, "mariebuild");
-  if (config == NULL)
+  if (config == NULL) {
     return fallback;
+  }
 
   mcfg_field_t *field_targets = mcfg_get_field(config, "targets");
   if (field_targets != NULL) {
@@ -67,8 +69,9 @@ config_t mb_load_configuration(mcfg_file_t file, args_t args) {
 
     for (size_t ix = 0; ix < targets.field_count; ix++) {
       char *str = mcfg_data_as_string(targets.fields[ix]);
-      if (str != NULL)
+      if (str != NULL) {
         strlist_append(&ret.public_targets, str);
+      }
     }
 
     mb_logf(LOG_DEBUG, "registered %zu public targets\n",
@@ -133,8 +136,9 @@ int mb_start(args_t args) {
     goto exit;
   }
 
-  if (!check_file_validity(file))
+  if (!check_file_validity(file)) {
     goto exit;
+  }
 
   config_t cfg = mb_load_configuration(*file, args);
   cfg.target = args.target == NULL ? cfg.default_target : args.target;
@@ -142,10 +146,11 @@ int mb_start(args_t args) {
   cfg.always_force = args.force;
 
   return_code = mb_begin_build(file, cfg);
-  if (return_code != 0)
+  if (return_code != 0) {
     mb_log(LOG_ERROR, "build failed!\n");
-  else
+  } else {
     mb_log(LOG_INFO, "build succeeded!\n");
+  }
 
 exit:
   strlist_destroy(&cfg.public_targets);

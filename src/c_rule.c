@@ -116,10 +116,12 @@ bool is_file_newer(char *file1, char *file2) {
 #endif
 
 exit:
-  if (f_1 != NULL)
+  if (f_1 != NULL) {
     fclose(f_1);
-  if (f_2 != NULL)
+  }
+  if (f_2 != NULL) {
     fclose(f_2);
+  }
 
   return f_1_mtime > f_2_mtime;
 }
@@ -199,8 +201,9 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
 
 int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
                    int org_type, char *org_name, const config_t cfg) {
-  if (field_required_c_rules == NULL)
+  if (field_required_c_rules == NULL) {
     return 0;
+  }
 
   mcfg_sector_t *c_rules = mcfg_get_sector(file, "c_rules");
   if (c_rules == NULL || c_rules->section_count == 0) {
@@ -228,8 +231,9 @@ int mb_run_c_rules(mcfg_file_t *file, mcfg_field_t *field_required_c_rules,
       XFREE(curr_c_rule_name);
 
       ret = 1;
-      if (cfg.ignore_failures)
+      if (cfg.ignore_failures) {
         continue;
+      }
 
       return ret;
     }
@@ -279,8 +283,9 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   }
 
   struct io_fields io_fields;
-  if (!get_io_fields(file, rule, &io_fields))
+  if (!get_io_fields(file, rule, &io_fields)) {
     return 1;
+  }
 
   mcfg_list_t *list_input = mcfg_data_as_list(*io_fields.input);
   mcfg_list_t *list_output = mcfg_data_as_list(*io_fields.output);
@@ -349,8 +354,9 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     char *out = fmt_res.formatted;
 
     if (build_type == BUILD_TYPE_INCREMENTAL && !is_file_newer(in, out) &&
-        !cfg.always_force)
+        !cfg.always_force) {
       goto build_loop_continue;
+    }
 
     dynfield_output->data = out;
     dynfield_output->size = strlen(out) + 1;
@@ -374,8 +380,9 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     XFREE(in);
     XFREE(out);
 
-    if (ret != 0 && !cfg.ignore_failures)
+    if (ret != 0 && !cfg.ignore_failures) {
       break;
+    }
   }
 
   // We have to do this to avoid double-frees when running mcfg_free_file at
@@ -420,8 +427,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   }
 
   struct io_fields io_fields;
-  if (!get_io_fields(file, rule, &io_fields))
+  if (!get_io_fields(file, rule, &io_fields)) {
     return 1;
+  }
 
   mcfg_list_t *list_input = mcfg_data_as_list(*io_fields.input);
 
@@ -489,8 +497,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
     char *fmted = fmt_res.formatted;
 
     if (build_type == BUILD_TYPE_INCREMENTAL &&
-        !is_file_newer(fmted, dynfield_output->data) && !cfg.always_force)
+        !is_file_newer(fmted, dynfield_output->data) && !cfg.always_force) {
       goto input_assembly_continue;
+    }
 
     wix = _append_str((char **)&dynfield_input->data, wix,
                       &dynfield_input->size, fmted);
@@ -544,8 +553,9 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
       mb_log(LOG_WARNING, "field c_rules is of incorrect type! ignoring.\n");
     } else {
       int ret = mb_run_c_rules(file, field_c_rules, C_RULE, rule->name, cfg);
-      if (ret != 0)
+      if (ret != 0) {
         return ret;
+      }
     }
   }
 
@@ -578,8 +588,9 @@ int mb_run_c_rule(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg) {
     break;
   }
 
-  if (ret == 0)
+  if (ret == 0) {
     mb_logf(LOG_INFO, "fulfilled c_rule \"%s\"!\n", rule->name);
+  }
 
   return ret;
 }

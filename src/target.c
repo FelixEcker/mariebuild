@@ -34,9 +34,6 @@ bool remove_dynfield(mcfg_file_t *file, char *name) {
     return false;
   }
 
-  // This does not make any sense!
-  // mcfg_free_field(&file->dynfields[field_ix]);
-
   file->dynfield_count--;
 
   for (size_t ix = field_ix; ix < file->dynfield_count; ix++) {
@@ -53,8 +50,9 @@ strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
 
   for (size_t ix = 0; ix < target->field_count; ix++) {
     mcfg_field_t *field = &target->fields[ix];
-    if (strncmp(field->name, prefix, strlen(prefix)) != 0)
+    if (strncmp(field->name, prefix, strlen(prefix)) != 0) {
       continue;
+    }
 
     mcfg_err_t err = mcfg_add_dynfield(file, field->type, field->name,
                                        field->data, field->size);
@@ -93,8 +91,9 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
                          strlist_t *target_history, const config_t cfg) {
   mcfg_field_t *field_required_targets =
       mcfg_get_field(target, "required_targets");
-  if (field_required_targets == NULL)
+  if (field_required_targets == NULL) {
     return 0;
+  }
 
   mcfg_list_t *required_targets = mcfg_data_as_list(*field_required_targets);
   mcfg_sector_t *targets = mcfg_get_sector(file, "targets");
@@ -118,8 +117,9 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
 
       ret = 1;
 
-      if (cfg.ignore_failures)
+      if (cfg.ignore_failures) {
         continue;
+      }
 
       return ret;
     }
@@ -127,8 +127,9 @@ int run_required_targets(mcfg_file_t *file, mcfg_section_t *target,
     int ret = mb_run_target(file, curr_target, target_history, cfg);
     XFREE(curr_target_name);
 
-    if (ret != 0 && !cfg.ignore_failures)
+    if (ret != 0 && !cfg.ignore_failures) {
       return ret;
+    }
   }
 
   return ret;
@@ -166,14 +167,16 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
   int ret = 0;
   ret = run_required_targets(file, target, target_history, cfg);
-  if (ret != 0 && !cfg.ignore_failures)
+  if (ret != 0 && !cfg.ignore_failures) {
     goto exit;
+  }
 
   int tmp_ret = mb_run_c_rules(file, mcfg_get_field(target, "c_rules"), TARGET,
                                target->name, cfg);
   ret = ret > tmp_ret ? ret : tmp_ret;
-  if (ret != 0 && !cfg.ignore_failures)
+  if (ret != 0 && !cfg.ignore_failures) {
     goto exit;
+  }
 
   mcfg_field_t *field_exec = mcfg_get_field(target, "exec");
   char *exec = NULL;
@@ -203,8 +206,9 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
     tmp_ret = mb_exec(exec, target->name);
     ret = ret > tmp_ret ? ret : tmp_ret;
     XFREE(exec);
-    if (ret != 0 && !cfg.ignore_failures)
+    if (ret != 0 && !cfg.ignore_failures) {
       goto exit;
+    }
   }
 
   if (ret == 0) {

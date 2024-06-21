@@ -23,8 +23,9 @@ strlist_t strlist_new(size_t capacity, bool heap_items) {
 }
 
 void strlist_append(strlist_t *strlist, char *item) {
-  if (strlist == NULL)
+  if (strlist == NULL) {
     return;
+  }
 
   size_t ix = strlist->item_count;
   strlist->item_count++;
@@ -38,19 +39,22 @@ void strlist_append(strlist_t *strlist, char *item) {
 }
 
 char *strlist_get(strlist_t *strlist, size_t index) {
-  if (index >= strlist->item_count)
+  if (index >= strlist->item_count) {
     return "";
+  }
 
   return strlist->items[index];
 }
 
 int strlist_contains_value(strlist_t *strlist, char *item) {
-  if (strlist == NULL)
+  if (strlist == NULL) {
     return -1;
+  }
 
   for (size_t ix = 0; ix < strlist->item_count; ix++) {
-    if (strlist->items[ix] != NULL && strcmp(strlist->items[ix], item) == 0)
+    if (strlist->items[ix] != NULL && strcmp(strlist->items[ix], item) == 0) {
       return ix;
+    }
   }
 
   return -1;
@@ -61,9 +65,11 @@ void strlist_destroy(strlist_t *strlist) {
     for (size_t ix = 0; ix < strlist->item_count; ix++) {
       XFREE(strlist->items[ix]);
 
-      for (size_t ix_2 = 0; ix_2 < strlist->item_count; ix_2++)
-        if (strlist->items[ix] == strlist->items[ix_2])
+      for (size_t ix_2 = 0; ix_2 < strlist->item_count; ix_2++) {
+        if (strlist->items[ix] == strlist->items[ix_2]) {
           strlist->items[ix_2] = NULL;
+        }
+      }
     }
   }
 
