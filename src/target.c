@@ -213,8 +213,9 @@ int mb_run_target(mcfg_file_t *file, mcfg_section_t *target,
 
 exit:;
   int ix = strlist_contains_value(target_history, target->name);
-  if (ix > -1)
+  if (ix > -1) {
     XFREE(target_history->items[ix]);
+  }
 
   unlink_target_fields(file, linked_fields);
   strlist_destroy(&linked_fields);
