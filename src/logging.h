@@ -14,6 +14,7 @@ typedef enum log_level {
   LOG_INFO,
   LOG_WARNING,
   LOG_ERROR,
+  __LOG_UPPER_BOUND
 } log_level_t;
 
 #if !defined(DEFAULT_LOG_LEVEL)

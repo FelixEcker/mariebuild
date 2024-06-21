@@ -44,7 +44,7 @@ bool check_file_validity(mcfg_file_t *file) {
   return true;
 }
 
-config_t mb_load_configuration(mcfg_file_t file) {
+config_t mb_load_configuration(mcfg_file_t file, args_t args) {
   config_t fallback = default_config;
   config_t ret;
 
@@ -96,11 +96,15 @@ config_t mb_load_configuration(mcfg_file_t file) {
 
   mcfg_field_t *field_default_log_level =
       mcfg_get_field(config, "default_log_level");
-  if (field_default_log_level != NULL) {
-    log_level_t wanted_log_level =
-        str_to_loglvl(mcfg_data_to_string(*field_default_log_level));
+  if (field_default_log_level != NULL && !args.verbosity_overriden) {
+    log_level_t wanted_log_level = mcfg_data_as_int(*field_default_log_level);
 
-    if (wanted_log_level != LOG_INVALID) {
+    if (wanted_log_level <= LOG_INVALID ||
+        wanted_log_level >= __LOG_UPPER_BOUND) {
+      mb_logf(LOG_WARNING,
+              "/config/mariebuild/default_loglevel: invalid log level %d\n",
+              wanted_log_level);
+    } else {
       mb_log_level = wanted_log_level;
     }
   }
@@ -132,7 +136,7 @@ int mb_start(args_t args) {
   if (!check_file_validity(file))
     goto exit;
 
-  config_t cfg = mb_load_configuration(*file);
+  config_t cfg = mb_load_configuration(*file, args);
   cfg.target = args.target == NULL ? cfg.default_target : args.target;
   cfg.ignore_failures = args.keep_going;
   cfg.always_force = args.force;
