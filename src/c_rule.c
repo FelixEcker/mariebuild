@@ -33,12 +33,6 @@ struct io_fields {
   mcfg_field_t *output;
 };
 
-void free_path(mcfg_path_t path) {
-  XFREE(path.sector);
-  XFREE(path.section);
-  XFREE(path.field);
-}
-
 size_t _size_t_max(size_t a, size_t b) { return a > b ? a : b; }
 
 void _append_char(char **dest, size_t wix, size_t *dest_size, char chr) {
@@ -141,7 +135,7 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
 
     field_input = mcfg_get_field_by_path(file, path);
 
-    free_path(path); // TODO: impl in MCFG/2
+    mcfg_free_path(path);
     XFREE(raw_path);
 
     if (field_input == NULL) {
@@ -176,7 +170,7 @@ bool get_io_fields(mcfg_file_t *file, mcfg_section_t *rule,
 
     field_output = mcfg_get_field_by_path(file, path);
 
-    free_path(path);
+    mcfg_free_path(path);
     XFREE(raw_path);
 
     if (field_output == NULL) {
