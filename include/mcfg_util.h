@@ -35,6 +35,12 @@ typedef struct mcfg_path {
 mcfg_path_t mcfg_parse_path(char *path);
 
 /**
+ * @brief Frees the heap allocated data inside of a path structure
+ * @param path The path to free
+ */
+void mcfg_free_path(mcfg_path_t path);
+
+/**
  * @brief Convert a mcfg_path_t structure into its string representation
  * @param path The path to be converted
  * @return A Heap allocated string with the path structures string
