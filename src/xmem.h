@@ -16,8 +16,10 @@
 #define STR(x) _STR(x)
 
 #define PANIC(s)                                                               \
-  fprintf(stderr, "%s\n", s);                                                  \
-  abort();
+  do {                                                                         \
+    fprintf(stderr, "%s\n", s);                                                \
+    abort();                                                                   \
+  } while (0)
 
 #define XMALLOC(s)                                                             \
   ({                                                                           \
@@ -40,10 +42,12 @@
   })
 
 #define XFREE(p)                                                               \
-  if (p != NULL) {                                                             \
-    free(p);                                                                   \
-  } else {                                                                     \
-    mb_log(LOG_ERROR, __FILE__ ":" STR(__LINE__) ": XFREE received NULL!");    \
-  }
+  do {                                                                         \
+    if (p != NULL) {                                                           \
+      free(p);                                                                 \
+    } else {                                                                   \
+      mb_log(LOG_ERROR, __FILE__ ":" STR(__LINE__) ": XFREE received NULL!");  \
+    }                                                                          \
+  } while (0)
 
 #endif // #ifndef XMEM_H

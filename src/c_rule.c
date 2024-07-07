@@ -22,22 +22,26 @@
 #include "xmem.h"
 
 #define FMT_ERR_CHECK(fmt_res, tag)                                            \
-  if (fmt_res.err != MCFG_FMT_OK) {                                            \
-    mb_logf(LOG_ERROR, "[c_rule:%s] mcfg_format_field_embeds failed: %d\n",    \
-            tag, fmt_res.err);                                                 \
-    return fmt_res.err;                                                        \
-  }
+  do {                                                                         \
+    if (fmt_res.err != MCFG_FMT_OK) {                                          \
+      mb_logf(LOG_ERROR, "[c_rule:%s] mcfg_format_field_embeds failed: %d\n",  \
+              tag, fmt_res.err);                                               \
+      return fmt_res.err;                                                      \
+    }                                                                          \
+  } while (0)
 
 #define ADD_DYNFIELD(file, name)                                               \
-  if (mcfg_get_dynfield(file, name) == NULL) {                                 \
-    mcfg_err_t err =                                                           \
-        mcfg_add_dynfield(file, TYPE_STRING, strdup(name), NULL, 0);           \
-    if (err != MCFG_OK) {                                                      \
-      mb_logf(LOG_ERROR, "[c_rule:%s] mcfg_add_dynfield failed: %s (%d)\n",    \
-              name, mcfg_err_string(err), err);                                \
-      return 1;                                                                \
+  do {                                                                         \
+    if (mcfg_get_dynfield(file, name) == NULL) {                               \
+      mcfg_err_t err =                                                         \
+          mcfg_add_dynfield(file, TYPE_STRING, strdup(name), NULL, 0);         \
+      if (err != MCFG_OK) {                                                    \
+        mb_logf(LOG_ERROR, "[c_rule:%s] mcfg_add_dynfield failed: %s (%d)\n",  \
+                name, mcfg_err_string(err), err);                              \
+        return 1;                                                              \
+      }                                                                        \
     }                                                                          \
-  }
+  } while (0)
 
 struct io_fields {
   mcfg_field_t *input;
