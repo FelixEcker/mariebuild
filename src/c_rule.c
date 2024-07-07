@@ -33,8 +33,9 @@
     mcfg_err_t err =                                                           \
         mcfg_add_dynfield(file, TYPE_STRING, strdup(name), NULL, 0);           \
     if (err != MCFG_OK) {                                                      \
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",                \
-              mcfg_err_string(err), err);                                      \
+      mb_logf(LOG_ERROR, "[c_rule:%s] mcfg_add_dynfield failed: %s (%d)\n",    \
+              name, mcfg_err_string(err), err);                                \
+      return 1;                                                                \
     }                                                                          \
   }
 
