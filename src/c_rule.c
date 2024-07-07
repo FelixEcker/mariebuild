@@ -28,6 +28,16 @@
     return fmt_res.err;                                                        \
   }
 
+#define ADD_DYNFIELD(file, name)                                               \
+  if (mcfg_get_dynfield(file, name) == NULL) {                                 \
+    mcfg_err_t err =                                                           \
+        mcfg_add_dynfield(file, TYPE_STRING, strdup(name), NULL, 0);           \
+    if (err != MCFG_OK) {                                                      \
+      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",                \
+              mcfg_err_string(err), err);                                      \
+    }                                                                          \
+  }
+
 struct io_fields {
   mcfg_field_t *input;
   mcfg_field_t *output;
@@ -291,32 +301,9 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
                          .section = rule->name,
                          .field = ""};
 
-  if (mcfg_get_dynfield(file, "element") == NULL) {
-    mcfg_err_t err =
-        mcfg_add_dynfield(file, TYPE_STRING, strdup("element"), NULL, 0);
-    if (err != MCFG_OK) {
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
-              mcfg_err_string(err), err);
-    }
-  }
-
-  if (mcfg_get_dynfield(file, "input") == NULL) {
-    mcfg_err_t err =
-        mcfg_add_dynfield(file, TYPE_STRING, strdup("input"), NULL, 0);
-    if (err != MCFG_OK) {
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
-              mcfg_err_string(err), err);
-    }
-  }
-
-  if (mcfg_get_dynfield(file, "output") == NULL) {
-    mcfg_err_t err =
-        mcfg_add_dynfield(file, TYPE_STRING, strdup("output"), NULL, 0);
-    if (err != MCFG_OK) {
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
-              mcfg_err_string(err), err);
-    }
-  }
+  ADD_DYNFIELD(file, "element");
+  ADD_DYNFIELD(file, "input");
+  ADD_DYNFIELD(file, "output");
 
   mcfg_field_t *dynfield_element = mcfg_get_dynfield(file, "element");
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
@@ -434,32 +421,9 @@ int run_unify(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
                          .section = rule->name,
                          .field = ""};
 
-  if (mcfg_get_dynfield(file, "element") == NULL) {
-    mcfg_err_t err =
-        mcfg_add_dynfield(file, TYPE_STRING, strdup("element"), NULL, 0);
-    if (err != MCFG_OK) {
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
-              mcfg_err_string(err), err);
-    }
-  }
-
-  if (mcfg_get_dynfield(file, "input") == NULL) {
-    mcfg_err_t err =
-        mcfg_add_dynfield(file, TYPE_STRING, strdup("input"), NULL, 0);
-    if (err != MCFG_OK) {
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
-              mcfg_err_string(err), err);
-    }
-  }
-
-  if (mcfg_get_dynfield(file, "output") == NULL) {
-    mcfg_err_t err =
-        mcfg_add_dynfield(file, TYPE_STRING, strdup("output"), NULL, 0);
-    if (err != MCFG_OK) {
-      mb_logf(LOG_ERROR, "mcfg_add_dynfield failed: %s (%d)\n",
-              mcfg_err_string(err), err);
-    }
-  }
+  ADD_DYNFIELD(file, "element");
+  ADD_DYNFIELD(file, "input");
+  ADD_DYNFIELD(file, "output");
 
   mcfg_field_t *dynfield_element = mcfg_get_dynfield(file, "element");
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
