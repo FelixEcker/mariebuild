@@ -28,7 +28,7 @@ end
 ; from the current target are accesible via %target%.
 sector targets
   section clean
-    str exec '#!/bin/sh
+    str exec '#!/bin/bash
 if [ -d $(/config/files/obj) ]; then
   rm -rf $(/config/files/obj)
 fi
@@ -61,16 +61,7 @@ fi
 
     list str required_targets 'clean', 'depends'
 
-    list str c_rules 'executable'
-
-    str exec '#!/bin/bash
-
-    printf "  strip ./mb\\n"
-    unameOut="\$(uname -s)"
-    case "${unameOut}" in
-      Darwin*)    strip -S -X ./mb;;
-      *)          strip --strip-all ./mb;;
-    esac'
+    list str c_rules 'executable', 'strip-executable'
   end
 
   section static-release
@@ -79,22 +70,31 @@ fi
 
     list str required_targets 'clean', 'depends'
 
-    list str c_rules 'executable'
-
-    str exec '#!/bin/bash
-
-    printf "  strip ./mb\\n"
-    unameOut="\$(uname -s)"
-    case "${unameOut}" in
-      Darwin*)    strip -S -X ./mb;;
-      *)          strip --strip-all ./mb;;
-    esac'
+    list str c_rules 'executable', 'strip-executable'
   end
 end
 
 ; Each compilation rule is defined within this sector. They can access Fields
 ; of the current target using %target%.
 sector c_rules
+  section strip-executable
+    list str input ''
+    str input_format ''
+    str output_format ''
+
+    str exec '#!/bin/bash
+
+    STRIPFLAGS="--strip-all"
+    unameOut="\$(uname -s)"
+    case "${unameOut}" in
+      Darwin*)    STRIPFLAGS="-S -X";;
+    esac
+
+    printf "  strip $STRIPFLAGS ./mb\\n"
+    strip $STRIPFLAGS ./mb
+    '
+  end
+
   section executable
     ; Compilation rules can list other compilation rules which they require
     ; These are executed in order.
@@ -123,8 +123,9 @@ sector c_rules
         printf "    -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
     esac
 
-    printf "  LD -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS\\n"
-    $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS
+    COMMAND="$(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS"
+    printf "  $COMMAND\\n"
+    $COMMAND
     '
   end
 
@@ -145,9 +146,10 @@ sector c_rules
     str input_format '$(src)$(%element%).c'
     str output_format '$(obj)$(%element%).o'
 
-    str exec '
-    printf "  CC $(%input%)\\n"
-    $(/config/mariebuild/cc) $(%target_cflags%) -c $(%input%) -o $(%output%)
+    str exec '#!/bin/bash
+    COMMAND="$(/config/mariebuild/cc) $(%target_cflags%) -c $(%input%) -o $(%output%)"
+    printf "  $COMMAND\\n"
+    $COMMAND
     '
   end
 end
