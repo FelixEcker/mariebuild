@@ -57,6 +57,25 @@ fi
 
   section release
     str target_cflags '-Oz -Iinclude/ -Isrc/'
+    str target_ldflags ''
+
+    list str required_targets 'clean', 'depends'
+
+    list str c_rules 'executable'
+
+    str exec '#!/bin/bash
+
+    printf "  strip ./mb\\n"
+    unameOut="\$(uname -s)"
+    case "${unameOut}" in
+      Darwin*)    strip -S -X ./mb;;
+      *)          strip --strip-all ./mb;;
+    esac'
+  end
+
+  section static-release
+    str target_cflags '-Oz -Iinclude/ -Isrc/'
+    str target_ldflags '-static'
 
     list str required_targets 'clean', 'depends'
 
@@ -91,13 +110,11 @@ sector c_rules
     str input_format '$(/config/files/obj)$(%element%).o'
     str output_format '$(binname)'
 
-    str ldflags '-lm -Llib/ -lmcfg_2'
+    str ldflags '$(%target_ldflags%) -Llib/ -lmcfg_2 -lm'
 
     ; The command which is specified in the exec field is executed for each member of
     ; the list specified in exec_on
     str exec '#!/bin/bash
-
-    printf "  LD -o $(%output%) $(%input%)\\n"
 
     unameOut="\$(uname -s)"
     case "${unameOut}" in
@@ -106,6 +123,7 @@ sector c_rules
         printf "    -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
     esac
 
+    printf "  LD -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS\\n"
     $(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS
     '
   end
