@@ -50,6 +50,7 @@ fi
     ; target_ is registered as a dynfield with the exact same name.
     ; (So this field can be used using $(%target_cflags%)
     str target_cflags '-ggdb -Iinclude/ -Isrc/'
+    str target_ldflags ''
 
     ; Each target lists c_rules (or compilation rules) which are executed in order.
     list str c_rules 'executable'
