@@ -61,6 +61,10 @@ int strlist_contains_value(strlist_t *strlist, char *item) {
 }
 
 void strlist_destroy(strlist_t *strlist) {
+  if (strlist == NULL || strlist->items == NULL) {
+    return;
+  }
+
   if (strlist->heap_items) {
     for (size_t ix = 0; ix < strlist->item_count; ix++) {
       XFREE(strlist->items[ix]);

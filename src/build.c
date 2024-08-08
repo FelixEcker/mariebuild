@@ -119,8 +119,6 @@ int mb_start(args_t args) {
   default_config.public_targets = strlist_new(1, false);
   strlist_append(&default_config.public_targets, "debug");
 
-  int return_code = 0;
-
   mb_log(LOG_DEBUG, "using MCFG/2 " MCFG_2_VERSION "\n");
 
   mcfg_file_t *file = XMALLOC(sizeof(mcfg_file_t));
@@ -132,12 +130,11 @@ int mb_start(args_t args) {
     mb_logf(LOG_ERROR, "in file \"%s\" on line %d\n", args.buildfile,
             ctxt->linenum);
 
-    return_code = 1;
-    goto exit;
+    return 1;
   }
 
   if (!check_file_validity(file)) {
-    goto exit;
+    return 1;
   }
 
   config_t cfg = mb_load_configuration(*file, args);
@@ -145,14 +142,13 @@ int mb_start(args_t args) {
   cfg.ignore_failures = args.keep_going;
   cfg.always_force = args.force;
 
-  return_code = mb_begin_build(file, cfg);
+  int return_code = mb_begin_build(file, cfg);
   if (return_code != 0) {
     mb_log(LOG_ERROR, "build failed!\n");
   } else {
     mb_log(LOG_INFO, "build succeeded!\n");
   }
 
-exit:
   strlist_destroy(&cfg.public_targets);
   mcfg_free_file(file);
   return return_code;
