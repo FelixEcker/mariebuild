@@ -7,10 +7,10 @@
 #ifndef XMEM_H
 #define XMEM_H
 
-#include "logging.h"
-
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "logging.h"
 
 #define _STR(x) #x
 #define STR(x) _STR(x)
