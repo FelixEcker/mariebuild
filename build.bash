@@ -7,13 +7,23 @@ CC="clang"
 SRCDIR="src/"
 OBJDIR="obj/"
 
-CFLAGS="-ggdb  -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG"
+CFLAGS="-ggdb -Iinclude/ -Isrc/ -DDEFAULT_LOG_LEVEL=LOG_DEBUG"
 LDFLAGS="-lm -Llib/ -lmcfg_2"
 
 BIN_NAME="mb"
 
 function build_objs() {
   COMPILED_OBJECTS=()
+
+  unameOut="$(uname -s)"
+  case "${unameOut}" in
+    Darwin*)
+      if [ -d /opt/homebrew/include/ ]; then
+        EXTRA_CFLAGS="-I/opt/homebrew/include"
+      else
+        EXTRA_CFLAGS="-I/usr/local/include"
+      fi
+  esac
 
   for i in $1
   do
@@ -22,7 +32,7 @@ function build_objs() {
 
     echo "  CC $INNAME"
 
-    $CC $CFLAGS -c -o $OUTNAME $INNAME || exit
+    $CC $CFLAGS $EXTRA_CFLAGS -c -o $OUTNAME $INNAME || exit
 
     COMPILED_OBJECTS+=("${OUTNAME}")
   done
@@ -39,10 +49,21 @@ function build() {
     Darwin*)    LDFLAGS="$LDFLAGS -L/usr/local/lib -largp";;
   esac
 
-  
+
   echo "==> Linking \"$BIN_NAME\""
   echo "  LD -o $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS"
-  $CC $CFLAGS -o  $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS
+
+  unameOut="$(uname -s)"
+  case "${unameOut}" in
+    Darwin*)
+      if [ -d /opt/homebrew/lib/ ]; then
+        EXTRA_LDFLAGS="-L/opt/homebrew/lib -largp"
+      else
+        EXTRA_LDFLAGS="-L/usr/local/lib -largp"
+      fi
+      printf "  -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
+  esac
+  $CC $CFLAGS -o $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS $EXTRA_LDFLAGS
 }
 
 function setup() {
@@ -56,7 +77,7 @@ function setup() {
     # set IFS to an emtpy string so that leading spaces are kept around
     SAVE_IFS=$IFS
     IFS=''
-    
+
     (
       bash setup.bash 2>&1 | 
         while read -r line; do

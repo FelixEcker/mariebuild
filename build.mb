@@ -120,8 +120,12 @@ sector c_rules
     unameOut="\$(uname -s)"
     case "${unameOut}" in
       Darwin*)
-        EXTRA_LDFLAGS="-L/usr/local/lib -largp"
-        printf "    -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
+        if [ -d /opt/homebrew/lib/ ]; then
+          EXTRA_LDFLAGS="-L/opt/homebrew/lib -largp"
+        else
+          EXTRA_LDFLAGS="-L/usr/local/lib -largp"
+        fi
+        printf "  -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
     esac
 
     COMMAND="$(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS"
@@ -148,7 +152,17 @@ sector c_rules
     str output_format '$(obj)$(%element%).o'
 
     str exec '#!/bin/bash
-    COMMAND="$(/config/mariebuild/cc) $(%target_cflags%) -c $(%input%) -o $(%output%)"
+
+    unameOut="\$(uname -s)"
+    case "${unameOut}" in
+      Darwin*)
+        if [ -d /opt/homebrew/include/ ]; then
+          EXTRA_CFLAGS="-I/opt/homebrew/include"
+        else
+          EXTRA_CFLAGS="-I/usr/local/include"
+        fi
+    esac
+    COMMAND="$(/config/mariebuild/cc) $(%target_cflags%) $EXTRA_CFLAGS -c $(%input%) -o $(%output%)"
     printf "  $COMMAND\\n"
     $COMMAND
     '
