@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MCFG_2_TAG="topic/new_parser"
+MCFG_2_TAG="0.4.0"
 
 function directory_setup() {
   if [ -d lib ]; then
@@ -32,8 +32,8 @@ function libmcfg_2_setup() {
   echo "==> working on tag $MCFG_2_TAG"
   git checkout $MCFG_2_TAG 2> /dev/null
   
-  bash setup.bash || exit
-  bash build.bash --lib-only || return
+  bash scripts/setup.bash || exit
+  bash scripts/build.bash --lib-only || return
 
   mv include/* ../../include/
   mv libmcfg_2.a ../../lib/
