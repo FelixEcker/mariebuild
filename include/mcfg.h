@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#define MCFG_2_VERSION "0.3.4 (develop)"
+#define MCFG_2_VERSION "0.4.0 (develop)"
 
 /**
  * @brief mcfg's core errors
