@@ -1,4 +1,4 @@
-/* mcfg.h ; marie config format parser header
+/* mcfg.h ; marie config format core header
  * for MCFG/2
  *
  * Copyright (c) 2023, Marie Eckert
@@ -64,6 +64,18 @@ typedef enum mcfg_err {
   MCFG_OS_ERROR_MASK = 0xf000
 } mcfg_err_t;
 
+/**
+ * @brief Get the according string name/description for the input
+ * @param err The error enum value
+ * @return Matching string name/description for input; "invalid error code" if
+ * no matching string could be found. Inputs which match MCFG_OS_ERROR_MASK will
+ * return the return value of strerror and require the return value to be freed
+ * after usage.
+ */
+char *mcfg_err_string(mcfg_err_t err);
+
+/* general api */
+
 typedef enum mcfg_field_type {
   TYPE_INVALID = -1,
   TYPE_STRING,
@@ -118,54 +130,6 @@ typedef struct mcfg_file {
   mcfg_field_t *dynfields;
 } mcfg_file_t;
 
-typedef struct mcfg_parser_ctxt {
-  mcfg_file_t *target_file;
-  mcfg_sector_t *target_sector;
-  mcfg_section_t *target_section;
-  mcfg_field_t *target_field;
-
-  uint32_t linenum;
-  char *file_path;
-} mcfg_parser_ctxt_t;
-
-typedef struct mcfg_data_parse_result {
-  mcfg_err_t error;
-
-  char *parse_end;
-
-  bool multiline;
-  void *data;
-  size_t size;
-} mcfg_data_parse_result_t;
-
-typedef enum mcfg_token {
-  TOKEN_INVALID = -1,
-  TOKEN_SECTOR,
-  TOKEN_SECTION,
-  TOKEN_END,
-  TOKEN_COMMENT,
-  TOKEN_STR,
-  TOKEN_LIST,
-  TOKEN_BOOL,
-  TOKEN_I8,
-  TOKEN_U8,
-  TOKEN_I16,
-  TOKEN_U16,
-  TOKEN_I32,
-  TOKEN_U32,
-  TOKEN_EMPTY,
-} mcfg_token_t;
-
-/**
- * @brief Get the according string name/description for the input
- * @param err The error enum value
- * @return Matching string name/description for input; "invalid error code" if
- * no matching string could be found. Inputs which match MCFG_OS_ERROR_MASK will
- * return the return value of strerror and require the return value to be freed
- * after usage.
- */
-char *mcfg_err_string(mcfg_err_t err);
-
 /**
  * @brief Get the size for the given type in bytes.
  * @param type The type to get the size of
@@ -173,79 +137,6 @@ char *mcfg_err_string(mcfg_err_t err);
  * positive number indicating the size of the datatype in bytes.
  */
 ssize_t mcfg_sizeof(mcfg_field_type_t type);
-
-/**
- * @brief Convert the input string to its matching mcfg_field_type enum.
- * @param strtype The string for which to find the matching mcfg_field_type enum
- * @return Matching mcfg_field_type enum. Returns TYPE_INVALID if no match could
- * be found.
- */
-mcfg_field_type_t mcfg_str_to_type(char *strtype);
-
-/**
- * @brief Gets the count of tokens in the input string
- * @param in The string for which to count the tokens
- * @return The amount of tokens found in the string, space-seperated.
- */
-size_t mcfg_get_token_count(char *in);
-
-/**
- * @brief Gets the token at index from string in.
- * @param in The string from which to get the token
- * @param index The 0-based index of the token to be grabbed.
- * @return The token at index. If the string is emtpy or the index invalid an
- * empty string is returned. Every return value is allocated on the heap so it
- * has to be freed.
- */
-char *mcfg_get_token_raw(char *in, uint16_t index);
-
-/**
- * @brief Gets the mcfg_token enum value for token at index from string in.
- * @param in The string from which to get the token
- * @param index The 0-based index of the token to be grabbed.
- * @return The mcfg_token enum value for the token at index. Returns
- * TOKEN_INVALID if index is invalid, input string is empty/NULL or no valid
- * token could be found at index.
- */
-mcfg_token_t mcfg_get_token(char *in, uint16_t index);
-
-/**
- * @brief Parses a field-declaration.
- * @param type The type of the field
- * @param str The entire line of the field declaration.
- * @return see declaration of struct mcfg_data_parse_result
- */
-mcfg_data_parse_result_t mcfg_parse_field_data(mcfg_field_type_t type,
-                                               char *str);
-
-/**
- * @brief Parse a line of mcfg
- * @param line The line to be parsed
- * @param ctxt The parser context in which the line is to be parsed
- * @return MCFG_OK if no errors occured, for other return values see the
- * declaration of mcfg_err_t.
- */
-mcfg_err_t mcfg_parse_line(char *line, mcfg_parser_ctxt_t *ctxt);
-
-/**
- * @brief Parse a file from disk
- * @param path The path to the file
- * @param file The mcfg_file struct into which the file should be parsed
- * @param ctxt_out Location for the parser context to be put. Can be NULL
- * @return MCFG_OK if no errors occured, for other return values see the
- * declaration of mcfg_err_t.
- */
-mcfg_err_t mcfg_parse_file_ctxto(char *path, mcfg_file_t *file,
-                                 mcfg_parser_ctxt_t **ctxt_out);
-
-/**
- * @brief Parse a file from disk
- * @param path The path to the file
- * @param file The mcfg_file struct into which the file should be parsed
- * @return MCFG_OK if no errors occured, for other return values see the
- * declaration of mcfg_err_t.
- */
-mcfg_err_t mcfg_parse_file(char *path, mcfg_file_t *file);
 
 /**
  * @brief Add a sector to a file
@@ -340,30 +231,76 @@ mcfg_field_t *mcfg_get_field(mcfg_section_t *section, char *name);
  * @brief Free the contents of given list
  * @param list The list of which the contents should be freed
  */
-void mcfg_free_list(mcfg_list_t *list);
+void mcfg_free_list(mcfg_list_t list);
 
 /**
  * @brief Free the contents of given field
  * @param field The field of which the contents should be freed
  */
-void mcfg_free_field(mcfg_field_t *field);
+void mcfg_free_field(mcfg_field_t field);
 
 /**
  * @brief Free the contents of given section
  * @param section The section of which the contents should be freed
  */
-void mcfg_free_section(mcfg_section_t *section);
+void mcfg_free_section(mcfg_section_t section);
 
 /**
  * @brief Free the contents of given sector
  * @param sector The sector of which the contents should be freed
  */
-void mcfg_free_sector(mcfg_sector_t *sector);
+void mcfg_free_sector(mcfg_sector_t sector);
 
 /**
  * @brief Free the given file
  * @param file The file which should be freed.
  */
-void mcfg_free_file(mcfg_file_t *file);
+void mcfg_free_file(mcfg_file_t file);
+
+/* parser api */
+
+/**
+ * @brief Structure to keep track on which lines a node / token sits.
+ */
+typedef struct mcfg_linespan {
+  /** @brief The first line on which it resides */
+  size_t starting_line;
+
+  /**
+   * @brief The number of lines it resides. line_count == 1 should be taken to
+   * mean that it only lives on one single line. 0 is the default value but can
+   * also be interpreted to be a 1.
+   */
+  size_t line_count;
+} mcfg_linespan_t;
+
+/**
+ * @brief Structure used to contain the result data of mcfg_parse
+ * @see mcfg_parse
+ */
+typedef struct mcfg_parse_result {
+  /** @brief The error that occured whilst parsing, MCFG_OK on success. */
+  mcfg_err_t err;
+
+  /** @brief The linespan in which the error occured. */
+  mcfg_linespan_t err_linespan;
+
+  /** @brief The parsed mcfg_file_t structure */
+  mcfg_file_t value;
+} mcfg_parse_result_t;
+
+/**
+ * @brief Parses the provided input into a mcfg_file_t structure.
+ * @param input The complete input data to be parsed.
+ * @return mcfg_parse_result_t, mcfg_parse_result_t.err == MCFG_OK on success.
+ */
+mcfg_parse_result_t mcfg_parse(char *input);
+
+/**
+ * @brief Parses The contents from the given file into a mcfg_file_t structure.
+ * @param path Path to the file to parse.
+ * @return mcfg_parse_result_t, mcfg_parse_result_t.err == MCFG_OK on success.
+ */
+mcfg_parse_result_t mcfg_parse_from_file(const char *path);
 
 #endif // ifndef MCFG_H

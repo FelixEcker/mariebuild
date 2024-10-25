@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MCFG_2_TAG="0.3.4"
+MCFG_2_TAG="topic/new_parser"
 
 function directory_setup() {
   if [ -d lib ]; then
