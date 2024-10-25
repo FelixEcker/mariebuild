@@ -3,12 +3,12 @@ A build system primarly designed and intended for my use.
 
 ## Building
 ### Setup
-To quickly setup mariebuild for development, simply run the `setup.sh` script. This will
-automatically build [libmcfg_2](https://github.com/FelixEcker/mcfg_2) from the latest commit on its main branch.
+To quickly setup mariebuild for building, simply run the `setup.bash` script. This will
+automatically build [libmcfg_2](https://github.com/FelixEcker/mcfg_2) from the tag/commit specified in the script.
 
 ### Compiling
-**With mariebuild (0.4.0 or higher):** `mb -t release` <br>
-**Without mariebuild:** `sh build.sh`
+**With mariebuild (0.5.0 or higher):** `mb -t release` <br>
+**Without mariebuild:** `bash build.bash`
 
 ## mb usage
 By default mb looks for a `build.mb` file which is the executed in debug mode.
