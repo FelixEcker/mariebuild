@@ -25,18 +25,13 @@ config_t default_config = {
     .ignore_failures = false,
 };
 
-bool check_file_validity(mcfg_file_t *file) {
-  if (file == NULL) {
-    mb_log(LOG_ERROR, "internal: build file is NULL!\n");
-    return false;
-  }
-
-  if (file->sector_count == 0) {
+bool check_file_validity(mcfg_file_t file) {
+  if (file.sector_count == 0) {
     mb_log(LOG_ERROR, "build file is empty!\n");
     return false;
   }
 
-  if (mcfg_get_sector(file, "targets") == NULL) {
+  if (mcfg_get_sector(&file, "targets") == NULL) {
     mb_log(LOG_ERROR, "no targets defined!\n");
     return false;
   }
@@ -121,28 +116,28 @@ int mb_start(args_t args) {
 
   mb_log(LOG_DEBUG, "using MCFG/2 " MCFG_2_VERSION "\n");
 
-  mcfg_file_t *file = XMALLOC(sizeof(mcfg_file_t));
-  mcfg_parser_ctxt_t *ctxt;
-  mcfg_err_t ret = mcfg_parse_file_ctxto(args.buildfile, file, &ctxt);
-  if (ret != MCFG_OK) {
+  mcfg_parse_result_t parse_result = mcfg_parse_from_file(args.buildfile);
+  if (parse_result.err != MCFG_OK) {
     mb_logf(LOG_ERROR, "buildfile parsing failed: %s (%d)\n",
-            mcfg_err_string(ret), ret);
+            mcfg_err_string(parse_result.err), parse_result.err);
     mb_logf(LOG_ERROR, "in file \"%s\" on line %d\n", args.buildfile,
-            ctxt->linenum);
+            parse_result.err_linespan.starting_line);
 
     return 1;
   }
+
+  mcfg_file_t file = parse_result.value;
 
   if (!check_file_validity(file)) {
     return 1;
   }
 
-  config_t cfg = mb_load_configuration(*file, args);
+  config_t cfg = mb_load_configuration(file, args);
   cfg.target = args.target == NULL ? cfg.default_target : args.target;
   cfg.ignore_failures = args.keep_going;
   cfg.always_force = args.force;
 
-  int return_code = mb_begin_build(file, cfg);
+  int return_code = mb_begin_build(&file, cfg);
   if (return_code != 0) {
     mb_log(LOG_ERROR, "build failed!\n");
   } else {
