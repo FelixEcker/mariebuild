@@ -1,6 +1,6 @@
 #!/bin/bash
 
-MCFG_2_TAG="0.4.0"
+MCFG_2_TAG="0.4.1"
 
 function directory_setup() {
   if [ -d lib ]; then
