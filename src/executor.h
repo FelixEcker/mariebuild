@@ -7,6 +7,14 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 
+typedef struct process {
+  int pid;
+
+  char *location;
+} process_t;
+
 int mb_exec(char *script, char *name);
+
+process_t mb_exec_parallel(char *script, char *name);
 
 #endif // #ifndef EXECUTOR_H

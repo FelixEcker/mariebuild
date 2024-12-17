@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 #include "mcfg.h"
 #include "mcfg_format.h"
@@ -314,12 +316,78 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   mcfg_field_t *dynfield_input = mcfg_get_dynfield(file, "input");
   mcfg_field_t *dynfield_output = mcfg_get_dynfield(file, "output");
 
+  bool run_parallel = false;
+  int max_procs = 4;
+
+  mcfg_field_t *field_parallel = mcfg_get_field(rule, "parallel");
+  mcfg_field_t *field_max_procs = mcfg_get_field(rule, "max_procs");
+
+  if (field_parallel != NULL) {
+    if (field_parallel->type != TYPE_BOOL) {
+      mb_log(LOG_ERROR, "field \"parallel\" should be of type bool");
+      return 1;
+    }
+
+    run_parallel = mcfg_data_as_bool(*field_parallel);
+  }
+
+  if (field_max_procs != NULL && run_parallel) {
+    if (field_parallel->type != TYPE_U8) {
+      mb_log(LOG_ERROR, "field \"max_procs\" should be of type u8");
+      return 1;
+    }
+
+    max_procs = mcfg_data_as_u8(*field_max_procs);
+  }
+
+  process_t *processes = NULL;
+  if (run_parallel) {
+    mb_logf(LOG_DEBUG, "running parallel with max procs of %d\n", max_procs);
+    processes = XMALLOC(sizeof(processes) * max_procs);
+  }
+
   /* reused for mcfg_format_field_embeds(_str) calls */
   mcfg_fmt_res_t fmt_res;
 
   int ret = 0;
+  size_t used_processes = 0;
 
   for (size_t ix = 0; ix < list_output->field_count; ix++) {
+    size_t process_ix = used_processes;
+
+    /* wait for a child process to free up */
+    if (used_processes == max_procs) {
+      int exit_status = 0;
+      bool found = false;
+
+      while (!found) {
+        for (size_t pix = 0; pix < max_procs; pix++) {
+          int stat = 0;
+          if (waitpid(processes[pix].pid, &stat, WNOHANG) <= 0) {
+            continue;
+          }
+
+          found = true;
+          exit_status = WEXITSTATUS(stat);
+          if (exit_status != 0) {
+            break;
+          }
+
+          remove(processes[pix].location);
+          XFREE(processes[pix].location);
+          process_ix = pix;
+          break;
+        }
+      }
+
+      if (exit_status != 0) {
+        ret = exit_status;
+        break;
+      }
+
+      used_processes--;
+    }
+
     char *raw_in = mcfg_data_to_string(list_input->fields[ix]);
     char *raw_out = mcfg_data_to_string(list_output->fields[ix]);
 
@@ -356,8 +424,13 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     mb_logf(LOG_STEPS, "exec: %s > %s\n", in, out);
 
-    int tmp_ret = mb_exec(script, rule->name);
-    ret = ret > tmp_ret ? ret : tmp_ret;
+    if (!run_parallel) {
+      int tmp_ret = mb_exec(script, rule->name);
+      ret = ret > tmp_ret ? ret : tmp_ret;
+    } else {
+      processes[process_ix] = mb_exec_parallel(script, rule->name);
+      used_processes++;
+    }
 
     XFREE(script);
   build_loop_continue:
@@ -368,6 +441,28 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
     if (ret != 0 && !cfg.ignore_failures) {
       break;
+    }
+  }
+
+  /* cleanup remaining child processes */
+  if (used_processes > 0) {
+    for (size_t pix = 0; pix < max_procs; pix++) {
+      if (processes[pix].pid == 0 || processes[pix].location == NULL) {
+        continue;
+      }
+
+      int stat;
+      if (waitpid(processes[pix].pid, &stat, 0) <= 0) {
+        continue;
+      }
+
+      stat = WEXITSTATUS(stat);
+      if (stat != 0) {
+        ret = stat;
+      }
+
+      remove(processes[pix].location);
+      XFREE(processes[pix].location);
     }
   }
 
