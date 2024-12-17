@@ -324,7 +324,7 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
 
   if (field_parallel != NULL) {
     if (field_parallel->type != TYPE_BOOL) {
-      mb_log(LOG_ERROR, "field \"parallel\" should be of type bool");
+      mb_log(LOG_ERROR, "field \"parallel\" should be of type bool\n");
       return 1;
     }
 
@@ -332,8 +332,8 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   }
 
   if (field_max_procs != NULL && run_parallel) {
-    if (field_parallel->type != TYPE_U8) {
-      mb_log(LOG_ERROR, "field \"max_procs\" should be of type u8");
+    if (field_max_procs->type != TYPE_U8) {
+      mb_log(LOG_ERROR, "field \"max_procs\" should be of type u8\n");
       return 1;
     }
 
@@ -343,7 +343,7 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
   process_t *processes = NULL;
   if (run_parallel) {
     mb_logf(LOG_DEBUG, "running parallel with max procs of %d\n", max_procs);
-    processes = XMALLOC(sizeof(processes) * max_procs);
+    processes = XMALLOC(sizeof(*processes) * max_procs);
   }
 
   /* reused for mcfg_format_field_embeds(_str) calls */
@@ -464,6 +464,10 @@ int run_singular(mcfg_file_t *file, mcfg_section_t *rule, const config_t cfg,
       remove(processes[pix].location);
       XFREE(processes[pix].location);
     }
+  }
+
+  if (processes != NULL) {
+    XFREE(processes);
   }
 
   // We have to do this to avoid double-frees when running mcfg_free_file at
