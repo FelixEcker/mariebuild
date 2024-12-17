@@ -4,7 +4,20 @@
 sector config
   section files
     str obj 'obj/'
-    list str sources 'strlist', 'logging', 'types', 'executor', 'c_rule', 'target', 'build', 'main'
+    list str sources
+      'strlist',
+      'logging',
+      'types',
+      'executor',
+      'c_rule',
+      'target',
+      'build',
+      'main'
+  end
+
+  section tools
+    str cc 'clang'
+    str cflags '-std=c17 -pedantic-errors -Wall -Wextra -Werror -Wno-gnu-statement-expression'
   end
 
   section mariebuild
@@ -13,8 +26,6 @@ sector config
     ; mariebuild now supports incremental building. In this mode, a compilation rule
     ; is only executed if a file it executes upon is
     str build_type 'incremental'
-
-    str cc 'clang'
 
     ; mcfg 2 has brought along a new list syntax, where each element is its own string
     ; and seperated by commas.
@@ -128,7 +139,7 @@ sector c_rules
         printf "  -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
     esac
 
-    COMMAND="$(/config/mariebuild/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS"
+    COMMAND="$(/config/tools/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS"
     printf "  $COMMAND\\n"
     $COMMAND
     '
@@ -137,6 +148,8 @@ sector c_rules
   section main
     ; Run the 'exec' command for each input element.
     str exec_mode 'singular'
+    bool parallel true
+    u8 max_procs 1
 
     str obj 'obj/'
     str src 'src/'
@@ -162,7 +175,7 @@ sector c_rules
           EXTRA_CFLAGS="-I/usr/local/include"
         fi
     esac
-    COMMAND="$(/config/mariebuild/cc) $(%target_cflags%) $EXTRA_CFLAGS -c $(%input%) -o $(%output%)"
+    COMMAND="$(/config/tools/cc) $(/config/tools/cflags) $(%target_cflags%) $EXTRA_CFLAGS -c $(%input%) -o $(%output%)"
     printf "  $COMMAND\\n"
     $COMMAND
     '
