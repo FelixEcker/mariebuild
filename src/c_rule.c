@@ -4,6 +4,9 @@
  * Licensend under the BSD 3-Clause License.
  */
 
+#define _XOPEN_SOURCE 700
+#define _POSIX_C_SOURCE 2
+
 #include <errno.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -294,7 +297,7 @@ int mb_run_c_rules(
  * @return The exit code of the process which freed up the slot
  */
 int _find_process_slot(
-	const int max_procs,
+	const size_t max_procs,
 	const process_t *processes,
 	size_t *process_ix) {
 	bool found = false;

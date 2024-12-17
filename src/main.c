@@ -42,14 +42,15 @@ const char description[] =
 const char args_doc[] = "";
 
 static struct argp_option options[] = {
-	{"in", 'i', "FILE", 0, "Specify a buildfile"},
-	{"target", 't', "TARGET", 0, "Specify the build target"},
-	{"force", 'f', 0, 0, "Force a build, regardless if target is incremental"},
-	{"no-splash", 'n', 0, 0, "Disable splash screen/logo"},
+	{"in", 'i', "FILE", 0, "Specify a buildfile", 0},
+	{"target", 't', "TARGET", 0, "Specify the build target", 0},
+	{"force", 'f', 0, 0, "Force a build, regardless if target is incremental",
+	 0},
+	{"no-splash", 'n', 0, 0, "Disable splash screen/logo", 0},
 	{"keep-going", 'k', 0, 0,
-	 "Ignore any failures (if possible) and keep on building"},
-	{"verbosity", 'v', "LEVEL", 0, "Set the verbosity level (0-3)"},
-	{0, 0, 0, 0}};
+	 "Ignore any failures (if possible) and keep on building", 0},
+	{"verbosity", 'v', "LEVEL", 0, "Set the verbosity level (0-3)", 0},
+	{0, 0, 0, 0, 0, 0}};
 
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 	args_t *args = state->input;
@@ -80,9 +81,10 @@ static error_t parse_opt(int key, char *arg, struct argp_state *state) {
 	return 0;
 }
 
-static struct argp argp = {options, parse_opt, args_doc, description};
+static struct argp argp = {options, parse_opt, args_doc, description,
+						   NULL,	NULL,	   NULL};
 
-void print_splash() {
+void print_splash(void) {
 	fprintf(stderr, LOGO);
 	fprintf(
 		stderr, "\x1b[1m\x1b[3m// version " MARIEBUILD_VERSION " //\x1b[0m\n");
