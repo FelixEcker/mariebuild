@@ -1,0 +1,20 @@
+---
+BasedOnStyle: Chromium
+AlignAfterOpenBracket: AlwaysBreak
+ColumnLimit: "80"
+PointerAlignment: Right
+UseTab: Always
+IndentWidth: 4
+TabWidth: 4
+SortIncludes: CaseInsensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: "<assert.h|complex.h|ctype.h|errno.h|fenv.h|float.h|inttypes.h|iso646.h|limits.h|locale.h|math.h|setjmp.h|signal.h|stdalign.h|stdarg.h|stdatomic.h|stdbit.h|stdbool.h|stdckdint.h|stddef.h|stdint.h|stdio.h|stdlib.h|stdnoreturn.h|string.h|tgmath.h|threads.h|time.h|uchar.h|wchar.h|wctype.h>"
+    Priority: -3
+  - Regex: "<sys/\\.*.h>"
+    Priority: -2
+  - Regex: "<.*\\.h>"
+    Priority: -1
+  - Regex: "^\""
+    Priority: 0
+...
