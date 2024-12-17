@@ -431,7 +431,7 @@ int run_singular(
 			int exit_status =
 				_find_process_slot(max_procs, processes, &process_ix);
 
-			if (exit_status != 0) {
+			if (!cfg.ignore_failures && exit_status != 0) {
 				ret = exit_status;
 				break;
 			}
