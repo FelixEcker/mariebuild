@@ -299,10 +299,21 @@ int mb_run_c_rules(
 int _find_process_slot(
 	const size_t max_procs,
 	const process_t *processes,
+	size_t *used_processes,
 	size_t *process_ix) {
 	bool found = false;
 	int exit_status = 0;
 
+	/* previously unused process slot */
+	for (size_t pix = 0; pix < max_procs; pix++) {
+		if (processes[pix].pid == 0) {
+			*process_ix = pix;
+			*used_processes += 1;
+			return 0;
+		}
+	}
+
+	/* wait for slot to free up */
 	while (!found) {
 		for (size_t pix = 0; pix < max_procs; pix++) {
 			int stat = 0;
@@ -417,7 +428,7 @@ int run_singular(
 	if (run_parallel) {
 		mb_logf(
 			LOG_DEBUG, "running parallel with max procs of %d\n", max_procs);
-		processes = XMALLOC(sizeof(*processes) * max_procs);
+		processes = XCALLOC(max_procs, sizeof(*processes));
 	}
 
 	/* reused for mcfg_format_field_embeds(_str) calls */
@@ -428,19 +439,6 @@ int run_singular(
 
 	for (size_t ix = 0; ix < list_output->field_count; ix++) {
 		size_t process_ix = used_processes;
-
-		/* wait for a child process to free up */
-		if (used_processes == max_procs) {
-			int exit_status =
-				_find_process_slot(max_procs, processes, &process_ix);
-
-			if (!cfg.ignore_failures && exit_status != 0) {
-				ret = exit_status;
-				break;
-			}
-
-			used_processes--;
-		}
 
 		char *raw_in = mcfg_data_to_string(list_input->fields[ix]);
 		char *raw_out = mcfg_data_to_string(list_output->fields[ix]);
@@ -482,8 +480,15 @@ int run_singular(
 			int tmp_ret = mb_exec(script, rule->name);
 			ret = ret > tmp_ret ? ret : tmp_ret;
 		} else {
+			int exit_status = _find_process_slot(
+				max_procs, processes, &used_processes, &process_ix);
+
+			if (!cfg.ignore_failures && exit_status != 0) {
+				ret = exit_status;
+				goto build_loop_continue;
+			}
+
 			processes[process_ix] = mb_exec_parallel(script, rule->name);
-			used_processes++;
 		}
 
 		XFREE(script);

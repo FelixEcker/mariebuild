@@ -31,6 +31,16 @@
 		ret;                                 \
 	})
 
+#define XCALLOC(nmemb, s)                    \
+	({                                       \
+		void *ret;                           \
+		ret = calloc(nmemb, s);              \
+		if (ret == NULL) {                   \
+			PANIC("XCALLOC returned NULL!"); \
+		}                                    \
+		ret;                                 \
+	})
+
 #define XREALLOC(o, s)                        \
 	({                                        \
 		void *ret;                            \
