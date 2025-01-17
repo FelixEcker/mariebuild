@@ -16,7 +16,7 @@
 
 #define MARIEBUILD_COLORED_LOGO
 
-#define MARIEBUILD_VERSION "0.7.0 (develop)"
+#define MARIEBUILD_VERSION "0.7.1 (develop)"
 
 /* clang-format off */
 /* clang-format fucks this macro definition up really badly somehow */
