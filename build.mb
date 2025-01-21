@@ -2,182 +2,209 @@
 ; this file also serves as a lead example for how to use mariebuild.
 
 sector config
-  section files
-    str obj 'obj/'
-    list str sources
-      'strlist',
-      'logging',
-      'types',
-      'executor',
-      'c_rule',
-      'target',
-      'build',
-      'main'
-  end
+	section files
+		; Directories
+		str build_root 'build/'
+		str debug_dir '$(/config/files/build_root)debug/'
+		str release_dir '$(/config/files/build_root)release/'
+		str obj_dir 'obj/'
 
-  section tools
-    str cc 'clang'
-    str cflags '-std=c17 -pedantic-errors -Wall -Wextra -Werror -Wno-gnu-statement-expression'
-  end
+		; Binaries
+		str binname 'mb'
 
-  section mariebuild
-    u8 default_log_level 2
+		; Sources
+		list str sources
+			'strlist',
+			'logging',
+			'types',
+			'executor',
+			'c_rule',
+			'target',
+			'build',
+			'main'
+	end
 
-    ; mariebuild now supports incremental building. In this mode, a compilation rule
-    ; is only executed if a file it executes upon is
-    str build_type 'incremental'
+	section tools
+		str cc 'clang'
+		str cflags '-std=c17 -pedantic-errors -Wall -Wextra -Werror -Wno-gnu-statement-expression'
+	end
 
-    ; mcfg 2 has brought along a new list syntax, where each element is its own string
-    ; and seperated by commas.
-    list str targets 'clean', 'debug', 'release'
-    str default 'debug'
-  end
+	section mariebuild
+		u8 default_log_level 2
+
+		; mariebuild now supports incremental building. In this mode, a compilation rule
+		; is only executed if a file it executes upon is
+		str build_type 'incremental'
+
+		; mcfg 2 has brought along a new list syntax, where each element is its own string
+		; and seperated by commas.
+		list str targets 'clean', 'debug', 'release'
+		str default 'debug'
+	end
 end
 
 ; Mariebuild now works with targets defined in this sector.
 ; Each target can list other targets which it requires. Fields
 ; from the current target are accesible via %target%.
 sector targets
-  section clean
-    str exec '#!/bin/bash
-if [ -d $(/config/files/obj) ]; then
-  rm -rf $(/config/files/obj)
-fi
+	section clean-debug
+		str exec '#!/bin/bash
+		if [ -d $(/config/files/debug_dir) ]; then
+			rm -rf $(/config/files/debug_dir)
+		fi
 
-mkdir $(/config/files/obj)
-      '
-  end
+		mkdir $(/config/files/debug_dir)
+		'
+	end
 
-  section depends
-    str exec '#!/bin/bash
-if [[ lib/libmcfg_2.a -ot ./setup.bash ]]; then
-  ./setup.bash
-fi
-'
-  end
+	section clean-release
+		str exec '#!/bin/bash
+		if [ -d $(/config/files/release_dir) ]; then
+			rm -rf $(/config/files/release_dir)
+		fi
 
-  section debug
-    ; Any field defined within a target of which the name if prefixed with
-    ; target_ is registered as a dynfield with the exact same name.
-    ; (So this field can be used using $(%target_cflags%)
-    str target_cflags '-ggdb -Iinclude/ -Isrc/'
-    str target_ldflags ''
+		mkdir $(/config/files/release_dir)
+		'
+	end
 
-    ; Each target lists c_rules (or compilation rules) which are executed in order.
-    list str c_rules 'executable'
-  end
+	section depends
+		str exec '#!/bin/bash
+		if [[ lib/libmcfg_2.a -ot ./setup.bash ]]; then
+			./setup.bash
+		fi
+		'
+	end
 
-  section release
-    str target_cflags '-Oz -Iinclude/ -Isrc/'
-    str target_ldflags ''
+	section debug
+		; Any field defined within a target of which the name if prefixed with
+		; target_ is registered as a dynfield with the exact same name.
+		; (So this field can be used using $(%target_cflags%)
+		str target_cflags '-ggdb -Iinclude/ -Isrc/'
+		str target_ldflags ''
+		str target_builddir '$(/config/files/debug_dir)'
+		str target_objdir '$(/config/files/debug_dir)$(/config/files/obj_dir)'
 
-    list str required_targets 'clean', 'depends'
+		; Each target lists c_rules (or compilation rules) which are executed in order.
+		list str c_rules 'executable'
+	end
 
-    list str c_rules 'executable', 'strip-executable'
-  end
+	section release
+		str target_cflags '-Oz -Iinclude/ -Isrc/'
+		str target_ldflags ''
+		str target_builddir '$(/config/files/release_dir)'
+		str target_objdir '$(/config/files/release_dir)$(/config/files/obj_dir)'
 
-  section static-release
-    str target_cflags '-Oz -Iinclude/ -Isrc/'
-    str target_ldflags '-static'
+		list str required_targets 'clean-release', 'depends'
 
-    list str required_targets 'clean', 'depends'
+		list str c_rules 'executable', 'strip-executable'
+	end
 
-    list str c_rules 'executable', 'strip-executable'
-  end
+	section static-release
+		str target_cflags '-Oz -Iinclude/ -Isrc/'
+		str target_ldflags '-static'
+		str target_builddir '$(/config/files/release_dir)'
+		str target_objdir '$(/config/files/release_dir)$(/config/files/obj_dir)'
+
+		list str required_targets 'clean', 'depends'
+
+		list str c_rules 'executable', 'strip-executable'
+	end
 end
 
 ; Each compilation rule is defined within this sector. They can access Fields
 ; of the current target using %target%.
 sector c_rules
-  section strip-executable
-    list str input ''
-    str input_format ''
-    str output_format ''
+	section strip-executable
+		list str input ''
+		str input_format ''
+		str output_format ''
 
-    str exec '#!/bin/bash
+		str exec '#!/bin/bash
 
-    STRIPFLAGS="--strip-all"
-    unameOut="\$(uname -s)"
-    case "${unameOut}" in
-      Darwin*)    STRIPFLAGS="-S -X";;
-    esac
+		STRIPFLAGS="--strip-all"
+		unameOut="\$(uname -s)"
+		case "${unameOut}" in
+			Darwin*)		STRIPFLAGS="-S -X";;
+		esac
 
-    printf "  strip $STRIPFLAGS ./mb\\n"
-    strip $STRIPFLAGS ./mb
-    '
-  end
+		printf "	strip $STRIPFLAGS ./mb\\n"
+		strip $STRIPFLAGS $(%target_builddir%)$(/config/files/binname)
+		'
+	end
 
-  section executable
-    ; Compilation rules can list other compilation rules which they require
-    ; These are executed in order.
-    list str c_rules 'main'
+	section executable
+		; Compilation rules can list other compilation rules which they require
+		; These are executed in order.
+		list str c_rules 'main'
 
-    str binname 'mb'
+		str binname 'mb'
 
-    str build_type 'full'
-    str exec_mode 'unify'
+		str build_type 'full'
+		str exec_mode 'unify'
 
-    str input_src '/config/files/sources'
+		str input_src '/config/files/sources'
 
-    str input_format '$(/config/files/obj)$(%element%).o'
-    str output_format '$(binname)'
+		str input_format '$(%target_objdir%)$(%element%).o'
+		str output_format '$(%target_builddir%)$(/config/files/binname)'
 
-    str ldflags '$(%target_ldflags%) -Llib/ -lmcfg_2 -lm'
+		str ldflags '$(%target_ldflags%) -Llib/ -lmcfg_2 -lm'
 
-    ; The command which is specified in the exec field is executed for each member of
-    ; the list specified in exec_on
-    str exec '#!/bin/bash
+		; The command which is specified in the exec field is executed for each member of
+		; the list specified in exec_on
+		str exec '#!/bin/bash
 
-    unameOut="\$(uname -s)"
-    case "${unameOut}" in
-      Darwin*)
-        if [ -d /opt/homebrew/lib/ ]; then
-          EXTRA_LDFLAGS="-L/opt/homebrew/lib -largp"
-        else
-          EXTRA_LDFLAGS="-L/usr/local/lib -largp"
-        fi
-        printf "  -> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
-    esac
+		unameOut="\$(uname -s)"
+		case "${unameOut}" in
+			Darwin*)
+				if [ -d /opt/homebrew/lib/ ]; then
+					EXTRA_LDFLAGS="-L/opt/homebrew/lib -largp"
+				else
+					EXTRA_LDFLAGS="-L/usr/local/lib -largp"
+				fi
+				printf "	-> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
+		esac
 
-    COMMAND="$(/config/tools/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS"
-    printf "  $COMMAND\\n"
-    $COMMAND
-    '
-  end
+		COMMAND="$(/config/tools/cc) -o $(%output%) $(%input%) $(ldflags) $EXTRA_LDFLAGS"
+		printf "  $COMMAND\\n"
+		$COMMAND
+		'
+	end
 
-  section main
-    ; Run the 'exec' command for each input element.
-    str exec_mode 'singular'
-    bool parallel true
-    u8 max_procs 1
+	section main
+		; Run the 'exec' command for each input element.
+		str exec_mode 'singular'
+		bool parallel true
+		u8 max_procs 1
 
-    str obj 'obj/'
-    str src 'src/'
+		; Declare our set of input elements. If no output list is defined,
+		; the input list is used for that as well.
+		str input_src '/config/files/sources'
+		str output_src '/config/files/sources'
 
-    ; Declare our set of input elements. If no output list is defined,
-    ; the input list is used for that as well.
-    str input_src '/config/files/sources'
-    str output_src '/config/files/sources'
+		; The input and output_format fields are used to determine if a output file
+		; is out of date. They are also used to generate the input and output dynfields
+		str input_format 'src/$(%element%).c'
+		str output_format '$(%target_objdir%)$(%element%).o'
 
-    ; The input and output_format fields are used to determine if a output file
-    ; is out of date. They are also used to generate the input and output dynfields
-    str input_format '$(src)$(%element%).c'
-    str output_format '$(obj)$(%element%).o'
+		str exec '#!/bin/bash
+		if ! [ -d "\$(dirname $(%output%))" ]; then
+			COMMAND="mkdir -p \$(dirname $(%output%))"
+			echo "  $COMMAND"
+			$COMMAND
+		fi
 
-    str exec '#!/bin/bash
-
-    unameOut="\$(uname -s)"
-    case "${unameOut}" in
-      Darwin*)
-        if [ -d /opt/homebrew/include/ ]; then
-          EXTRA_CFLAGS="-I/opt/homebrew/include"
-        else
-          EXTRA_CFLAGS="-I/usr/local/include"
-        fi
-    esac
-    COMMAND="$(/config/tools/cc) $(/config/tools/cflags) $(%target_cflags%) $EXTRA_CFLAGS -c $(%input%) -o $(%output%)"
-    printf "  $COMMAND\\n"
-    $COMMAND
-    '
-  end
+		unameOut="\$(uname -s)"
+		case "${unameOut}" in
+			Darwin*)
+				if [ -d /opt/homebrew/include/ ]; then
+					EXTRA_CFLAGS="-I/opt/homebrew/include"
+				else
+					EXTRA_CFLAGS="-I/usr/local/include"
+				fi
+		esac
+		COMMAND="$(/config/tools/cc) $(/config/tools/cflags) $(%target_cflags%) $EXTRA_CFLAGS -c $(%input%) -o $(%output%)"
+		printf "  $COMMAND\\n"
+		$COMMAND
+		'
+	end
 end

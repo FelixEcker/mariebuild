@@ -3,10 +3,13 @@
 # mariebuild build script.
 # Use this only if you have no version of mariebuild which can build itself.
 
-CC="clang"
 SRCDIR="src/"
-OBJDIR="obj/"
+BUILD_ROOT="build/"
+DEBUG_DIR="$BUILD_ROOT""debug/"
+RELEASE_DIR="$BUILD_ROOT""release/"
+OBJ_DIR="obj/"
 
+CC="clang"
 BASE_CFLAGS="-std=c17 -pedantic-errors -Wall -Wextra -Werror -Wno-gnu-statement-expression -Iinclude/ -Isrc/"
 DEBUG_CFLAGS="-ggdb -DDEFAULT_LOG_LEVEL=LOG_DEBUG"
 RELEASE_CFLAGS="-Oz"
@@ -29,8 +32,13 @@ function build_objs() {
 
 	for i in $1
 	do
-		OUTNAME="$OBJDIR$i.o"
+		OUTNAME="$OBJ$i.o"
 		INNAME="$SRCDIR$i.c"
+
+		if ! [ -d $(dirname "$OUTNAME") ]; then
+			echo "	MKDIR -p $(dirname $OUTNAME)"
+			mkdir -p "$(dirname $OUTNAME)"
+		fi
 
 		echo "	CC $INNAME"
 
@@ -43,7 +51,7 @@ function build_objs() {
 function build() {
 	OBJECTS=("strlist logging types executor c_rule target build main")
 
-	echo "==> Compiling Sources for \"$BIN_NAME\""
+	echo "==> Compiling Sources for \"$BIN_DEST\""
 	build_objs "${OBJECTS[@]}"
 
 	unameOut="$(uname -s)"
@@ -61,13 +69,13 @@ function build() {
 			fi
 			printf "	-> Linking for Darwin, EXTRA_LDFLAGS=$EXTRA_LDFLAGS\\n";;
 	esac
-	echo "==> Linking \"$BIN_NAME\""
-	echo "	LD -o $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS $EXTRA_LDFLAGS"
+	echo "==> Linking \"$BIN_DEST\""
+	echo "	LD -o $BIN_DEST ${COMPILED_OBJECTS[@]} $LDFLAGS $EXTRA_LDFLAGS"
 
-	$CC $CFLAGS -o $BIN_NAME ${COMPILED_OBJECTS[@]} $LDFLAGS $EXTRA_LDFLAGS
+	$CC $CFLAGS -o $BIN_DEST ${COMPILED_OBJECTS[@]} $LDFLAGS $EXTRA_LDFLAGS
 
 	if [ $RELEASE ]; then
-		echo "	STRIP $BIN_NAME"
+		echo "	STRIP $BIN_DEST"
 
 		STRIPFLAGS="--strip-all"
 		unameOut="\$(uname -s)"
@@ -80,10 +88,6 @@ function build() {
 }
 
 function setup() {
-	if [ ! -d "$OBJDIR" ]; then
-		mkdir $OBJDIR
-	fi
-
 	if [ ! -f "lib/libmcfg_2.a" ]; then
 		echo "==> libmcfg_2 is missing, running setup.bash"
 
@@ -115,9 +119,13 @@ fi
 if [ "$1" = "--release" ]; then
 	echo "==> Building in release mode"
 	CFLAGS="$BASE_CFLAGS $RELEASE_CFLAGS"
+	OBJ="$RELEASE_DIR""$OBJ_DIR"
+	BIN_DEST="$RELEASE_DIR""$BIN_NAME"
 	RELEASE=1
 else
 	CFLAGS="$BASE_CFLAGS $DEBUG_CFLAGS"
+	OBJ="$DEBUG_DIR""$OBJ_DIR"
+	BIN_DEST="$DEBUG_DIR""$BIN_NAME"
 fi
 
 setup
