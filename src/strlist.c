@@ -26,15 +26,20 @@ void strlist_append(strlist_t *strlist, char *item) {
 		return;
 	}
 
-	size_t ix = strlist->item_count;
-	strlist->item_count++;
-
 	if (strlist->item_count >= strlist->capacity) {
+		strlist->capacity = sizeof(*strlist->items) * strlist->capacity * 2;
 		strlist->items = XREALLOC(
-			strlist->items, sizeof(*strlist->items) * strlist->item_count);
+			strlist->items, strlist->capacity);
 	}
 
-	strlist->items[ix] = item;
+	if(strlist->items == NULL) {
+		strlist->items = XMALLOC(32 * sizeof(*strlist->items));
+		strlist->capacity = 32;
+		strlist->item_count = 0;
+	}
+
+	strlist->items[strlist->item_count] = item;
+	strlist->item_count++;
 }
 
 char *strlist_get(strlist_t *strlist, size_t index) {
