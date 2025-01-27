@@ -21,6 +21,7 @@
 
 #include "executor.h"
 #include "logging.h"
+#include "signals.h"
 #include "xmem.h"
 
 /* this is such a disgusting hack i dont even want to think about it */
@@ -100,6 +101,7 @@ process_t mb_exec_parallel(char *script, char *name) {
 
 	int pid = fork();
 	if (pid != 0) {
+		mb_register_tmp_file(name);
 		return (process_t){.pid = pid, .location = name};
 	}
 

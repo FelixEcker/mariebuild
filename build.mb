@@ -19,6 +19,7 @@ sector config
 			'types',
 			'executor',
 			'c_rule',
+			'signals',
 			'target',
 			'build',
 			'main'
