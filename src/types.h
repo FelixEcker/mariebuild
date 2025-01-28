@@ -9,7 +9,7 @@
 
 #include <stddef.h>
 
-#include "strlist.h"
+#include "cptrlist.h"
 
 typedef enum build_type {
 	BUILD_TYPE_FULL = 0,
@@ -21,7 +21,7 @@ typedef struct config {
 	build_type_t build_type;
 	char *default_target;
 	char *target;
-	strlist_t public_targets;
+	CPtrList public_targets;
 	bool always_force;
 	bool ignore_failures;
 } config_t;

@@ -49,7 +49,7 @@ function build_objs() {
 }
 
 function build() {
-	OBJECTS=("strlist signals logging types executor c_rule target build main")
+	OBJECTS=("stringutil cptrlist signals logging types executor c_rule target build main")
 
 	echo "==> Compiling Sources for \"$BIN_DEST\""
 	build_objs "${OBJECTS[@]}"

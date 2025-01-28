@@ -12,17 +12,17 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "cptrlist.h"
 #include "logging.h"
 #include "signals.h"
-#include "strlist.h"
 
-strlist_t tmp_files;
+CPtrList tmp_files;
 bool initialised = false;
 
 void mb_signal_generic_handler(int signal) {
 	mb_logf(LOG_ERROR, "signal %d received, quitting...\n", signal);
-	for (size_t ix = 0; ix < tmp_files.item_count; ix++) {
-		char *item = strlist_get(&tmp_files, ix);
+	for (size_t ix = 0; ix < tmp_files.size; ix++) {
+		char *item = tmp_files.items[ix];
 		if (item == NULL) {
 			continue;
 		}
@@ -39,7 +39,7 @@ void mb_install_signal_handlers(void) {
 	signal(SIGQUIT, &mb_signal_generic_handler);
 	signal(SIGTERM, &mb_signal_generic_handler);
 
-	tmp_files = strlist_new(16, true);
+	cptrlist_init(&tmp_files, 16, 8);
 	initialised = true;
 }
 
@@ -48,5 +48,5 @@ void mb_register_tmp_file(char *path) {
 		return;
 	}
 
-	strlist_append(&tmp_files, strdup(path));
+	cptrlist_append(&tmp_files, strdup(path));
 }

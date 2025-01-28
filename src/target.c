@@ -10,12 +10,13 @@
 #include <string.h>
 
 #include "c_rule.h"
+#include "cptrlist.h"
 #include "executor.h"
 #include "logging.h"
 #include "mcfg.h"
 #include "mcfg_format.h"
 #include "mcfg_util.h"
-#include "strlist.h"
+#include "stringutil.h"
 #include "target.h"
 #include "types.h"
 #include "xmem.h"
@@ -44,10 +45,11 @@ bool remove_dynfield(mcfg_file_t *file, char *name) {
 	return true;
 }
 
-strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
+CPtrList link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
 	const char *prefix = "target_";
 
-	strlist_t ret = strlist_new(target->field_count, true);
+	CPtrList ret;
+	cptrlist_init(&ret, target->field_count, 1);
 
 	for (size_t ix = 0; ix < target->field_count; ix++) {
 		mcfg_field_t *field = &target->fields[ix];
@@ -77,14 +79,14 @@ strlist_t link_target_fields(mcfg_file_t *file, mcfg_section_t *target) {
 		}
 		mb_logf(LOG_DEBUG, "linked field \"%s\"\n", field->name);
 
-		strlist_append(&ret, strdup(field->name));
+		cptrlist_append(&ret, strdup(field->name));
 	}
 
 	return ret;
 }
 
-void unlink_target_fields(mcfg_file_t *file, strlist_t fields) {
-	for (size_t ix = 0; ix < fields.item_count; ix++) {
+void unlink_target_fields(mcfg_file_t *file, CPtrList fields) {
+	for (size_t ix = 0; ix < fields.size; ix++) {
 		remove_dynfield(file, fields.items[ix]);
 		mb_logf(LOG_DEBUG, "unlinked fields \"%s\"\n", fields.items[ix]);
 	}
@@ -93,7 +95,7 @@ void unlink_target_fields(mcfg_file_t *file, strlist_t fields) {
 int run_required_targets(
 	mcfg_file_t *file,
 	mcfg_section_t *target,
-	strlist_t *target_history,
+	CPtrList *target_history,
 	const config_t cfg) {
 	mcfg_field_t *field_required_targets =
 		mcfg_get_field(target, "required_targets");
@@ -148,7 +150,7 @@ int run_required_targets(
 int mb_run_target(
 	mcfg_file_t *file,
 	mcfg_section_t *target,
-	strlist_t *target_history,
+	CPtrList *target_history,
 	const config_t cfg) {
 	if (target_history == NULL) {
 		mb_log(
@@ -157,21 +159,22 @@ int mb_run_target(
 		return 1;
 	}
 
-	if (strlist_contains_value(target_history, target->name) != -1) {
+	if (cptrlist_find(target_history, target->name, &string_cptrlist_search) !=
+		-1) {
 		mb_logf(
 			LOG_ERROR, "circular target dependency for target \"%s\"\n",
 			target->name);
 		mb_log(LOG_ERROR, "target history:\n");
-		for (size_t ix = 0; ix < target_history->item_count; ix++) {
-			mb_logf(LOG_ERROR, "  %s\n", strlist_get(target_history, ix));
+		for (size_t ix = 0; ix < target_history->size; ix++) {
+			mb_logf(LOG_ERROR, "  %s\n", target_history->items[ix]);
 		}
 		return 1;
 	}
 
-	strlist_append(target_history, strdup(target->name));
+	cptrlist_append(target_history, strdup(target->name));
 
 	/* "Link" fields with target_ prefix to dynfields with the same name */
-	strlist_t linked_fields = link_target_fields(file, target);
+	CPtrList linked_fields = link_target_fields(file, target);
 
 	mb_logf(LOG_INFO, "building target \"%s\"\n", target->name);
 
@@ -234,14 +237,15 @@ int mb_run_target(
 	}
 
 exit:;
-	int ix = strlist_contains_value(target_history, target->name);
+	int ix =
+		cptrlist_find(target_history, target->name, &string_cptrlist_search);
 	if (ix > -1) {
 		XFREE(target_history->items[ix]);
 	}
 
 	unlink_target_fields(file, linked_fields);
-	strlist_destroy(&linked_fields);
+	cptrlist_destroy(&linked_fields);
 
-	target_history->item_count--;
+	target_history->size--;
 	return ret;
 }
