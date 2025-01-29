@@ -16,7 +16,16 @@
 #include "logging.h"
 #include "signals.h"
 
-CPtrList tmp_files;
+#define SIGNAL_CHECKED(s, h)                                                 \
+	do {                                                                     \
+		if (signal(s, h) == SIG_ERR) {                                       \
+			mb_logf(                                                         \
+				LOG_WARNING, "failed to install handle for signal %d\n", s); \
+			perror("signal failure");                                        \
+		}                                                                    \
+	} while (0)
+
+volatile CPtrList tmp_files;
 bool initialised = false;
 
 void mb_signal_generic_handler(int signal) {
@@ -34,10 +43,10 @@ void mb_signal_generic_handler(int signal) {
 }
 
 void mb_install_signal_handlers(void) {
-	signal(SIGHUP, &mb_signal_generic_handler);
-	signal(SIGINT, &mb_signal_generic_handler);
-	signal(SIGQUIT, &mb_signal_generic_handler);
-	signal(SIGTERM, &mb_signal_generic_handler);
+	SIGNAL_CHECKED(SIGHUP, &mb_signal_generic_handler);
+	SIGNAL_CHECKED(SIGINT, &mb_signal_generic_handler);
+	SIGNAL_CHECKED(SIGQUIT, &mb_signal_generic_handler);
+	SIGNAL_CHECKED(SIGTERM, &mb_signal_generic_handler);
 
 	cptrlist_init(&tmp_files, 16, 8);
 	initialised = true;
