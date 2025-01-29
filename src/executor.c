@@ -17,6 +17,7 @@
 #include <string.h>
 
 #include <fcntl.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
 #include "executor.h"
@@ -79,14 +80,18 @@ int mb_exec(char *script, char *name) {
 		goto exit;
 	}
 
-	ret = system(name);
-	if (ret != 0) {
-		mb_logf(
-			LOG_ERROR, "execution for script \"%s\" failed: 0x%08x%s\n", name,
-			ret, ret < 0 ? " (system() call failed)" : "");
+	mb_register_tmp_file(name);
+
+	int pid = fork();
+	if (pid == 0) {
+		execl("/bin/sh", "sh", "-c", name, (char *)NULL);
+		__builtin_unreachable();
 	}
 
+	waitpid(pid, &ret, 0);
+
 	remove(name);
+	mb_unregister_tmp_file(script);
 
 exit:
 	XFREE(name);
