@@ -50,3 +50,7 @@ void mb_register_tmp_file(char *path) {
 
 	cptrlist_append(&tmp_files, strdup(path));
 }
+
+void mb_unregister_tmp_file(char *path) {
+	cptrlist_free(&tmp_files, path);
+}

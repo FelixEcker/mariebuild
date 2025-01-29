@@ -15,4 +15,6 @@ void mb_install_signal_handlers(void);
 
 void mb_register_tmp_file(char *path);
 
+void mb_unregister_tmp_file(char *path);
+
 #endif

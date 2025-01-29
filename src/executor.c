@@ -108,3 +108,8 @@ process_t mb_exec_parallel(char *script, char *name) {
 	execl("/bin/sh", "sh", "-c", name, (char *)NULL);
 	__builtin_unreachable();
 }
+
+void mb_remove_script(char *script) {
+	remove(script);
+	mb_unregister_tmp_file(script);
+}
