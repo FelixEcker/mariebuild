@@ -17,4 +17,6 @@ int mb_exec(char *script, char *name);
 
 process_t mb_exec_parallel(char *script, char *name);
 
+void mb_remove_script(char *script);
+
 #endif /* #ifndef EXECUTOR_H */

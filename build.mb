@@ -14,11 +14,13 @@ sector config
 
 		; Sources
 		list str sources
-			'strlist',
+			'cptrlist',
 			'logging',
+			'stringutil',
 			'types',
 			'executor',
 			'c_rule',
+			'signals',
 			'target',
 			'build',
 			'main'
@@ -174,7 +176,7 @@ sector c_rules
 		; Run the 'exec' command for each input element.
 		str exec_mode 'singular'
 		bool parallel true
-		u8 max_procs 1
+		u8 max_procs 16
 
 		; Declare our set of input elements. If no output list is defined,
 		; the input list is used for that as well.

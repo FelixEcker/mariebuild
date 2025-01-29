@@ -11,7 +11,7 @@
 #include "ansi.h"
 #include "logging.h"
 
-log_level_t mb_log_level;
+log_level_t mb_log_level = LOG_STEPS;
 
 log_level_t str_to_loglvl(char *str) {
 	if (str == NULL) {

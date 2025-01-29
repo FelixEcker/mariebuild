@@ -327,7 +327,7 @@ int _find_process_slot(
 				break;
 			}
 
-			remove(processes[pix].location);
+			mb_remove_script(processes[pix].location);
 			XFREE(processes[pix].location);
 			*process_ix = pix;
 			break;
@@ -530,7 +530,7 @@ int run_singular(
 			ret = stat;
 		}
 
-		remove(processes[pix].location);
+		mb_remove_script(processes[pix].location);
 		XFREE(processes[pix].location);
 	}
 

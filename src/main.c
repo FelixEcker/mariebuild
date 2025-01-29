@@ -13,6 +13,7 @@
 #include "build.h"
 #include "logging.h"
 #include "mcfg.h"
+#include "signals.h"
 
 #define MARIEBUILD_COLORED_LOGO
 
@@ -109,5 +110,6 @@ int main(int argc, char **argv) {
 
 	mb_log_level = args.verbosity;
 
+	mb_install_signal_handlers();
 	return mb_start(args);
 }

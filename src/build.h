@@ -9,7 +9,6 @@
 
 #include "logging.h"
 #include "mcfg.h"
-#include "strlist.h"
 #include "types.h"
 
 typedef struct args {

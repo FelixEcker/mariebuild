@@ -7,9 +7,11 @@
 #include <stdlib.h>
 
 #include "build.h"
+#include "cptrlist.h"
 #include "logging.h"
 #include "mcfg.h"
 #include "mcfg_util.h"
+#include "stringutil.h"
 #include "target.h"
 #include "types.h"
 #include "xmem.h"
@@ -18,7 +20,7 @@ config_t default_config = {
 	.build_type = BUILD_TYPE_INCREMENTAL,
 	.default_target = "debug",
 	.target = NULL,
-	.public_targets = {.capacity = 0, .item_count = 0, .items = NULL},
+	.public_targets = {.capacity = 0},
 	.always_force = false,
 	.ignore_failures = false,
 };
@@ -54,7 +56,7 @@ config_t mb_load_configuration(mcfg_file_t file, args_t args) {
 	mcfg_field_t *field_targets = mcfg_get_field(config, "targets");
 	if (field_targets != NULL) {
 		mcfg_list_t targets = *mcfg_data_as_list(*field_targets);
-		ret.public_targets = strlist_new(targets.field_count, false);
+		cptrlist_init(&ret.public_targets, 8, 8);
 
 		if (targets.type != TYPE_STRING) {
 			mb_log(LOG_WARNING, "mariebuild target list is not a string-list!");
@@ -63,15 +65,15 @@ config_t mb_load_configuration(mcfg_file_t file, args_t args) {
 		for (size_t ix = 0; ix < targets.field_count; ix++) {
 			char *str = mcfg_data_as_string(targets.fields[ix]);
 			if (str != NULL) {
-				strlist_append(&ret.public_targets, str);
+				cptrlist_append(&ret.public_targets, strdup(str));
 			}
 		}
 
 		mb_logf(
 			LOG_DEBUG, "registered %zu public targets\n",
-			ret.public_targets.item_count);
+			ret.public_targets.size);
 
-		strlist_destroy(&fallback.public_targets);
+		cptrlist_destroy(&fallback.public_targets);
 	} else {
 		ret.public_targets = fallback.public_targets;
 	}
@@ -112,8 +114,8 @@ config_t mb_load_configuration(mcfg_file_t file, args_t args) {
 }
 
 int mb_start(args_t args) {
-	default_config.public_targets = strlist_new(1, false);
-	strlist_append(&default_config.public_targets, "debug");
+	cptrlist_init(&default_config.public_targets, 1, 8);
+	cptrlist_append(&default_config.public_targets, strdup("debug"));
 
 	mb_log(LOG_DEBUG, "using MCFG/2 " MCFG_2_VERSION "\n");
 
@@ -147,7 +149,7 @@ int mb_start(args_t args) {
 		mb_log(LOG_INFO, "build succeeded!\n");
 	}
 
-	strlist_destroy(&cfg.public_targets);
+	cptrlist_destroy(&cfg.public_targets);
 	mcfg_free_file(file);
 	return return_code;
 }
@@ -168,9 +170,10 @@ int mb_begin_build(mcfg_file_t *file, config_t cfg) {
 		return 1;
 	}
 
-	strlist_t history = strlist_new(1, true);
+	CPtrList history;
+	cptrlist_init(&history, 1, 4);
 	int ret = mb_run_target(file, target, &history, cfg);
-	strlist_destroy(&history);
+	cptrlist_destroy(&history);
 
 	return ret;
 }
