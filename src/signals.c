@@ -25,7 +25,7 @@
 		}                                                                    \
 	} while (0)
 
-volatile CPtrList tmp_files;
+CPtrList tmp_files;
 bool initialised = false;
 
 void mb_signal_generic_handler(int signal) {
