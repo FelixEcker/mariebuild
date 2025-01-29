@@ -175,7 +175,7 @@ sector c_rules
 	section main
 		; Run the 'exec' command for each input element.
 		str exec_mode 'singular'
-		bool parallel false
+		bool parallel true
 		u8 max_procs 16
 
 		; Declare our set of input elements. If no output list is defined,
