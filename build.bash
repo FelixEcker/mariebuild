@@ -83,7 +83,7 @@ function build() {
 		  Darwin*)    STRIPFLAGS="-S -X";;
 		esac
 
-		strip $STRIPFLAGS ./mb
+		strip $STRIPFLAGS $BIN_DEST
 	fi
 }
 
