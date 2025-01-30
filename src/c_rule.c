@@ -511,7 +511,7 @@ int run_singular(
 	dynfield_output->data = NULL;
 
 	if (used_processes == 0) {
-		return ret;
+		goto exit;
 	}
 
 	/* cleanup remaining child processes */
@@ -534,6 +534,7 @@ int run_singular(
 		XFREE(processes[pix].location);
 	}
 
+exit:;
 	if (processes != NULL) {
 		XFREE(processes);
 	}
