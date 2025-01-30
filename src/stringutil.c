@@ -14,7 +14,7 @@ bool string_cptrlist_search(void *a, void *b) {
 		return false;
 	}
 
-	return strcmp(str_a, str_b);
+	return strcmp(str_a, str_b) == 0;
 }
 
 char *strdup(const char *in) {
