@@ -1,3 +1,9 @@
+/* stringutil.c ; mariebuild build string utilities
+ *
+ * Copyright (c) 2025, Marie Eckert
+ * Licensend under the BSD 3-Clause License.
+ */
+
 #include <stdlib.h>
 #include <string.h>
 
