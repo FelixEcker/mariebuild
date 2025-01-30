@@ -109,13 +109,6 @@ function setup() {
 
 echo "MB build script. "
 
-if [ "$1" = "--compile-flags" ]; then
-	sed --posix 's/ /\n/g' <<<"${CFLAGS[@]}" > compile_flags.txt
-
-	echo "==> Generated compile_flags.txt"
-	exit
-fi
-
 if [ "$1" = "--release" ]; then
 	echo "==> Building in release mode"
 	CFLAGS="$BASE_CFLAGS $RELEASE_CFLAGS"
@@ -126,6 +119,13 @@ else
 	CFLAGS="$BASE_CFLAGS $DEBUG_CFLAGS"
 	OBJ="$DEBUG_DIR""$OBJ_DIR"
 	BIN_DEST="$DEBUG_DIR""$BIN_NAME"
+fi
+
+if [ "$1" = "--compile-flags" ]; then
+	sed --posix 's/ /\n/g' <<<"${CFLAGS[@]}" > compile_flags.txt
+
+	echo "==> Generated compile_flags.txt"
+	exit
 fi
 
 setup
