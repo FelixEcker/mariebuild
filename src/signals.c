@@ -15,6 +15,7 @@
 #include "cptrlist.h"
 #include "logging.h"
 #include "signals.h"
+#include "stringutil.h"
 
 #define SIGNAL_CHECKED(s, h)                                                 \
 	do {                                                                     \
@@ -61,5 +62,6 @@ void mb_register_tmp_file(char *path) {
 }
 
 void mb_unregister_tmp_file(char *path) {
-	cptrlist_free(&tmp_files, path);
+	size_t ix = cptrlist_find(&tmp_files, path, &string_cptrlist_search);
+	cptrlist_free_at(&tmp_files, ix);
 }
