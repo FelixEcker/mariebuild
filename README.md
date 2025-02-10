@@ -45,3 +45,7 @@ Report bugs to https://github.com/FelixEcker/mariebuild/issues.
 
 ## License
 Mariebuild is licensed under the BSD 3-Clause License, see [The LICENSE file](https://github.com/FelixEcker/mariebuild/blob/master/LICENSE).
+
+## Links
+
+* [radicle mirror](https://app.radicle.xyz/nodes/seed.radicle.garden/rad:zXKPxNiqRY8bCHWK6XLdJLRRCjai)
